@@ -1,0 +1,230 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-display: var(--font-archivo-black), 'Impact', sans-serif;
+  --font-body:    var(--font-inter), system-ui, sans-serif;
+  --font-mono:    var(--font-jetbrains-mono), ui-monospace, monospace;
+
+  /* Brutalist palette — cream default */
+  --bg:     #F2F0E6;
+  --ink:    #0F0F0F;
+  --paper:  #FBF8EE;
+  --yellow: #F5E13E;
+  --red:    #E63322;
+  --green:  #2EC25E;
+  --border: 2px solid #0F0F0F;
+  --shadow: 5px 5px 0 0 #0F0F0F;
+  --shadow-sm: 3px 3px 0 0 #0F0F0F;
+  --radius: 4px;
+}
+
+html { background: var(--bg); }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Display / headline ─────────────────────────────── */
+.rg-display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: -0.03em;
+  line-height: 0.88;
+}
+
+/* Yellow highlight — for emphasized words in headlines */
+.rg-em {
+  background: var(--yellow);
+  color: var(--ink);
+  padding: 0 0.12em;
+  display: inline-block;
+  transform: rotate(-1.2deg);
+  box-shadow: 3px 3px 0 0 var(--ink);
+  border: 2px solid var(--ink);
+  border-radius: 2px;
+}
+
+/* ── Mono label ─────────────────────────────────────── */
+.rg-mono {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--red);
+}
+
+/* ── Cards ──────────────────────────────────────────── */
+.rg-card {
+  background: var(--paper);
+  border: var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+.rg-card-yellow {
+  background: var(--yellow);
+  border: var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+.rg-card-ink {
+  background: var(--ink);
+  border: var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  color: var(--paper);
+}
+
+/* ── Buttons ─────────────────────────────────────────── */
+.rg-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 20px;
+  font-family: var(--font-display);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: var(--radius);
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+  text-decoration: none;
+}
+.rg-btn-primary {
+  background: var(--ink);
+  color: var(--paper);
+  border: var(--border);
+  box-shadow: var(--shadow-sm);
+}
+.rg-btn-primary:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: var(--shadow);
+}
+.rg-btn-yellow {
+  background: var(--yellow);
+  color: var(--ink);
+  border: var(--border);
+  box-shadow: var(--shadow-sm);
+}
+.rg-btn-yellow:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: var(--shadow);
+}
+.rg-btn-ghost {
+  background: var(--paper);
+  color: var(--ink);
+  border: var(--border);
+  box-shadow: var(--shadow-sm);
+}
+.rg-btn-ghost:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: var(--shadow);
+}
+
+/* ── Inputs ──────────────────────────────────────────── */
+.rg-input {
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--paper);
+  border: var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  outline: none;
+}
+.rg-input::placeholder { color: rgba(15,15,15,0.38); }
+.rg-input:focus { box-shadow: var(--shadow); }
+
+/* ── Sticker badges ──────────────────────────────────── */
+.rg-sticker {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 1.5px solid var(--ink);
+  border-radius: 2px;
+  box-shadow: 1.5px 1.5px 0 0 var(--ink);
+  background: var(--yellow);
+  color: var(--ink);
+}
+.rg-sticker-red   { background: var(--red);   color: #fff; }
+.rg-sticker-green { background: var(--green);  color: var(--ink); }
+.rg-sticker-ink   { background: var(--ink);   color: var(--paper); }
+.rg-sticker-paper { background: var(--paper); color: var(--ink); }
+
+/* ── Divider ─────────────────────────────────────────── */
+.rg-divider { height: 2px; background: var(--ink); }
+
+/* ── Image placeholder ───────────────────────────────── */
+.rg-img-ph {
+  background: repeating-linear-gradient(
+    135deg,
+    rgba(15,15,15,0.07) 0 7px,
+    rgba(15,15,15,0.02) 7px 16px
+  ), #E8E2D0;
+  border: 2px solid var(--ink);
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: rgba(15,15,15,0.5);
+  text-align: center;
+  padding: 6px;
+}
+
+/* ── Marquee ─────────────────────────────────────────── */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.marquee-track { animation: marquee 30s linear infinite; }
+
+/* ── Scroll hide ─────────────────────────────────────── */
+* { scrollbar-width: none; }
+*::-webkit-scrollbar { display: none; }
+
+/* ── Homepage hero — responsive ─────────────────────── */
+.hero-section {
+  padding: 64px 36px 52px;
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 48px;
+  align-items: center;
+}
+.hero-phone {
+  display: flex;
+  justify-content: flex-end;
+  position: relative;
+}
+@media (max-width: 640px) {
+  .hero-section {
+    grid-template-columns: 1fr;
+    padding: 40px 20px 32px;
+    gap: 32px;
+  }
+  .hero-phone {
+    justify-content: center;
+    order: 1;
+  }
+  .hero-phone > div {
+    width: 220px !important;
+  }
+  .hero-content { order: 0; }
+}
