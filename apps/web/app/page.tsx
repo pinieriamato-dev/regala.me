@@ -46,22 +46,6 @@ const FAQS = [
   { q: '¿Y si no quiero saber qué me van a regalar?', a: 'Modo sorpresa total. La lista funciona normal para tus amigos, pero vos no ves nada hasta el evento.' },
 ]
 
-function Logomark() {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-      {/* Gift tag mark */}
-      <svg width={32} height={32} viewBox="0 0 32 32" fill="none">
-        <path d="M6 8 L6 28 L26 28 L26 8 L18 8 L16 4 L14 8 Z" fill="#F5E13E" stroke="#0F0F0F" strokeWidth="2" strokeLinejoin="round"/>
-        <circle cx="16" cy="7" r="2" fill="none" stroke="#0F0F0F" strokeWidth="1.5"/>
-        <circle cx="22" cy="10" r="2.5" fill="#E63322"/>
-      </svg>
-      <span style={{ fontFamily: 'var(--font-archivo-black)', fontSize: 22, letterSpacing: -0.5 }}>
-        regala<span style={{ color: '#E63322' }}>.</span><span style={{ fontSize: 18 }}>me</span>
-      </span>
-    </div>
-  )
-}
-
 const MOCK_PHONE_ITEMS = [
   { t: 'Cafetera Moka', claimed: 'TOMÁS' },
   { t: 'Botella de Malbec', claimed: null },
@@ -70,24 +54,33 @@ const MOCK_PHONE_ITEMS = [
   { t: 'Plantita monstera', claimed: 'CAMI' },
 ]
 
+function Logomark() {
+  return (
+    <div className="flex items-center gap-2.5">
+      <svg width={32} height={32} viewBox="0 0 32 32" fill="none">
+        <path d="M6 8 L6 28 L26 28 L26 8 L18 8 L16 4 L14 8 Z" fill="#F5E13E" stroke="#0F0F0F" strokeWidth="2" strokeLinejoin="round"/>
+        <circle cx="16" cy="7" r="2" fill="none" stroke="#0F0F0F" strokeWidth="1.5"/>
+        <circle cx="22" cy="10" r="2.5" fill="#E63322"/>
+      </svg>
+      <span style={{ fontFamily: 'var(--font-display)', fontSize: 22, letterSpacing: -0.5 }}>
+        regala<span style={{ color: '#E63322' }}>.</span><span style={{ fontSize: 18 }}>me</span>
+      </span>
+    </div>
+  )
+}
+
 export default function HomePage() {
   return (
-    <div className="min-h-screen" style={{ background: 'var(--bg)', color: 'var(--ink)' }}>
+    <div className="min-h-screen bg-bg text-ink">
 
       {/* ── NAV ─────────────────────────────────────────── */}
-      <nav style={{
-        padding: '16px 36px',
-        borderBottom: '2px solid var(--ink)',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        background: 'var(--paper)',
-        position: 'sticky', top: 0, zIndex: 20,
-      }}>
+      <nav className="sticky top-0 z-20 flex items-center justify-between px-5 md:px-9 py-4 bg-paper border-b-2 border-ink">
         <Logomark />
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-          <Link href="/auth" className="rg-btn rg-btn-ghost" style={{ padding: '8px 14px', fontSize: 12 }}>
+        <div className="flex gap-2 items-center">
+          <Link href="/auth" className="rg-btn rg-btn-ghost" style={{ padding: '8px 12px', fontSize: 11 }}>
             INGRESAR
           </Link>
-          <Link href="/auth?mode=signup" className="rg-btn rg-btn-primary" style={{ padding: '8px 16px', fontSize: 12 }}>
+          <Link href="/auth?mode=signup" className="rg-btn rg-btn-primary" style={{ padding: '8px 14px', fontSize: 11 }}>
             EMPEZAR →
           </Link>
         </div>
@@ -96,23 +89,21 @@ export default function HomePage() {
       {/* ── HERO ─────────────────────────────────────────── */}
       <section className="hero-section">
         <div className="hero-content">
-          <div className="rg-mono" style={{ marginBottom: 14 }}>
-            v1 · DESDE BUENOS AIRES · PARA LATAM
-          </div>
-          <h1 className="rg-display" style={{ fontSize: 'clamp(3rem, 10vw, 8rem)', lineHeight: 0.88, marginBottom: 22 }}>
+          <div className="rg-mono mb-3">v1 · Desde Buenos Aires · para LATAM</div>
+          <h1 className="rg-display mb-5" style={{ fontSize: 'clamp(3rem, 10vw, 8rem)', lineHeight: 0.88 }}>
             TU LISTA<br />
             DE REGALOS,<br />
             <span className="rg-em">SIN DRAMAS.</span>
           </h1>
-          <p style={{ fontSize: 18, lineHeight: 1.5, color: 'rgba(15,15,15,0.8)', maxWidth: 480, marginBottom: 28 }}>
+          <p className="mb-7 text-base leading-relaxed" style={{ color: 'rgba(15,15,15,0.8)', maxWidth: 480 }}>
             Compartí una lista, tus amigos eligen lo que traen, nadie llega con la misma cosa.
             Sin instalar nada, sin grupos infinitos peleándose por quién compra qué.
           </p>
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-            <Link href="/auth?mode=signup" className="rg-btn rg-btn-primary" style={{ padding: '16px 24px' }}>
+          <div className="flex flex-col sm:flex-row gap-2.5">
+            <Link href="/auth?mode=signup" className="rg-btn rg-btn-primary text-center" style={{ padding: '16px 24px' }}>
               CREAR MI LISTA →
             </Link>
-            <Link href="#como-funciona" className="rg-btn rg-btn-ghost" style={{ padding: '16px 24px' }}>
+            <Link href="#como-funciona" className="rg-btn rg-btn-ghost text-center" style={{ padding: '16px 24px' }}>
               VER CÓMO FUNCIONA
             </Link>
           </div>
@@ -135,25 +126,18 @@ export default function HomePage() {
             boxShadow: '10px 10px 0 0 var(--ink)',
             padding: 18, transform: 'rotate(2deg)',
           }}>
-            <div className="rg-display" style={{ fontSize: 34, lineHeight: 0.9, letterSpacing: -1, marginBottom: 14 }}>
+            <div className="rg-display mb-3" style={{ fontSize: 34, lineHeight: 0.9, letterSpacing: -1 }}>
               LOS <span className="rg-em">30</span><br />DE SOFÍ.
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <div className="flex flex-col gap-1.5">
               {MOCK_PHONE_ITEMS.map(item => (
-                <div key={item.t} style={{
-                  padding: '7px 10px', border: '2px solid var(--ink)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  fontSize: 11, fontWeight: 700,
-                }}>
+                <div key={item.t} className="flex items-center justify-between border-2 border-ink px-2.5 py-1.5" style={{ fontSize: 11, fontWeight: 700 }}>
                   <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 130 }}>
                     {item.t}
                   </span>
                   {item.claimed
                     ? <span className="rg-sticker rg-sticker-green" style={{ fontSize: 8 }}>✓ {item.claimed}</span>
-                    : <span style={{
-                        fontSize: 9, fontFamily: 'var(--font-display)',
-                        border: '1.5px dashed var(--ink)', padding: '2px 6px',
-                      }}>LIBRE</span>
+                    : <span style={{ fontSize: 9, fontFamily: 'var(--font-display)', border: '1.5px dashed var(--ink)', padding: '2px 6px' }}>LIBRE</span>
                   }
                 </div>
               ))}
@@ -163,61 +147,54 @@ export default function HomePage() {
       </section>
 
       {/* ── 3 STEPS ──────────────────────────────────────── */}
-      <section id="como-funciona" style={{
-        padding: '52px 36px',
-        background: 'var(--yellow)',
-        borderTop: '2px solid var(--ink)', borderBottom: '2px solid var(--ink)',
-      }}>
-        <div className="rg-mono" style={{ marginBottom: 6 }}>Cómo funciona</div>
-        <h2 className="rg-display" style={{ fontSize: 'clamp(2.5rem, 5vw, 5rem)', marginBottom: 28 }}>
+      <section id="como-funciona" className="px-5 md:px-9 py-12 md:py-14 bg-yellow border-y-2 border-ink">
+        <div className="rg-mono mb-1.5">Cómo funciona</div>
+        <h2 className="rg-display mb-7" style={{ fontSize: 'clamp(2.5rem, 5vw, 5rem)' }}>
           TRES PASOS. <span className="rg-em">NADA MÁS.</span>
         </h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 18 }}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {STEPS.map(s => (
-            <div key={s.n} className="rg-card" style={{ padding: 22 }}>
-              <div style={{
-                fontFamily: 'var(--font-display)', fontSize: 52, lineHeight: 1,
-                color: 'var(--red)', marginBottom: 10,
-              }}>{s.n}</div>
-              <div style={{ fontWeight: 800, fontSize: 18, marginBottom: 8 }}>{s.t}</div>
-              <div style={{ fontSize: 13, lineHeight: 1.5, color: 'rgba(15,15,15,0.82)' }}>{s.d}</div>
+            <div key={s.n} className="rg-card p-5">
+              <div className="text-red mb-2.5" style={{ fontFamily: 'var(--font-display)', fontSize: 52, lineHeight: 1 }}>{s.n}</div>
+              <div className="font-bold text-lg mb-2">{s.t}</div>
+              <div className="text-sm leading-relaxed" style={{ color: 'rgba(15,15,15,0.82)' }}>{s.d}</div>
             </div>
           ))}
         </div>
       </section>
 
       {/* ── ANTES Y DESPUÉS ──────────────────────────────── */}
-      <section style={{ padding: '52px 36px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40, alignItems: 'center' }}>
+      <section className="px-5 md:px-9 py-12 md:py-14">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 items-center">
           <div>
-            <div className="rg-mono" style={{ marginBottom: 6 }}>El antes y el después</div>
-            <h2 className="rg-display" style={{ fontSize: 'clamp(2.5rem, 5vw, 5.5rem)', marginBottom: 18 }}>
+            <div className="rg-mono mb-1.5">El antes y el después</div>
+            <h2 className="rg-display mb-5" style={{ fontSize: 'clamp(2.5rem, 5vw, 5.5rem)' }}>
               SIN ESTO,<br /><span className="rg-em">UN QUILOMBO.</span>
             </h2>
-            <p style={{ fontSize: 15, lineHeight: 1.6, color: 'rgba(15,15,15,0.82)' }}>
+            <p className="text-sm leading-relaxed" style={{ color: 'rgba(15,15,15,0.82)' }}>
               Todos pasamos por lo mismo: mensajes cruzados, tres personas trayendo lo mismo,
               alguien que se olvida qué prometió. <strong>regala.me</strong> hace que coordinarse no sea un trabajo.
             </p>
           </div>
-          <div style={{ border: '2px solid var(--ink)', boxShadow: 'var(--shadow)' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
-              <div style={{ padding: 20, borderRight: '2px solid var(--ink)', background: 'rgba(15,15,15,0.04)' }}>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 11, letterSpacing: 1.2, marginBottom: 12, color: 'rgba(15,15,15,0.5)' }}>
+          <div className="border-2 border-ink shadow-hard">
+            <div className="grid grid-cols-2">
+              <div className="p-4 md:p-5 border-r-2 border-ink" style={{ background: 'rgba(15,15,15,0.04)' }}>
+                <div className="mb-3" style={{ fontFamily: 'var(--font-display)', fontSize: 11, letterSpacing: 1.2, color: 'rgba(15,15,15,0.5)' }}>
                   SIN REGALA.ME
                 </div>
                 {WITHOUT.map(t => (
-                  <div key={t} style={{ fontSize: 12, lineHeight: 1.45, padding: '5px 0', borderTop: '1px solid rgba(15,15,15,0.1)', display: 'flex', gap: 7, color: 'rgba(15,15,15,0.75)' }}>
-                    <span style={{ color: 'var(--red)', fontWeight: 900 }}>✕</span> {t}
+                  <div key={t} className="flex gap-1.5 py-1 border-t border-ink/10 text-xs leading-snug" style={{ color: 'rgba(15,15,15,0.75)' }}>
+                    <span className="text-red font-black shrink-0">✕</span> {t}
                   </div>
                 ))}
               </div>
-              <div style={{ padding: 20, background: 'var(--yellow)' }}>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 11, letterSpacing: 1.2, marginBottom: 12 }}>
+              <div className="p-4 md:p-5 bg-yellow">
+                <div className="mb-3" style={{ fontFamily: 'var(--font-display)', fontSize: 11, letterSpacing: 1.2 }}>
                   CON REGALA.ME
                 </div>
                 {WITH.map(t => (
-                  <div key={t} style={{ fontSize: 12, lineHeight: 1.45, padding: '5px 0', borderTop: '1px solid rgba(15,15,15,0.15)', display: 'flex', gap: 7, fontWeight: 700 }}>
-                    <span style={{ color: 'var(--green)', fontWeight: 900 }}>✓</span> {t}
+                  <div key={t} className="flex gap-1.5 py-1 border-t border-ink/10 text-xs leading-snug font-bold">
+                    <span className="text-green font-black shrink-0">✓</span> {t}
                   </div>
                 ))}
               </div>
@@ -227,40 +204,36 @@ export default function HomePage() {
       </section>
 
       {/* ── USE CASES ────────────────────────────────────── */}
-      <section style={{ padding: '52px 36px', borderTop: '2px solid var(--ink)', background: 'rgba(15,15,15,0.035)' }}>
-        <div className="rg-mono" style={{ marginBottom: 6 }}>Sirve para</div>
-        <h2 className="rg-display" style={{ fontSize: 'clamp(2.5rem, 5vw, 5rem)', marginBottom: 24 }}>
+      <section className="px-5 md:px-9 py-12 md:py-14 border-t-2 border-ink" style={{ background: 'rgba(15,15,15,0.035)' }}>
+        <div className="rg-mono mb-1.5">Sirve para</div>
+        <h2 className="rg-display mb-6" style={{ fontSize: 'clamp(2.5rem, 5vw, 5rem)' }}>
           CUALQUIER <span className="rg-em">EXCUSA.</span>
         </h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
           {USE_CASES.map(([g, l]) => (
-            <div key={l} style={{
-              padding: 16, border: '2px solid var(--ink)', background: 'var(--paper)',
-              boxShadow: 'var(--shadow-sm)', display: 'flex', alignItems: 'center', gap: 12,
-            }}>
+            <div key={l} className="flex items-center gap-3 p-3 md:p-4 border-2 border-ink bg-paper shadow-hard-sm">
               <span style={{ fontFamily: 'var(--font-display)', fontSize: 28 }}>{g}</span>
-              <span style={{ fontWeight: 800, fontSize: 14 }}>{l}</span>
+              <span className="font-bold text-sm">{l}</span>
             </div>
           ))}
         </div>
       </section>
 
       {/* ── TESTIMONIALS ─────────────────────────────────── */}
-      <section style={{ padding: '52px 36px', borderTop: '2px solid var(--ink)' }}>
-        <div className="rg-mono" style={{ marginBottom: 6 }}>Lo que dice la gente</div>
-        <h2 className="rg-display" style={{ fontSize: 'clamp(2.5rem, 5vw, 5rem)', marginBottom: 28 }}>
+      <section className="px-5 md:px-9 py-12 md:py-14 border-t-2 border-ink">
+        <div className="rg-mono mb-1.5">Lo que dice la gente</div>
+        <h2 className="rg-display mb-7" style={{ fontSize: 'clamp(2.5rem, 5vw, 5rem)' }}>
           (PORQUE <span className="rg-em">FUNCIONA.</span>)
         </h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 18 }}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {TESTIMONIALS.map((t, i) => (
-            <div key={i} style={{
-              padding: 22, background: t.bg,
-              border: '2px solid var(--ink)', boxShadow: 'var(--shadow)',
+            <div key={i} className="p-5 border-2 border-ink shadow-hard" style={{
+              background: t.bg,
               transform: `rotate(${t.rotate})`,
             }}>
-              <div className="rg-display" style={{ fontSize: 56, lineHeight: 0.5, color: 'var(--red)' }}>"</div>
-              <div style={{ fontSize: 14, lineHeight: 1.5, marginTop: 10, fontWeight: 600 }}>{t.q}</div>
-              <div style={{ marginTop: 16, fontFamily: 'var(--font-display)', fontSize: 10, letterSpacing: 1 }}>
+              <div className="rg-display text-red" style={{ fontSize: 56, lineHeight: 0.5 }}>"</div>
+              <div className="text-sm leading-relaxed font-semibold mt-2.5">{t.q}</div>
+              <div className="mt-4" style={{ fontFamily: 'var(--font-display)', fontSize: 10, letterSpacing: 1 }}>
                 — {t.name.toUpperCase()} · {t.city.toUpperCase()}
               </div>
             </div>
@@ -269,36 +242,34 @@ export default function HomePage() {
       </section>
 
       {/* ── FAQ ──────────────────────────────────────────── */}
-      <section style={{
-        padding: '52px 36px',
-        background: 'var(--yellow)',
-        borderTop: '2px solid var(--ink)',
-      }}>
-        <div className="rg-mono" style={{ marginBottom: 6 }}>Preguntas</div>
-        <h2 className="rg-display" style={{ fontSize: 'clamp(2.5rem, 5vw, 5rem)', marginBottom: 28 }}>
+      <section className="px-5 md:px-9 py-12 md:py-14 bg-yellow border-t-2 border-ink">
+        <div className="rg-mono mb-1.5">Preguntas</div>
+        <h2 className="rg-display mb-7" style={{ fontSize: 'clamp(2.5rem, 5vw, 5rem)' }}>
           LAS DUDAS <span className="rg-em">DE SIEMPRE.</span>
         </h2>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {FAQS.map((f, i) => (
-            <div key={i} style={{
-              padding: '16px 18px', background: 'var(--paper)',
-              border: '2px solid var(--ink)', boxShadow: 'var(--shadow-sm)',
-            }}>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: 13, letterSpacing: 0.3, marginBottom: 6 }}>
+            <div key={i} className={`p-4 bg-paper border-2 border-ink shadow-hard-sm${i >= 3 ? ' hidden md:block' : ''}`}>
+              <div className="mb-1.5" style={{ fontFamily: 'var(--font-display)', fontSize: 13, letterSpacing: 0.3 }}>
                 {f.q.toUpperCase()}
               </div>
-              <div style={{ fontSize: 13, lineHeight: 1.55, color: 'rgba(15,15,15,0.82)' }}>{f.a}</div>
+              <div className="text-sm leading-relaxed" style={{ color: 'rgba(15,15,15,0.82)' }}>{f.a}</div>
             </div>
           ))}
+        </div>
+        <div className="mt-4 md:hidden">
+          <a href="#" className="rg-btn rg-btn-ghost block text-center" style={{ padding: '12px 20px' }}>
+            VER TODAS LAS PREGUNTAS →
+          </a>
         </div>
       </section>
 
       {/* ── BIG CTA ──────────────────────────────────────── */}
-      <section style={{ background: 'var(--ink)', padding: '72px 36px', textAlign: 'center' }}>
-        <h2 className="rg-display" style={{ fontSize: 'clamp(3rem, 8vw, 8rem)', color: 'var(--paper)', lineHeight: 0.88, marginBottom: 12 }}>
-          DEJÁ DE<br />PELEAR POR<br /><span style={{ color: 'var(--yellow)' }}>LOS REGALOS.</span>
+      <section className="px-5 md:px-9 py-16 md:py-20 text-center bg-ink">
+        <h2 className="rg-display text-paper mb-3" style={{ fontSize: 'clamp(2.5rem, 8vw, 8rem)', lineHeight: 0.88 }}>
+          DEJÁ DE<br />PELEAR POR<br /><span className="text-yellow">LOS REGALOS.</span>
         </h2>
-        <p style={{ color: 'rgba(251,248,238,0.6)', fontSize: 16, marginBottom: 32, marginTop: 16 }}>
+        <p className="mb-8 mt-4 text-base" style={{ color: 'rgba(251,248,238,0.6)' }}>
           Gratis. Sin instalar nada. En dos minutos.
         </p>
         <Link href="/auth?mode=signup" className="rg-btn rg-btn-yellow" style={{ padding: '18px 32px', fontSize: 16 }}>
@@ -307,17 +278,14 @@ export default function HomePage() {
       </section>
 
       {/* ── FOOTER ───────────────────────────────────────── */}
-      <footer style={{
-        borderTop: '2px solid var(--ink)', padding: '24px 36px',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      }}>
+      <footer className="border-t-2 border-ink px-5 md:px-9 py-6 flex flex-col sm:flex-row items-center gap-4 sm:justify-between">
         <Logomark />
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'rgba(15,15,15,0.5)' }}>
+        <div className="rg-mono text-center" style={{ fontSize: 10, color: 'rgba(15,15,15,0.5)' }}>
           hecho con · café · y · fernet · en BA
         </div>
-        <div style={{ display: 'flex', gap: 20, fontFamily: 'var(--font-display)', fontSize: 11, letterSpacing: 0.5 }}>
-          <Link href="/auth" style={{ color: 'inherit', textDecoration: 'none' }}>INGRESAR</Link>
-          <Link href="/auth?mode=signup" style={{ color: 'inherit', textDecoration: 'none' }}>REGISTRARSE</Link>
+        <div className="flex gap-5" style={{ fontFamily: 'var(--font-display)', fontSize: 11, letterSpacing: 0.5 }}>
+          <Link href="/auth" className="text-ink no-underline">INGRESAR</Link>
+          <Link href="/auth?mode=signup" className="text-ink no-underline">REGISTRARSE</Link>
         </div>
       </footer>
     </div>
