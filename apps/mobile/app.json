@@ -1,0 +1,27 @@
+{
+  "expo": {
+    "name": "regala.me",
+    "slug": "regala-me",
+    "scheme": "regalame",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "me.regala.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#E85D4A"
+      },
+      "package": "me.regala.app"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-splash-screen"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
