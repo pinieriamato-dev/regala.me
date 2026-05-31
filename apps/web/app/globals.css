@@ -20,7 +20,7 @@
   --radius: 4px;
 }
 
-html { background: var(--bg); }
+html { background: var(--bg); scroll-behavior: smooth; }
 
 body {
   background: var(--bg);
