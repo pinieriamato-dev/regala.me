@@ -1,13 +1,47 @@
 import { NextRequest } from 'next/server'
+import dns from 'node:dns/promises'
+
+// Private/loopback/link-local ranges — checked after DNS resolution to defeat DNS-rebinding
+// and redirect-based SSRF bypasses
+const PRIVATE_IPV4 = /^(127\.|10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|169\.254\.|0\.0\.0\.0)/
+const PRIVATE_IPV6 = /^(::1$|fc|fd|fe80:)/i
+
+async function isPrivateHost(hostname: string): Promise<boolean> {
+  try {
+    const records = await dns.lookup(hostname, { all: true })
+    return records.some(r => PRIVATE_IPV4.test(r.address) || PRIVATE_IPV6.test(r.address))
+  } catch {
+    return true // DNS failure → block
+  }
+}
+
+const FETCH_HEADERS = {
+  'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+  Accept: 'text/html,application/xhtml+xml',
+  'Accept-Language': 'es-AR,es;q=0.9,en;q=0.8',
+}
+
+async function readHtml(res: Response): Promise<string> {
+  const reader = res.body?.getReader()
+  if (!reader) return ''
+  const decoder = new TextDecoder()
+  let html = ''
+  let bytes = 0
+  while (bytes < 200_000) {
+    const { done, value } = await reader.read()
+    if (done) break
+    html += decoder.decode(value, { stream: true })
+    bytes += value.byteLength
+  }
+  reader.cancel()
+  return html
+}
 
 function getOGTag(html: string, property: string): string | null {
-  // Try property="og:X" content="..."
   let match = html.match(
     new RegExp(`<meta[^>]+property=["']og:${property}["'][^>]+content=["']([^"']+)["']`, 'i')
   )
   if (match) return match[1].trim()
-
-  // Try content="..." property="og:X"
   match = html.match(
     new RegExp(`<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:${property}["']`, 'i')
   )
@@ -26,7 +60,6 @@ function getMetaName(html: string, name: string): string | null {
 }
 
 function extractPrice(html: string): number | null {
-  // JSON-LD product schema
   const scriptMatches = html.matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)
   for (const scriptMatch of scriptMatches) {
     try {
@@ -42,11 +75,9 @@ function extractPrice(html: string): number | null {
     } catch { /* continue */ }
   }
 
-  // OG price tags
   const ogPrice = getOGTag(html, 'price:amount') ?? getMetaName(html, 'product:price:amount')
   if (ogPrice) return Number(ogPrice)
 
-  // Mercado Libre / common price patterns in HTML
   const pricePattern = html.match(/"price"\s*:\s*(\d+(?:[.,]\d+)?)/i)
   if (pricePattern) {
     const n = parseFloat(pricePattern[1].replace(',', '.'))
@@ -58,9 +89,7 @@ function extractPrice(html: string): number | null {
 
 export async function GET(request: NextRequest) {
   const rawUrl = request.nextUrl.searchParams.get('url')
-  if (!rawUrl) {
-    return Response.json({ error: 'URL requerida' }, { status: 400 })
-  }
+  if (!rawUrl) return Response.json({ error: 'URL requerida' }, { status: 400 })
 
   let targetUrl: URL
   try {
@@ -69,53 +98,67 @@ export async function GET(request: NextRequest) {
     return Response.json({ error: 'URL inválida' }, { status: 400 })
   }
 
-  // Only allow http/https
   if (!['http:', 'https:'].includes(targetUrl.protocol)) {
     return Response.json({ error: 'URL inválida' }, { status: 400 })
   }
 
-  // Block private/loopback addresses (SSRF prevention)
-  const SSRF_BLOCKLIST = /^(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|169\.254\.|\[::1\])/i
-  if (SSRF_BLOCKLIST.test(targetUrl.hostname)) {
+  // DNS-resolve before fetching — blocks SSRF even when attacker controls DNS
+  if (await isPrivateHost(targetUrl.hostname)) {
     return Response.json({ error: 'URL inválida' }, { status: 400 })
   }
 
   try {
+    // redirect: 'manual' — we re-validate any Location header before following,
+    // preventing redirect-chain SSRF (e.g. public host → 302 → 169.254.169.254)
     const res = await fetch(targetUrl.toString(), {
-      headers: {
-        'User-Agent':
-          'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
-        Accept: 'text/html,application/xhtml+xml',
-        'Accept-Language': 'es-AR,es;q=0.9,en;q=0.8',
-      },
+      headers: FETCH_HEADERS,
       signal: AbortSignal.timeout(8000),
+      redirect: 'manual',
     })
 
-    if (!res.ok) {
-      return Response.json({ error: 'No se pudo acceder al producto' }, { status: 422 })
-    }
+    // Handle one redirect level — re-validate destination hostname via DNS
+    if (res.status >= 300 && res.status < 400) {
+      const location = res.headers.get('location')
+      if (!location) return Response.json({ error: 'No se pudo acceder al producto' }, { status: 422 })
 
-    // Limit to first 200 KB — enough for head/OG tags
-    const reader = res.body?.getReader()
-    let html = ''
-    if (reader) {
-      const decoder = new TextDecoder()
-      let bytes = 0
-      while (bytes < 200_000) {
-        const { done, value } = await reader.read()
-        if (done) break
-        html += decoder.decode(value, { stream: true })
-        bytes += value.byteLength
+      let redirectUrl: URL
+      try {
+        redirectUrl = new URL(location, targetUrl)
+      } catch {
+        return Response.json({ error: 'URL inválida' }, { status: 400 })
       }
-      reader.cancel()
+
+      if (!['http:', 'https:'].includes(redirectUrl.protocol) || await isPrivateHost(redirectUrl.hostname)) {
+        return Response.json({ error: 'URL inválida' }, { status: 400 })
+      }
+
+      const res2 = await fetch(redirectUrl.toString(), {
+        headers: FETCH_HEADERS,
+        signal: AbortSignal.timeout(8000),
+        redirect: 'error', // no further redirects after one hop
+      })
+
+      if (!res2.ok) return Response.json({ error: 'No se pudo acceder al producto' }, { status: 422 })
+      const html = await readHtml(res2)
+      return Response.json({
+        title: getOGTag(html, 'title') ?? getMetaName(html, 'title'),
+        description: getOGTag(html, 'description') ?? getMetaName(html, 'description'),
+        image_url: getOGTag(html, 'image'),
+        price: extractPrice(html),
+        url: rawUrl,
+      })
     }
 
-    const title       = getOGTag(html, 'title') ?? getMetaName(html, 'title')
-    const description = getOGTag(html, 'description') ?? getMetaName(html, 'description')
-    const image_url   = getOGTag(html, 'image')
-    const price       = extractPrice(html)
+    if (!res.ok) return Response.json({ error: 'No se pudo acceder al producto' }, { status: 422 })
 
-    return Response.json({ title, description, image_url, price, url: rawUrl })
+    const html = await readHtml(res)
+    return Response.json({
+      title:       getOGTag(html, 'title') ?? getMetaName(html, 'title'),
+      description: getOGTag(html, 'description') ?? getMetaName(html, 'description'),
+      image_url:   getOGTag(html, 'image'),
+      price:       extractPrice(html),
+      url:         rawUrl,
+    })
   } catch {
     return Response.json({ error: 'No se pudo extraer el producto' }, { status: 500 })
   }

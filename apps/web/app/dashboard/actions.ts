@@ -64,7 +64,8 @@ export async function addItem(listId: string, formData: FormData) {
   const description = (formData.get('description') as string) || null
   const priceRaw    = formData.get('price') as string
   const price       = priceRaw ? Number(priceRaw) : null
-  const url         = (formData.get('url') as string) || null
+  const rawUrl      = (formData.get('url') as string) || null
+  const url         = rawUrl && /^https?:\/\//i.test(rawUrl) ? rawUrl : null
   const priority    = Number(formData.get('priority') || '1')
 
   const { data: topItem } = await supabase

@@ -158,8 +158,8 @@ export default async function ListDetailPage({ params }: Props) {
                         ~{list.currency} {item.price.toLocaleString('es-AR')}
                       </span>
                     )}
-                    {item.url && (
-                      <a href={item.url} target="_blank" rel="noopener noreferrer"
+                    {/^https?:\/\//i.test(item.url ?? '') && (
+                      <a href={item.url!} target="_blank" rel="noopener noreferrer"
                         className="rg-mono" style={{ fontSize: 10, color: 'var(--red)', textDecoration: 'none' }}>
                         VER PRODUCTO →
                       </a>

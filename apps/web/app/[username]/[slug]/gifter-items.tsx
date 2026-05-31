@@ -94,8 +94,8 @@ export default function GifterItems({ items, claimedIds, currency, isOwnerSurpri
                     </div>
                   ) : <div />}
                   <div style={{ display: 'flex', gap: 8 }}>
-                    {item.url && (
-                      <a href={item.url} target="_blank" rel="noopener noreferrer"
+                    {/^https?:\/\//i.test(item.url ?? '') && (
+                      <a href={item.url!} target="_blank" rel="noopener noreferrer"
                         className="rg-btn rg-btn-ghost"
                         style={{ padding: '7px 12px', fontSize: 11 }}>
                         VER PRODUCTO
