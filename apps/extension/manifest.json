@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "regala.me",
+  "version": "0.1",
+  "permissions": ["activeTab", "storage", "scripting", "contextMenus"],
+  "host_permissions": ["*://*/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  }
+}
