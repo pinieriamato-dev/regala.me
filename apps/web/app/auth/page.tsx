@@ -1,8 +1,8 @@
-'use client'
 import dynamic from 'next/dynamic'
 
 const AuthForm = dynamic(() => import('./AuthForm'), { ssr: false })
 
 export default function AuthPage() {
-  return <AuthForm />
+  const siteKey = process.env.HCAPTCHA_SITE_KEY ?? ''
+  return <AuthForm siteKey={siteKey} />
 }

@@ -38,7 +38,7 @@ export default function ResetPasswordForm() {
                   NUEVA CONTRASEÑA
                 </div>
                 <input className="rg-input" type="password" name="password"
-                  placeholder="Mínimo 6 caracteres" minLength={6} required />
+                  placeholder="Mínimo 6 caracteres, letras y números" minLength={6} required />
               </div>
               <div>
                 <div style={{ fontFamily: 'var(--font-display)', fontSize: 10, letterSpacing: 1.5, marginBottom: 5 }}>

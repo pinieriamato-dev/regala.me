@@ -1,13 +1,18 @@
 'use client'
 
-import { useState, useEffect, useActionState } from 'react'
+import { useState, useEffect, useActionState, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { handleAuth, getGoogleAuthUrl, requestPasswordReset } from './actions'
+import HCaptcha from '@hcaptcha/react-hcaptcha'
 import Link from 'next/link'
 
 type Mode = 'signin' | 'signup' | 'forgot'
 
-export default function AuthForm() {
+interface AuthFormProps {
+  siteKey: string
+}
+
+export default function AuthForm({ siteKey }: AuthFormProps) {
   const params = useSearchParams()
   const [mode, setMode] = useState<Mode>(
     params.get('mode') === 'signup' ? 'signup' : 'signin'
@@ -19,6 +24,11 @@ export default function AuthForm() {
   const [forgotState, forgotAction, forgotPending] = useActionState(requestPasswordReset, null)
   const [googlePending, setGooglePending] = useState(false)
 
+  const authCaptchaRef = useRef<HCaptcha>(null)
+  const forgotCaptchaRef = useRef<HCaptcha>(null)
+  const [authCaptchaToken, setAuthCaptchaToken] = useState('')
+  const [forgotCaptchaToken, setForgotCaptchaToken] = useState('')
+
   const handleGoogleAuth = async () => {
     setGooglePending(true)
     const url = await getGoogleAuthUrl()
@@ -29,6 +39,28 @@ export default function AuthForm() {
   useEffect(() => {
     setMode(params.get('mode') === 'signup' ? 'signup' : 'signin')
   }, [params])
+
+  useEffect(() => {
+    if (authState?.error) {
+      setAuthCaptchaToken('')
+      authCaptchaRef.current?.resetCaptcha()
+    }
+  }, [authState])
+
+  useEffect(() => {
+    if (forgotState?.error) {
+      setForgotCaptchaToken('')
+      forgotCaptchaRef.current?.resetCaptcha()
+    }
+  }, [forgotState])
+
+  const switchMode = (newMode: Mode) => {
+    setMode(newMode)
+    setAuthCaptchaToken('')
+    setForgotCaptchaToken('')
+    authCaptchaRef.current?.resetCaptcha()
+    forgotCaptchaRef.current?.resetCaptcha()
+  }
 
   const headings: Record<Mode, React.ReactNode> = {
     signin:  <><span className="rg-em">HOLA</span><br />OTRA VEZ.</>,
@@ -65,7 +97,7 @@ export default function AuthForm() {
               </div>
               <div style={{ marginTop: 16, textAlign: 'center', fontSize: 13, color: 'rgba(15,15,15,0.65)' }}>
                 ¿Ya confirmaste?{' '}
-                <button onClick={() => setMode('signin')} style={linkStyle}>Ingresá</button>
+                <button onClick={() => switchMode('signin')} style={linkStyle}>Ingresá</button>
               </div>
             </>
 
@@ -79,7 +111,7 @@ export default function AuthForm() {
                 <p style={{ fontSize: 14, lineHeight: 1.6, margin: 0 }}>{forgotState.success}</p>
               </div>
               <div style={{ marginTop: 16, textAlign: 'center', fontSize: 13, color: 'rgba(15,15,15,0.65)' }}>
-                <button onClick={() => setMode('signin')} style={linkStyle}>← Volver al login</button>
+                <button onClick={() => switchMode('signin')} style={linkStyle}>← Volver al login</button>
               </div>
             </>
 
@@ -94,6 +126,7 @@ export default function AuthForm() {
               </p>
               <div className="rg-card" style={{ padding: 24 }}>
                 <form action={forgotAction} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                  <input type="hidden" name="captchaToken" value={forgotCaptchaToken} />
                   <div>
                     <div style={{ fontFamily: 'var(--font-display)', fontSize: 10, letterSpacing: 1.5, marginBottom: 5 }}>
                       EMAIL
@@ -101,15 +134,26 @@ export default function AuthForm() {
                     <input className="rg-input" type="email" name="email"
                       placeholder="vos@email.com" required />
                   </div>
+                  {siteKey && (
+                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                      <HCaptcha
+                        ref={forgotCaptchaRef}
+                        sitekey={siteKey}
+                        onVerify={setForgotCaptchaToken}
+                        onExpire={() => setForgotCaptchaToken('')}
+                      />
+                    </div>
+                  )}
                   {forgotState?.error && <ErrorBox>{forgotState.error}</ErrorBox>}
-                  <button className="rg-btn rg-btn-primary" type="submit" disabled={forgotPending}
-                    style={{ width: '100%', padding: '14px', marginTop: 4, opacity: forgotPending ? 0.6 : 1 }}>
+                  <button className="rg-btn rg-btn-primary" type="submit"
+                    disabled={forgotPending || (!!siteKey && !forgotCaptchaToken)}
+                    style={{ width: '100%', padding: '14px', marginTop: 4, opacity: (forgotPending || (!!siteKey && !forgotCaptchaToken)) ? 0.6 : 1 }}>
                     {forgotPending ? '...' : 'ENVIAR LINK →'}
                   </button>
                 </form>
               </div>
               <div style={{ marginTop: 16, textAlign: 'center', fontSize: 13, color: 'rgba(15,15,15,0.65)' }}>
-                <button onClick={() => setMode('signin')} style={linkStyle}>← Volver al login</button>
+                <button onClick={() => switchMode('signin')} style={linkStyle}>← Volver al login</button>
               </div>
             </>
 
@@ -128,6 +172,7 @@ export default function AuthForm() {
               <div className="rg-card" style={{ padding: 24 }}>
                 <form action={authAction} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                   <input type="hidden" name="mode" value={mode} />
+                  <input type="hidden" name="captchaToken" value={authCaptchaToken} />
                   {mode === 'signup' && (
                     <div>
                       <div style={{ fontFamily: 'var(--font-display)', fontSize: 10, letterSpacing: 1.5, marginBottom: 5 }}>
@@ -151,7 +196,7 @@ export default function AuthForm() {
                     }}>
                       CONTRASEÑA
                       {mode === 'signin' && (
-                        <button type="button" onClick={() => setMode('forgot')} style={{
+                        <button type="button" onClick={() => switchMode('forgot')} style={{
                           ...linkStyle, fontSize: 9, letterSpacing: 0.5,
                         }}>
                           ¿OLVIDASTE LA CLAVE?
@@ -159,13 +204,26 @@ export default function AuthForm() {
                       )}
                     </div>
                     <input className="rg-input" type="password" name="password"
-                      placeholder="Mínimo 6 caracteres" minLength={6} required />
+                      placeholder={mode === 'signup' ? 'Mínimo 6 caracteres, letras y números' : 'Tu contraseña'}
+                      minLength={6} required />
                   </div>
+
+                  {siteKey && (
+                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                      <HCaptcha
+                        ref={authCaptchaRef}
+                        sitekey={siteKey}
+                        onVerify={setAuthCaptchaToken}
+                        onExpire={() => setAuthCaptchaToken('')}
+                      />
+                    </div>
+                  )}
 
                   {(authState?.error || urlError) && <ErrorBox>{authState?.error ?? urlError}</ErrorBox>}
 
-                  <button className="rg-btn rg-btn-primary" type="submit" disabled={authPending}
-                    style={{ width: '100%', padding: '14px', marginTop: 4, opacity: authPending ? 0.6 : 1 }}>
+                  <button className="rg-btn rg-btn-primary" type="submit"
+                    disabled={authPending || (!!siteKey && !authCaptchaToken)}
+                    style={{ width: '100%', padding: '14px', marginTop: 4, opacity: (authPending || (!!siteKey && !authCaptchaToken)) ? 0.6 : 1 }}>
                     {authPending ? '...' : mode === 'signup' ? 'CREAR CUENTA →' : 'INGRESAR →'}
                   </button>
                 </form>
@@ -210,7 +268,7 @@ export default function AuthForm() {
               <div style={{ marginTop: 16, textAlign: 'center', fontSize: 13, color: 'rgba(15,15,15,0.65)' }}>
                 {mode === 'signup' ? '¿Ya tenés cuenta? ' : '¿No tenés cuenta? '}
                 <button
-                  onClick={() => setMode(mode === 'signup' ? 'signin' : 'signup')}
+                  onClick={() => switchMode(mode === 'signup' ? 'signin' : 'signup')}
                   style={linkStyle}>
                   {mode === 'signup' ? 'Ingresá' : 'Crear una'}
                 </button>
