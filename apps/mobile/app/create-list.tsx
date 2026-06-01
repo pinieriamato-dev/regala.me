@@ -30,7 +30,7 @@ export default function CreateListScreen() {
 
     const slug = createSlug(title)
     const occasionDate = day && month && year
-      ? `${year.padStart(4, '2')}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
+      ? `${year.padStart(4, '0')}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
       : null
 
     const { data, error } = await supabase
