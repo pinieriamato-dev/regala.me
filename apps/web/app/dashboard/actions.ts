@@ -29,7 +29,7 @@ export async function createWishlist(formData: FormData) {
       occasion_date: occasion_date || null,
       currency,
       is_surprise,
-      privacy_level,
+      is_public: privacy_level !== 'private',
     })
     .select('id')
     .single()

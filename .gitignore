@@ -33,3 +33,7 @@ Thumbs.db
 
 # Remember hooks (local session data)
 .remember/
+.claude/skills
+
+# Brainstorm session files
+.superpowers/

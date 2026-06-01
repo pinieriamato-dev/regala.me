@@ -1,8 +1,10 @@
 import { useEffect } from 'react'
 import { Stack, useRouter, useSegments, SplashScreen } from 'expo-router'
+import * as WebBrowser from 'expo-web-browser'
 import { useAuth } from '@/hooks/useAuth'
 import { COLORS } from '@/constants/colors'
 
+WebBrowser.maybeCompleteAuthSession()
 SplashScreen.preventAutoHideAsync()
 
 function AuthGuard() {

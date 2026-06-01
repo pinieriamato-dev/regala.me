@@ -96,15 +96,15 @@ Schema was applied via Supabase MCP during initial setup. Any future schema chan
 
 ### Web — `apps/web/.env.local`
 ```
-NEXT_PUBLIC_SUPABASE_URL=https://esyybmnwalscpnzfeowh.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon JWT>
+SUPABASE_URL=https://esyybmnwalscpnzfeowh.supabase.co
+SUPABASE_PUBLISHABLE_KEY=<publishable key>
 NEXT_PUBLIC_SITE_URL=https://regala.me        # optional, defaults to https://regala.me
 ```
 
 ### Mobile — `apps/mobile/.env`
 ```
 EXPO_PUBLIC_SUPABASE_URL=https://esyybmnwalscpnzfeowh.supabase.co
-EXPO_PUBLIC_SUPABASE_ANON_KEY=<same anon JWT>
+EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<publishable key>
 ```
 
 > **NEVER commit `.env` files.** If the env files are missing, the user must create them manually — the tool sandbox blocks writing `.env*` files.
@@ -159,11 +159,10 @@ createSlug(title)     // → kebab-case + base36 timestamp (unique)
 ## 7. Web App — Key Conventions
 
 ### Supabase clients
-- **Server (auth-required):** `import { createServerSupabase } from '@/lib/supabase/server'`
+- **Server (only client in use):** `import { createServerSupabase } from '@/lib/supabase/server'`
   - It's `async` — always `await createServerSupabase()`.
   - Uses `cookies()` from `next/headers` (also async in Next.js 15).
-- **Client (unauthenticated reads):** `import { supabase } from '@/lib/supabase/client'`
-  - Used only in Client Components for gifter claims.
+  - All Supabase calls go through Server Actions or Server Components — no browser client exists.
 
 ### Server Actions
 All mutations go through Server Actions in `app/dashboard/actions.ts`:
