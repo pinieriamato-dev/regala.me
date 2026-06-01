@@ -35,7 +35,7 @@ export default function CreateListScreen() {
 
     const { data, error } = await supabase
       .from('wishlists')
-      .insert({ owner_id: user.id, title: title.trim(), slug, occasion, occasion_date: occasionDate, is_surprise: isSurprise, currency, is_public: true })
+      .insert({ owner_id: user.id, title: title.trim(), slug, occasion, occasion_date: occasionDate, is_surprise: isSurprise, currency, is_public: true, privacy_level: 'public' })
       .select()
       .single()
 
