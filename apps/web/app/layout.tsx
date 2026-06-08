@@ -22,8 +22,16 @@ const jetbrainsMono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://regala.me'),
   title: 'regala.me — Tu lista de regalos, sin dramas.',
   description: 'Compartí una lista, tus amigos eligen lo que traen, nadie llega con la misma cosa.',
+  openGraph: {
+    siteName: 'regala.me',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
