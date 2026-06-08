@@ -138,7 +138,9 @@ export default async function ListDetailPage({ params }: Props) {
                       {item.title}
                     </p>
                     {claimer && (
-                      <span className="rg-sticker rg-sticker-green" style={{ fontSize: 8 }}>✓ {claimer}</span>
+                      list.is_surprise
+                        ? <span className="rg-sticker rg-sticker-green" style={{ fontSize: 8 }}>RECLAMADO</span>
+                        : <span className="rg-sticker rg-sticker-green" style={{ fontSize: 8 }}>✓ {claimer}</span>
                     )}
                     {!claimer && item.priority === 3 && (
                       <span className="rg-sticker rg-sticker-red" style={{ fontSize: 8 }}>ESENCIAL</span>

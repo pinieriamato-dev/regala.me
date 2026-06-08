@@ -39,27 +39,34 @@ export default function ListsScreen() {
 
     if (!wishlists) { setLoading(false); setRefreshing(false); return }
 
-    // Count items and claims per list
-    const rows = await Promise.all(wishlists.map(async w => {
-      const { count: itemCount } = await supabase
-        .from('items').select('id', { count: 'exact', head: true }).eq('wishlist_id', w.id)
+    const listIds = wishlists.map(w => w.id)
 
-      const { data: itemIds } = await supabase
-        .from('items').select('id').eq('wishlist_id', w.id)
+    const { data: allItems } = await supabase
+      .from('items').select('id, wishlist_id').in('wishlist_id', listIds)
 
-      const ids = itemIds?.map(i => i.id) ?? []
-      const { count: claimedCount } = ids.length
-        ? await supabase.from('claims').select('id', { count: 'exact', head: true }).in('item_id', ids)
-        : { count: 0 }
+    const allItemIds = (allItems ?? []).map(i => i.id)
+    const { data: claimsData } = allItemIds.length
+      ? await supabase.from('claims').select('item_id').in('item_id', allItemIds)
+      : { data: [] }
 
+    const itemsByList = new Map<string, string[]>()
+    for (const item of allItems ?? []) {
+      const arr = itemsByList.get(item.wishlist_id) ?? []
+      arr.push(item.id)
+      itemsByList.set(item.wishlist_id, arr)
+    }
+    const claimedSet = new Set((claimsData ?? []).map(c => c.item_id))
+
+    const rows = wishlists.map(w => {
+      const wItems = itemsByList.get(w.id) ?? []
       return {
         ...w,
         occasion: w.occasion as OccasionId | null,
         currency: (w.currency ?? 'ARS') as Currency,
-        item_count: itemCount ?? 0,
-        claimed_count: claimedCount ?? 0,
+        item_count: wItems.length,
+        claimed_count: wItems.filter(id => claimedSet.has(id)).length,
       }
-    }))
+    })
 
     setLists(rows)
     setLoading(false)

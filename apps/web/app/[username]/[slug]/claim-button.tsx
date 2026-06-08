@@ -9,15 +9,31 @@ export default function ClaimButton({ itemId }: { itemId: string; listIsSurprise
 
   if (state?.success) {
     return (
-      <span className="rg-sticker rg-sticker-green" style={{ fontSize: 11, padding: '5px 12px' }}>
-        ✓ ¡GRACIAS!
-      </span>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%', marginTop: 8 }}>
+        <span className="rg-sticker rg-sticker-green" style={{ fontSize: 11, padding: '5px 12px', alignSelf: 'flex-start' }}>
+          ✓ ¡GRACIAS!
+        </span>
+        <a
+          href="/auth?mode=signup"
+          style={{
+            display: 'block', padding: '12px 14px',
+            background: 'var(--yellow)', border: '2px solid var(--ink)', boxShadow: 'var(--shadow-sm)',
+            fontSize: 11, fontFamily: 'var(--font-display)', textDecoration: 'none', color: 'var(--ink)',
+            textTransform: 'uppercase', letterSpacing: -0.3,
+          }}
+        >
+          ¿TENÉS UN CUMPLE PRÓXIMAMENTE?<br />
+          <span style={{ fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 10 }}>
+            Armá tu lista en 2 min →
+          </span>
+        </a>
+      </div>
     )
   }
 
   if (open) {
     return (
-      <form action={action} style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%', marginTop: 8 }}>
+      <form aria-live="polite" aria-atomic="true" action={action} style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%', marginTop: 8 }}>
         <input type="hidden" name="item_id" value={itemId} />
         <input
           className="rg-input"
@@ -33,6 +49,7 @@ export default function ClaimButton({ itemId }: { itemId: string; listIsSurprise
         <div style={{ display: 'flex', gap: 8 }}>
           <button
             type="submit"
+            aria-label="Reclamar este regalo"
             disabled={pending}
             className="rg-btn rg-btn-primary"
             style={{ flex: 1, padding: '12px 16px', fontSize: 12, minHeight: 44, opacity: pending ? 0.6 : 1 }}

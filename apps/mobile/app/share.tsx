@@ -14,12 +14,22 @@ export default function ShareScreen() {
   const [editingMessage, setEditingMessage] = useState(false)
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      const prefix = user?.email?.split('@')[0] ?? user?.id ?? 'user'
-      const url = `https://regala.me/${prefix}/${slug}`
+    async function buildUrl() {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('id', user.id)
+        .single()
+
+      const username = profile?.username ?? user.id ?? 'user'
+      const url = `https://regala.me/${username}/${slug}`
       setListUrl(url)
       setMessage(`Hola! Armé una listita de regalos así no traen lo mismo 😄\n👉 ${url}`)
-    })
+    }
+    buildUrl()
   }, [slug])
 
   const openWhatsApp = async () => {

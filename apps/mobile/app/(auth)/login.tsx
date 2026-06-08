@@ -53,11 +53,26 @@ export default function LoginScreen() {
     if (!email || !password) return
     setLoading(true)
     setError('')
-    const { error: err } = isSignUp
-      ? await supabase.auth.signUp({ email, password })
-      : await supabase.auth.signInWithPassword({ email, password })
+
+    if (isSignUp) {
+      const { error: err } = await supabase.auth.signUp({ email, password })
+      setLoading(false)
+      if (err) setError(err.message)
+      else setSuccess('Revisá tu email para confirmar tu cuenta.')
+      return
+    }
+
+    const { data, error: err } = await supabase.auth.signInWithPassword({ email, password })
+    if (err) { setLoading(false); setError(err.message); return }
+
+    if (!data.user?.email_confirmed_at) {
+      await supabase.auth.signOut()
+      setLoading(false)
+      setError('Confirmá tu email antes de ingresar. Revisá tu bandeja de entrada.')
+      return
+    }
+
     setLoading(false)
-    if (err) setError(err.message)
     // Navigation handled by AuthGuard in _layout
   }
 
@@ -130,6 +145,7 @@ export default function LoginScreen() {
               />
             )}
             {error ? <Text style={styles.error}>{error}</Text> : null}
+            {success ? <Text style={styles.successText}>{success}</Text> : null}
 
             {!isSignUp && (
               <TouchableOpacity onPress={() => { setIsForgot(true); setError('') }}>
@@ -192,5 +208,5 @@ const styles = StyleSheet.create({
     borderRadius: 14, paddingVertical: 14, alignItems: 'center',
   },
   googleBtnText: { color: COLORS.text, fontSize: 15, fontWeight: '600' },
-  successText: { color: COLORS.text, fontSize: 14, lineHeight: 22, textAlign: 'center' },
+  successText: { color: '#2EC25E', fontSize: 13, textAlign: 'center' },
 })

@@ -9,28 +9,17 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth')
 
-  const { data: lists } = await supabase
-    .from('wishlists')
-    .select('id, title, slug, occasion, occasion_date, is_surprise, currency, privacy_level')
-    .eq('owner_id', user.id)
-    .order('created_at', { ascending: false })
+  const [{ data: lists }, { data: profile }] = await Promise.all([
+    supabase
+      .from('wishlists')
+      .select('id, title, slug, occasion, occasion_date, is_surprise, currency, privacy_level, items(id)')
+      .eq('owner_id', user.id)
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('profiles').select('username').eq('id', user.id).single(),
+  ])
 
-  const { data: profile } = await supabase
-    .from('profiles').select('username').eq('id', user.id).single()
-
-  const listIds = (lists ?? []).map(l => l.id)
-  const { data: items } = listIds.length
-    ? await supabase.from('items').select('id, wishlist_id').in('wishlist_id', listIds)
-    : { data: [] }
-
-  const itemsByList = new Map<string, string[]>()
-  for (const item of items ?? []) {
-    const arr = itemsByList.get(item.wishlist_id) ?? []
-    arr.push(item.id)
-    itemsByList.set(item.wishlist_id, arr)
-  }
-
-  const allItemIds = (items ?? []).map((i: { id: string }) => i.id)
+  const allItemIds = (lists ?? []).flatMap(l => (l.items ?? []).map((i: { id: string }) => i.id))
   const { data: claims } = allItemIds.length
     ? await supabase.from('claims').select('item_id').in('item_id', allItemIds)
     : { data: [] }
@@ -84,8 +73,8 @@ export default async function DashboardPage() {
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>
           {(lists ?? []).map((list) => {
-            const listItems = itemsByList.get(list.id) ?? []
-            const claimed   = listItems.filter(id => claimedSet.has(id)).length
+            const listItems = (list.items ?? []) as { id: string }[]
+            const claimed   = listItems.filter(i => claimedSet.has(i.id)).length
             const total     = listItems.length
             const progress  = total > 0 ? Math.round((claimed / total) * 100) : 0
             const emoji     = list.occasion ? occasionEmoji(list.occasion as OccasionId) : '●'
@@ -135,7 +124,7 @@ export default async function DashboardPage() {
                   <Link href={`/dashboard/${list.id}`} className="rg-btn rg-btn-ghost" style={{ flex: 1, padding: '10px', fontSize: 11, justifyContent: 'center' }}>
                     GESTIONAR
                   </Link>
-                  {shareUrl && (
+                  {shareUrl && list.privacy_level !== 'private' && (
                     <a
                       href={`https://wa.me/?text=${encodeURIComponent(`¡Hola! Esta es mi lista: ${shareUrl}`)}`}
                       target="_blank" rel="noopener noreferrer"

@@ -34,7 +34,6 @@ export default function AddItemScreen() {
       title: title.trim(),
       description: description.trim() || null,
       price: price ? parseFloat(price.replace(/\./g, '').replace(',', '.')) : null,
-      currency,
       url: url.trim() || null,
       priority,
       sort_order: Date.now(),

@@ -1,7 +1,8 @@
 'use client'
 
-import { useTransition, useState } from 'react'
+import { useActionState, useState } from 'react'
 import { createWishlist } from '@/app/dashboard/actions'
+import type { CreateWishlistResult } from '@/app/dashboard/actions'
 import { OCCASIONS, CURRENCIES } from 'shared'
 import type { OccasionId, Currency } from 'shared'
 import Link from 'next/link'
@@ -17,11 +18,11 @@ const PRIVACY_OPTIONS: { value: Privacy; emoji: string; label: string; note?: st
 ]
 
 export default function NewListPage() {
-  const [pending,   startTransition] = useTransition()
-  const [occasion,  setOccasion]     = useState<OccasionId | 'personal' | ''>('')
-  const [currency,  setCurrency]     = useState<Currency>('ARS')
-  const [surprise,  setSurprise]     = useState(false)
-  const [privacy,   setPrivacy]      = useState<Privacy>('public')
+  const [state, action, pending] = useActionState<CreateWishlistResult, FormData>(createWishlist, null)
+  const [occasion,  setOccasion] = useState<OccasionId | 'personal' | ''>('')
+  const [currency,  setCurrency] = useState<Currency>('ARS')
+  const [surprise,  setSurprise] = useState(false)
+  const [privacy,   setPrivacy]  = useState<Privacy>('public')
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -30,7 +31,7 @@ export default function NewListPage() {
     fd.set('currency', currency)
     fd.set('privacy_level', privacy)
     if (surprise) fd.set('is_surprise', 'on')
-    startTransition(() => createWishlist(fd))
+    action(fd)
   }
 
   return (
@@ -47,6 +48,11 @@ export default function NewListPage() {
       </h1>
 
       <div className="rg-card" style={{ padding: 28 }}>
+        {state?.error && (
+          <p style={{ color: 'var(--red)', fontWeight: 700, fontSize: 13, marginBottom: 16, padding: '10px 14px', border: '2px solid var(--red)' }}>
+            {state.error}
+          </p>
+        )}
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
 
           {/* Title */}
@@ -150,11 +156,12 @@ export default function NewListPage() {
             <div className="rg-mono" style={{ fontSize: 9, marginBottom: 10, color: 'rgba(15,15,15,0.6)' }}>
               PRIVACIDAD
             </div>
-            <div style={{ display: 'flex', gap: 0, border: '2px solid var(--ink)', borderRadius: 4, overflow: 'hidden' }}>
+            <div role="group" aria-label="Privacidad de la lista" style={{ display: 'flex', gap: 0, border: '2px solid var(--ink)', borderRadius: 4, overflow: 'hidden' }}>
               {PRIVACY_OPTIONS.map((opt, i) => (
                 <button
                   key={opt.value}
                   type="button"
+                  aria-pressed={privacy === opt.value}
                   onClick={() => setPrivacy(opt.value)}
                   className="rg-btn"
                   style={{

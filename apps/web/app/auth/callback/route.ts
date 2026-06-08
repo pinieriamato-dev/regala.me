@@ -8,9 +8,13 @@ export async function GET(request: NextRequest) {
   const type = searchParams.get('type') as EmailOtpType | null
   const code = searchParams.get('code')
   const rawNext = searchParams.get('next') ?? '/dashboard'
-  const next = rawNext.startsWith('/') && !rawNext.startsWith('//') && !rawNext.startsWith('/\\')
-    ? rawNext
-    : '/dashboard'
+  let next = '/dashboard'
+  try {
+    const candidate = new URL(rawNext, origin)
+    if (candidate.origin === origin) next = candidate.pathname + candidate.search
+  } catch {
+    // malformed — fall back to /dashboard
+  }
 
   const supabase = await createServerSupabase()
 

@@ -1,6 +1,6 @@
-import Link from 'next/link'
 import { createServerSupabase } from '@/lib/supabase/server'
 import { signOut } from '@/app/auth/actions'
+import Logomark from '@/components/Logomark'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createServerSupabase()
@@ -16,12 +16,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', padding: '14px 24px',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Link href="/dashboard" style={{
-            fontFamily: 'var(--font-display)', fontSize: 20, letterSpacing: -0.5,
-            color: 'var(--ink)', textDecoration: 'none',
-          }}>
-            regala<span style={{ color: 'var(--red)' }}>.</span>me
-          </Link>
+          <Logomark size={20} href="/dashboard" />
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'rgba(15,15,15,0.5)' }}>
               {displayName.toUpperCase()}
