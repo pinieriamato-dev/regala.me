@@ -165,7 +165,7 @@ git commit -m "fix: year padding uses '0' not '2' — dates like '24' were becom
 
 ## P1 — Security & Correctness
 
-> **Next up**: Start here. Tasks 5–10 cover type safety, Zod validation, claim uniqueness, mobile email confirmation, and the privacy share-button guard.
+> ✅ **All P1 tasks completed** — 2026-06-08.
 
 ### Task 5: Add `privacy_level` to shared `Wishlist` type ✅ Done (included in P0 PR #3)
 
@@ -637,6 +637,8 @@ git commit -m "fix: hide COMPARTIR button for private lists"
 
 ## P2 — Before First Public Traffic
 
+> ✅ **All P2 tasks completed** — 2026-06-08. (Task 18 .env.example skipped: sandbox policy — create manually.)
+
 ### Task 11: Add `metadataBase` + fix nav logo on gifter page
 
 **Files:**
@@ -1097,6 +1099,8 @@ git commit -m "docs: add .env.example files for both apps"
 ---
 
 ## P3 — Post-Launch Refactor Backlog
+
+> ✅ **All P3 tasks completed** — 2026-06-08.
 
 ### Task 19: Parallelize DB queries in web dashboard page
 

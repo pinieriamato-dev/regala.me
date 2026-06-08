@@ -1,5 +1,7 @@
 # Audit Fixes — P2 Before First Public Traffic
 
+> ✅ **All P2 tasks completed** — merged into `fix/p0-launch-blockers` on 2026-06-08. Tasks 11–18 done (note: .env.example files skipped — sandbox blocks .env* writes; create manually per CLAUDE.md §4).
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Prerequisite:** P0 and P1 plans complete.

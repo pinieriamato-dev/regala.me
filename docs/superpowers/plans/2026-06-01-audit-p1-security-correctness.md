@@ -1,5 +1,7 @@
 # Audit Fixes — P1 Security & Correctness
 
+> ✅ **All P1 tasks completed** — merged into `fix/p0-launch-blockers` on 2026-06-08. Tasks 5–10 done.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Prerequisite:** P0 plan (`2026-06-01-audit-p0-launch-blockers.md`) must be complete first.
