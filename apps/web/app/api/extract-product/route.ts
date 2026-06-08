@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server'
+import { createServerSupabase } from '@/lib/supabase/server'
 import dns from 'node:dns/promises'
 
 // Private/loopback/link-local ranges — checked after DNS resolution to defeat DNS-rebinding
@@ -88,6 +89,10 @@ function extractPrice(html: string): number | null {
 }
 
 export async function GET(request: NextRequest) {
+  const supabase = await createServerSupabase()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return Response.json({ error: 'No autorizado' }, { status: 401 })
+
   const rawUrl = request.nextUrl.searchParams.get('url')
   if (!rawUrl) return Response.json({ error: 'URL requerida' }, { status: 400 })
 
