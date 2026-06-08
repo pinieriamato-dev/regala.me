@@ -4,7 +4,7 @@ import { createServerSupabase } from '@/lib/supabase/server'
 import { occasionEmoji } from 'shared'
 import type { Item, Claim, OccasionId } from 'shared'
 import GifterItems from './gifter-items'
-import Link from 'next/link'
+import Logomark from '@/components/Logomark'
 
 export const revalidate = 0
 
@@ -84,9 +84,7 @@ export default async function GifterPage({ params }: Props) {
         padding: '14px 20px', borderBottom: '2px solid var(--ink)',
         background: 'var(--paper)', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
-        <Link href="/" style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: -0.5, textDecoration: 'none', color: 'var(--ink)' }}>
-          regala<span style={{ color: 'var(--red)' }}>.</span>me
-        </Link>
+        <Logomark />
         <span className="rg-mono" style={{ fontSize: 10, color: 'rgba(15,15,15,0.45)' }}>
           {isOwnerSurpriseView ? 'MODO SORPRESA' : 'LISTA PÚBLICA'}
         </span>
