@@ -135,7 +135,7 @@ export default async function DashboardPage() {
                   <Link href={`/dashboard/${list.id}`} className="rg-btn rg-btn-ghost" style={{ flex: 1, padding: '10px', fontSize: 11, justifyContent: 'center' }}>
                     GESTIONAR
                   </Link>
-                  {shareUrl && (
+                  {shareUrl && list.privacy_level !== 'private' && (
                     <a
                       href={`https://wa.me/?text=${encodeURIComponent(`¡Hola! Esta es mi lista: ${shareUrl}`)}`}
                       target="_blank" rel="noopener noreferrer"
