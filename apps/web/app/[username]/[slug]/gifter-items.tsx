@@ -31,7 +31,7 @@ export default function GifterItems({ items, claimedIds, currency, isOwnerSurpri
         const blurred = isOwnerSurpriseView && claimed && !revealedIds.has(item.id)
 
         return (
-          <div key={item.id} style={{
+          <article key={item.id} aria-label={`${item.title}${claimed ? ', reclamado' : ', disponible'}`} style={{
             padding: 16,
             background: claimed ? 'rgba(15,15,15,0.04)' : 'var(--paper)',
             border: `2px solid ${claimed ? 'rgba(15,15,15,0.25)' : 'var(--ink)'}`,
@@ -106,7 +106,7 @@ export default function GifterItems({ items, claimedIds, currency, isOwnerSurpri
                 </div>
               </div>
             )}
-          </div>
+          </article>
         )
       })}
     </div>

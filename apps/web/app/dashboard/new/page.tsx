@@ -156,11 +156,12 @@ export default function NewListPage() {
             <div className="rg-mono" style={{ fontSize: 9, marginBottom: 10, color: 'rgba(15,15,15,0.6)' }}>
               PRIVACIDAD
             </div>
-            <div style={{ display: 'flex', gap: 0, border: '2px solid var(--ink)', borderRadius: 4, overflow: 'hidden' }}>
+            <div role="group" aria-label="Privacidad de la lista" style={{ display: 'flex', gap: 0, border: '2px solid var(--ink)', borderRadius: 4, overflow: 'hidden' }}>
               {PRIVACY_OPTIONS.map((opt, i) => (
                 <button
                   key={opt.value}
                   type="button"
+                  aria-pressed={privacy === opt.value}
                   onClick={() => setPrivacy(opt.value)}
                   className="rg-btn"
                   style={{

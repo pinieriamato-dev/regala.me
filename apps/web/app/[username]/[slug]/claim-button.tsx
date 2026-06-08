@@ -33,7 +33,7 @@ export default function ClaimButton({ itemId }: { itemId: string; listIsSurprise
 
   if (open) {
     return (
-      <form action={action} style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%', marginTop: 8 }}>
+      <form aria-live="polite" aria-atomic="true" action={action} style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%', marginTop: 8 }}>
         <input type="hidden" name="item_id" value={itemId} />
         <input
           className="rg-input"
@@ -49,6 +49,7 @@ export default function ClaimButton({ itemId }: { itemId: string; listIsSurprise
         <div style={{ display: 'flex', gap: 8 }}>
           <button
             type="submit"
+            aria-label="Reclamar este regalo"
             disabled={pending}
             className="rg-btn rg-btn-primary"
             style={{ flex: 1, padding: '12px 16px', fontSize: 12, minHeight: 44, opacity: pending ? 0.6 : 1 }}
