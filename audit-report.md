@@ -1044,12 +1044,14 @@ The `.env.local` template is only in CLAUDE.md. New contributors have no way to 
 
 ## 14. Recommended Fix Priority Order
 
-### P0 — Launch Blockers (Active Breakage Right Now)
+### P0 — Launch Blockers ✅ Fixed in PR #3 (2026-06-08)
 
-1. **1.2** — `createWishlist` never writes `privacy_level` → ALL new lists return 404 to gifters
-2. **1.3** — Mobile add-item inserts `currency` column on `items` → every mobile item add fails
-3. **1.6** — Mobile share screen uses email prefix instead of `profiles.username` → wrong WhatsApp URLs
-4. **1.5** — Year padding bug `'2'` → `'0'` in mobile create-list
+1. ~~**1.2** — `createWishlist` never writes `privacy_level` → ALL new lists return 404 to gifters~~ ✅
+2. ~~**1.3** — Mobile add-item inserts `currency` column on `items` → every mobile item add fails~~ ✅
+3. ~~**1.6** — Mobile share screen uses email prefix instead of `profiles.username` → wrong WhatsApp URLs~~ ✅
+4. ~~**1.5** — Year padding bug `'2'` → `'0'` in mobile create-list~~ ✅
+   - Also fixed: mobile `create-list.tsx` now inserts `privacy_level: 'public'` (was NULL, same 404 bug)
+   - Also fixed: `Wishlist` type in `packages/shared/src/types.ts` now includes `privacy_level`
 
 ### P1 — Pre-Launch Security / Correctness
 
@@ -1058,8 +1060,8 @@ The `.env.local` template is only in CLAUDE.md. New contributors have no way to 
 7. **4.2** — `createWishlist` throws instead of returning `{ error }` — no user feedback
 8. **1.4** — Add `UNIQUE(item_id)` constraint on claims + handle violation with friendly message
 9. **2.4** — Add email confirmation check to mobile login
-10. **4.1/1.1** — Fix `privacy_level` in shared `Wishlist` type + update CLAUDE.md schema docs
-11. **4.10** — Add privacy level support to mobile `create-list.tsx`
+10. ~~**4.1/1.1** — Fix `privacy_level` in shared `Wishlist` type~~ ✅ Done in PR #3
+11. ~~**4.10** — Add privacy level support to mobile `create-list.tsx`~~ ✅ Done in PR #3
 12. **8.3** — Hide COMPARTIR button for private lists
 
 ### P2 — Before First Public Traffic

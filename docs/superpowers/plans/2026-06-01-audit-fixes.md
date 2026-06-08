@@ -12,6 +12,8 @@
 
 ## P0 — Launch Blockers (Active Breakage)
 
+> ✅ **All P0 tasks completed** — merged via PR #3 on 2026-06-08. Next: P1 tasks (Task 5 onward).
+
 ### Task 1: Fix `privacy_level` missing from `createWishlist` insert
 
 **Files:**
@@ -19,7 +21,7 @@
 
 The `createWishlist` action never writes `privacy_level` to the DB. Every list gets `NULL`, which fails the gifter page `.in('privacy_level', ['public', 'link_only'])` check — returning 404 for every list.
 
-- [ ] **Step 1: Edit the insert in `createWishlist`**
+- [x] **Step 1: Edit the insert in `createWishlist`**
 
 Change the `.insert({...})` block at line 22–33 of `apps/web/app/dashboard/actions.ts`:
 
@@ -41,11 +43,11 @@ const { data: list, error } = await supabase
   .single()
 ```
 
-- [ ] **Step 2: Verify manually**
+- [x] **Step 2: Verify manually**
 
 Start the dev server (`pnpm dev:web` from repo root), create a new list, then visit `localhost:3001/{username}/{slug}`. It should load instead of 404.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add apps/web/app/dashboard/actions.ts
@@ -61,7 +63,7 @@ git commit -m "fix: write privacy_level on wishlist insert — gifter page was 4
 
 The `items` table has no `currency` column. Inserting it causes every mobile item addition to fail with a Supabase error.
 
-- [ ] **Step 1: Remove `currency` from the insert**
+- [x] **Step 1: Remove `currency` from the insert**
 
 In `apps/mobile/app/add-item.tsx`, change the `supabase.from('items').insert(...)` call (line 32–41):
 
@@ -89,7 +91,7 @@ After removing currency from UI, remove `Currency` type import too if unused.
 import type { Priority } from 'shared'
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add apps/mobile/app/add-item.tsx
@@ -105,7 +107,7 @@ git commit -m "fix: remove currency field from items insert — column does not 
 
 The share URL is built from `user?.email?.split('@')[0]`, which is not the username. The correct username is in `profiles.username`.
 
-- [ ] **Step 1: Replace the `useEffect` in `share.tsx`**
+- [x] **Step 1: Replace the `useEffect` in `share.tsx`**
 
 Replace lines 16–23:
 
@@ -126,7 +128,7 @@ useEffect(() => {
 }, [slug])
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add apps/mobile/app/share.tsx
@@ -142,7 +144,7 @@ git commit -m "fix: use profiles.username for share URL — email prefix was bui
 
 `year.padStart(4, '2')` pads with character `'2'` instead of `'0'`, turning year `'24'` into `'2224'`.
 
-- [ ] **Step 1: Fix the padding character**
+- [x] **Step 1: Fix the padding character**
 
 In `apps/mobile/app/create-list.tsx`, change line 33:
 
@@ -152,7 +154,7 @@ const occasionDate = day && month && year
   : null
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add apps/mobile/app/create-list.tsx
@@ -163,14 +165,16 @@ git commit -m "fix: year padding uses '0' not '2' — dates like '24' were becom
 
 ## P1 — Security & Correctness
 
-### Task 5: Add `privacy_level` to shared `Wishlist` type
+> **Next up**: Start here. Tasks 5–10 cover type safety, Zod validation, claim uniqueness, mobile email confirmation, and the privacy share-button guard.
+
+### Task 5: Add `privacy_level` to shared `Wishlist` type ✅ Done (included in P0 PR #3)
 
 **Files:**
 - Modify: `packages/shared/src/types.ts` (line 21–33)
 
 The `Wishlist` interface is missing `privacy_level`, causing TypeScript to miss all the mismatches the audit found.
 
-- [ ] **Step 1: Update the `Wishlist` interface**
+- [x] **Step 1: Update the `Wishlist` interface**
 
 In `packages/shared/src/types.ts`, update lines 21–33:
 
@@ -193,7 +197,7 @@ export interface Wishlist {
 }
 ```
 
-- [ ] **Step 2: Run typecheck to see what breaks**
+- [x] **Step 2: Run typecheck to see what breaks**
 
 ```bash
 pnpm typecheck
@@ -201,7 +205,7 @@ pnpm typecheck
 
 Fix any type errors surfaced (likely none — the field was previously untyped and accessed via plain object queries).
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add packages/shared/src/types.ts
@@ -210,14 +214,14 @@ git commit -m "fix: add privacy_level to Wishlist type — was missing, causing 
 
 ---
 
-### Task 6: Add mobile `privacy_level` to `create-list.tsx`
+### Task 6: Add mobile `privacy_level` to `create-list.tsx` ✅ Done (included in P0 PR #3)
 
 **Files:**
 - Modify: `apps/mobile/app/create-list.tsx` (line 38)
 
 Mobile always inserts `is_public: true` with no `privacy_level`, meaning mobile-created lists all get `privacy_level = NULL` in the DB — same root issue as Task 1 but on mobile.
 
-- [ ] **Step 1: Add `privacy_level: 'public'` to the insert**
+- [x] **Step 1: Add `privacy_level: 'public'` to the insert**
 
 In `apps/mobile/app/create-list.tsx`, change the `.insert(...)` call (line 36–38):
 
@@ -241,7 +245,7 @@ const { data, error } = await supabase
 
 No privacy UI is needed on mobile yet — defaulting to `'public'` is correct for now.
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add apps/mobile/app/create-list.tsx
