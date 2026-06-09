@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import type { Item } from 'shared'
 import ClaimButton from './claim-button'
 
@@ -13,8 +13,15 @@ type Props = {
 }
 
 export default function GifterItems({ items, claimedIds, currency, isOwnerSurpriseView, listIsSurprise }: Props) {
-  const [revealedIds, setRevealedIds] = useState<Set<string>>(new Set())
-  const claimedSet = new Set(claimedIds)
+  const [revealedIds,   setRevealedIds]   = useState<Set<string>>(new Set())
+  const [localClaimed,  setLocalClaimed]  = useState<Set<string>>(() => new Set(claimedIds))
+
+  const handleClaimed = useCallback((itemId: string) => {
+    setLocalClaimed(prev => new Set([...prev, itemId]))
+  }, [])
+
+  const claimedSet = localClaimed
+  const available  = items.length - localClaimed.size
 
   const toggleReveal = (id: string) => {
     setRevealedIds(prev => {
@@ -25,6 +32,24 @@ export default function GifterItems({ items, claimedIds, currency, isOwnerSurpri
   }
 
   return (
+    <div>
+      {/* Stats bar — updates in real time as items are claimed */}
+      <div style={{
+        display: 'flex', gap: 20, padding: '10px 14px', marginBottom: 16,
+        background: 'var(--yellow)', border: '2px solid var(--ink)',
+        boxShadow: 'var(--shadow-sm)',
+      }}>
+        <div>
+          <div className="rg-mono" style={{ fontSize: 9, marginBottom: 1 }}>DISPONIBLES</div>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, lineHeight: 1 }}>{available}</div>
+        </div>
+        <div style={{ width: 2, background: 'var(--ink)' }} />
+        <div>
+          <div className="rg-mono" style={{ fontSize: 9, marginBottom: 1 }}>RECLAMADOS</div>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, lineHeight: 1 }}>{localClaimed.size}</div>
+        </div>
+      </div>
+
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
       {items.map((item) => {
         const claimed = claimedSet.has(item.id)
@@ -101,7 +126,7 @@ export default function GifterItems({ items, claimedIds, currency, isOwnerSurpri
                         VER PRODUCTO
                       </a>
                     )}
-                    <ClaimButton itemId={item.id} listIsSurprise={listIsSurprise} />
+                    <ClaimButton itemId={item.id} listIsSurprise={listIsSurprise} onClaimed={handleClaimed} />
                   </div>
                 </div>
               </div>
@@ -110,5 +135,6 @@ export default function GifterItems({ items, claimedIds, currency, isOwnerSurpri
         )
       })}
     </div>
+  </div>
   )
 }

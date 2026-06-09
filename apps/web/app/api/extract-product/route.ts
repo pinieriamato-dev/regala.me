@@ -49,6 +49,13 @@ function getOGTag(html: string, property: string): string | null {
   return match ? match[1].trim() : null
 }
 
+function getTagTitle(html: string): string | null {
+  const match = html.match(/<title[^>]*>([^<]+)<\/title>/i)
+  if (!match) return null
+  return match[1].trim()
+    .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#39;/g, "'")
+}
+
 function getMetaName(html: string, name: string): string | null {
   let match = html.match(
     new RegExp(`<meta[^>]+name=["']${name}["'][^>]+content=["']([^"']+)["']`, 'i')
@@ -146,10 +153,10 @@ export async function GET(request: NextRequest) {
       if (!res2.ok) return Response.json({ error: 'No se pudo acceder al producto' }, { status: 422 })
       const html = await readHtml(res2)
       return Response.json({
-        title: getOGTag(html, 'title') ?? getMetaName(html, 'title'),
+        title:       getOGTag(html, 'title') ?? getMetaName(html, 'title') ?? getTagTitle(html),
         description: getOGTag(html, 'description') ?? getMetaName(html, 'description'),
-        image_url: getOGTag(html, 'image'),
-        price: extractPrice(html),
+        image_url:   getOGTag(html, 'image'),
+        price:       extractPrice(html),
         url: rawUrl,
       })
     }
@@ -158,7 +165,7 @@ export async function GET(request: NextRequest) {
 
     const html = await readHtml(res)
     return Response.json({
-      title:       getOGTag(html, 'title') ?? getMetaName(html, 'title'),
+      title:       getOGTag(html, 'title') ?? getMetaName(html, 'title') ?? getTagTitle(html),
       description: getOGTag(html, 'description') ?? getMetaName(html, 'description'),
       image_url:   getOGTag(html, 'image'),
       price:       extractPrice(html),

@@ -1,11 +1,21 @@
 'use client'
 
-import { useState, useActionState } from 'react'
+import { useState, useActionState, useEffect } from 'react'
 import { claimItem } from './actions'
 
-export default function ClaimButton({ itemId }: { itemId: string; listIsSurprise: boolean }) {
+interface Props {
+  itemId: string
+  listIsSurprise: boolean
+  onClaimed?: (itemId: string) => void
+}
+
+export default function ClaimButton({ itemId, listIsSurprise: _listIsSurprise, onClaimed }: Props) {
   const [open, setOpen] = useState(false)
   const [state, action, pending] = useActionState(claimItem, null)
+
+  useEffect(() => {
+    if (state?.success) onClaimed?.(itemId)
+  }, [state?.success, itemId, onClaimed])
 
   if (state?.success) {
     return (

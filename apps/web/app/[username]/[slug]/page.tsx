@@ -115,22 +115,6 @@ export default async function GifterPage({ params }: Props) {
             </div>
           )}
 
-          {/* Stats bar */}
-          <div style={{
-            display: 'flex', gap: 20, padding: '10px 14px',
-            background: 'var(--yellow)', border: '2px solid var(--ink)',
-            boxShadow: 'var(--shadow-sm)',
-          }}>
-            <div>
-              <div className="rg-mono" style={{ fontSize: 9, marginBottom: 1 }}>DISPONIBLES</div>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, lineHeight: 1 }}>{available}</div>
-            </div>
-            <div style={{ width: 2, background: 'var(--ink)' }} />
-            <div>
-              <div className="rg-mono" style={{ fontSize: 9, marginBottom: 1 }}>RECLAMADOS</div>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, lineHeight: 1 }}>{claimedIds.length}</div>
-            </div>
-          </div>
         </div>
 
         {/* Items (client component handles surprise blur + claim) */}

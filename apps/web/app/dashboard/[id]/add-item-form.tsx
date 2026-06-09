@@ -13,6 +13,7 @@ type ExtractedProduct = {
   title?: string | null
   description?: string | null
   price?: number | null
+  image_url?: string | null
   url?: string | null
 }
 
@@ -35,6 +36,11 @@ export default function AddItemForm({ listId, currency }: { listId: string; curr
       const res = await fetch(`/api/extract-product?url=${encodeURIComponent(extractUrl.trim())}`)
       const data = await res.json()
       if (!res.ok) { setExtractError(data.error ?? 'Error al extraer'); return }
+      const anyData = data.title || data.description || data.price || data.image_url
+      if (!anyData) {
+        setExtractError('No se pudieron extraer datos. Completá el formulario manualmente.')
+        return
+      }
       setExtracted(data)
       if (formRef.current) {
         const form = formRef.current
@@ -45,6 +51,7 @@ export default function AddItemForm({ listId, currency }: { listId: string; curr
         if (data.title)       set('title', data.title)
         if (data.description) set('description', data.description.slice(0, 200))
         if (data.price)       set('price', String(Math.round(data.price)))
+        if (data.image_url)   set('image_url', data.image_url)
         set('url', extractUrl.trim())
       }
     } catch {
@@ -141,10 +148,9 @@ export default function AddItemForm({ listId, currency }: { listId: string; curr
         />
         <input
           name="price"
-          type="number"
-          min="0"
-          step="any"
-          placeholder={`Precio en ${currency}`}
+          type="text"
+          inputMode="decimal"
+          placeholder={`Precio en ${currency} (ej: 66500)`}
           className="rg-input"
           style={{ fontSize: 13 }}
         />
@@ -152,6 +158,13 @@ export default function AddItemForm({ listId, currency }: { listId: string; curr
           name="url"
           type="url"
           placeholder="Link al producto (opcional)"
+          className="rg-input"
+          style={{ fontSize: 13 }}
+        />
+        <input
+          name="image_url"
+          type="url"
+          placeholder="Link de imagen (opcional)"
           className="rg-input"
           style={{ fontSize: 13 }}
         />

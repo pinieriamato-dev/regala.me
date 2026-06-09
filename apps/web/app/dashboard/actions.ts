@@ -20,10 +20,29 @@ const addItemSchema = z.object({
   description: z.string().max(500).optional().transform(v => v || null),
   price:       z.string().optional().transform(v => {
     if (!v) return null
-    const n = Number(v)
-    return isNaN(n) ? null : n
+    // Normalize LATAM number formats before parsing:
+    // "66.500" (period = thousands separator in es-AR) → 66500
+    // "66,5"   (comma = decimal separator in es-AR)   → 66.5
+    // "1.234,56"                                       → 1234.56
+    let s = v.trim().replace(/[^\d.,]/g, '')
+    if (!s) return null
+    const lastComma = s.lastIndexOf(',')
+    const lastDot   = s.lastIndexOf('.')
+    if (lastComma > lastDot) {
+      s = s.replace(/\./g, '').replace(',', '.')        // comma is decimal
+    } else if (lastDot > -1 && lastComma === -1 && s.slice(lastDot + 1).length === 3) {
+      s = s.replace(/\./g, '')                          // period is thousands
+    } else if (lastComma > -1 && lastDot > lastComma) {
+      s = s.replace(/,/g, '')                           // comma is thousands
+    }
+    const n = Number(s)
+    return isNaN(n) || n < 0 ? null : n
   }),
   url: z.string().max(2000).optional().transform(v => {
+    if (!v) return null
+    return /^https?:\/\//i.test(v) ? v : null
+  }),
+  image_url: z.string().max(2000).optional().transform(v => {
     if (!v) return null
     return /^https?:\/\//i.test(v) ? v : null
   }),
