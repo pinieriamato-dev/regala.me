@@ -1,6 +1,7 @@
 'use client'
 
-import { useActionState, useState } from 'react'
+import { useActionState, useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { createWishlist } from '@/app/dashboard/actions'
 import type { CreateWishlistResult } from '@/app/dashboard/actions'
 import { OCCASIONS, CURRENCIES } from 'shared'
@@ -18,11 +19,18 @@ const PRIVACY_OPTIONS: { value: Privacy; emoji: string; label: string; note?: st
 ]
 
 export default function NewListPage() {
+  const router = useRouter()
   const [state, action, pending] = useActionState<CreateWishlistResult, FormData>(createWishlist, null)
   const [occasion,  setOccasion] = useState<OccasionId | 'personal' | ''>('')
   const [currency,  setCurrency] = useState<Currency>('ARS')
   const [surprise,  setSurprise] = useState(false)
   const [privacy,   setPrivacy]  = useState<Privacy>('public')
+
+  useEffect(() => {
+    if (state && 'redirectTo' in state) {
+      router.push(state.redirectTo)
+    }
+  }, [state, router])
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -48,7 +56,7 @@ export default function NewListPage() {
       </h1>
 
       <div className="rg-card" style={{ padding: 28 }}>
-        {state?.error && (
+        {state && 'error' in state && (
           <p style={{ color: 'var(--red)', fontWeight: 700, fontSize: 13, marginBottom: 16, padding: '10px 14px', border: '2px solid var(--red)' }}>
             {state.error}
           </p>

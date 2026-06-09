@@ -30,7 +30,7 @@ const addItemSchema = z.object({
   priority: z.coerce.number().int().min(1).max(3).default(1),
 })
 
-export type CreateWishlistResult = { error: string } | null
+export type CreateWishlistResult = { error: string } | { redirectTo: string } | null
 
 export async function createWishlist(_prevState: CreateWishlistResult, formData: FormData): Promise<CreateWishlistResult> {
   const supabase = await createServerSupabase()
@@ -68,7 +68,7 @@ export async function createWishlist(_prevState: CreateWishlistResult, formData:
   if (error) return { error: 'No se pudo crear la lista. Intentá de nuevo.' }
 
   revalidatePath('/dashboard')
-  redirect(`/dashboard/${list.id}`)
+  return { redirectTo: `/dashboard/${list.id}` }
 }
 
 export async function deleteWishlist(id: string) {
