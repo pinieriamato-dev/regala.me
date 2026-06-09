@@ -41,16 +41,6 @@ const newPasswordSchema = z
     path: ['confirm'],
   })
 
-export async function getGoogleAuthUrl(): Promise<string | null> {
-  const supabase = await createServerSupabase()
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3001'
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: { redirectTo: `${siteUrl}/auth/callback`, skipBrowserRedirect: true },
-  })
-  if (error || !data.url) return null
-  return data.url
-}
 
 export async function handleAuth(_prevState: AuthState, formData: FormData): Promise<AuthState> {
   const mode = formData.get('mode') as string
