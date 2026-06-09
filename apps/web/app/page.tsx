@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation'
 import Link from 'next/link'
 
 const STEPS = [
@@ -69,7 +70,21 @@ function Logomark() {
   )
 }
 
-export default function HomePage() {
+type HomeProps = { searchParams: Promise<Record<string, string | string[] | undefined>> }
+
+export default async function HomePage({ searchParams }: HomeProps) {
+  const params = await searchParams
+  // Supabase falls back to Site URL when redirectTo isn't in allowlist — catch it here
+  if (params.code || params.token_hash) {
+    const qs = new URLSearchParams(
+      Object.fromEntries(
+        Object.entries(params).flatMap(([k, v]) =>
+          v === undefined ? [] : [[k, Array.isArray(v) ? v[0] : v]]
+        )
+      )
+    ).toString()
+    redirect(`/auth/callback?${qs}`)
+  }
   return (
     <div className="min-h-screen bg-bg text-ink">
 
