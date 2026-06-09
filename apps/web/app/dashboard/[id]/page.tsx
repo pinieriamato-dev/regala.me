@@ -5,6 +5,7 @@ import type { Item, OccasionId } from 'shared'
 import Link from 'next/link'
 import { deleteWishlist, addItem, deleteItem } from '@/app/dashboard/actions'
 import AddItemForm from './add-item-form'
+import DeleteWishlistButton from './delete-wishlist-button'
 
 type Props = { params: Promise<{ id: string }> }
 
@@ -68,16 +69,7 @@ export default async function ListDetailPage({ params }: Props) {
             )}
           </div>
         </div>
-        <form action={deleteWithId}>
-          <button
-            type="submit"
-            className="rg-btn rg-btn-ghost"
-            style={{ padding: '8px 14px', fontSize: 11 }}
-            onClick={(e) => { if (!confirm('¿Eliminar esta lista?')) e.preventDefault() }}
-          >
-            ELIMINAR
-          </button>
-        </form>
+        <DeleteWishlistButton action={deleteWithId} />
       </div>
 
       {/* Share card */}
