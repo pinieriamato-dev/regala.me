@@ -38,12 +38,12 @@ export async function createWishlist(_prevState: CreateWishlistResult, formData:
   if (!user) redirect('/auth')
 
   const parsed = createWishlistSchema.safeParse({
-    title:         formData.get('title'),
-    occasion:      formData.get('occasion'),
-    occasion_date: formData.get('occasion_date'),
-    currency:      formData.get('currency'),
+    title:         formData.get('title') ?? undefined,
+    occasion:      formData.get('occasion') ?? undefined,
+    occasion_date: formData.get('occasion_date') ?? undefined,
+    currency:      formData.get('currency') ?? undefined,
     is_surprise:   formData.get('is_surprise') === 'on',
-    privacy_level: formData.get('privacy_level'),
+    privacy_level: formData.get('privacy_level') ?? undefined,
   })
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' }
 

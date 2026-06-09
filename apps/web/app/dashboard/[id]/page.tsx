@@ -39,7 +39,8 @@ export default async function ListDetailPage({ params }: Props) {
   )
 
   const emoji = occasionEmoji(list.occasion as OccasionId)
-  const username = (list.profiles as unknown as { username: string }).username
+  const profileData = list.profiles as unknown as { username: string } | null
+  const username = profileData?.username ?? ''
   const shareUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://regala.me'}/${username}/${list.slug}`
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`¡Hola! Esta es mi lista de regalos para ${list.title}:\n${shareUrl}`)}`
 
