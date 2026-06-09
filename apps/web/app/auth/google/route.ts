@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(request: NextRequest) {
   const { origin } = request.nextUrl
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? origin
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? origin).replace(/\/$/, '')
   const supabase = await createServerSupabase()
 
   const { data, error } = await supabase.auth.signInWithOAuth({
