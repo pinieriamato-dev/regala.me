@@ -60,7 +60,6 @@ export async function createWishlist(_prevState: CreateWishlistResult, formData:
       occasion_date,
       currency,
       is_surprise,
-      is_public: privacy_level !== 'private',
       privacy_level,
     })
     .select('id')
