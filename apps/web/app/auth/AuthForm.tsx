@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useActionState, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { handleAuth, getGoogleAuthUrl, requestPasswordReset } from './actions'
+import { handleAuth, requestPasswordReset } from './actions'
 import HCaptcha from '@hcaptcha/react-hcaptcha'
 import Link from 'next/link'
 
@@ -29,11 +29,9 @@ export default function AuthForm({ siteKey }: AuthFormProps) {
   const [authCaptchaToken, setAuthCaptchaToken] = useState('')
   const [forgotCaptchaToken, setForgotCaptchaToken] = useState('')
 
-  const handleGoogleAuth = async () => {
+  const handleGoogleAuth = () => {
     setGooglePending(true)
-    const url = await getGoogleAuthUrl()
-    if (url) window.location.href = url
-    else setGooglePending(false)
+    window.location.href = '/auth/google'
   }
 
   useEffect(() => {
