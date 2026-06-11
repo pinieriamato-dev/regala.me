@@ -45,6 +45,8 @@ const newPasswordSchema = z
 export async function handleAuth(_prevState: AuthState, formData: FormData): Promise<AuthState> {
   const mode = formData.get('mode') as string
   const captchaToken = (formData.get('captchaToken') as string) || undefined
+  const siteKey = process.env.HCAPTCHA_SITE_KEY
+  if (siteKey && !captchaToken) return { error: 'Completá el captcha antes de continuar.' }
   const supabase = await createServerSupabase()
 
   if (mode === 'signup') {
@@ -93,6 +95,8 @@ export async function requestPasswordReset(_prevState: AuthState, formData: Form
   if (!parsed.success) return { error: parsed.error.issues[0].message }
 
   const captchaToken = (formData.get('captchaToken') as string) || undefined
+  const siteKey = process.env.HCAPTCHA_SITE_KEY
+  if (siteKey && !captchaToken) return { error: 'Completá el captcha antes de continuar.' }
   const supabase = await createServerSupabase()
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3001'
   const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {

@@ -24,7 +24,9 @@ const getListData = cache(async (username: string, slug: string) => {
   if (!list) return null
 
   const { data: items } = await supabase
-    .from('items').select('*').eq('wishlist_id', list.id).order('sort_order')
+    .from('items').select('*').eq('wishlist_id', list.id)
+    .order('priority', { ascending: false })
+    .order('sort_order')
 
   const itemList = items ?? []
   const itemIds = itemList.map((i: Item) => i.id)
@@ -101,7 +103,11 @@ export default async function GifterPage({ params }: Props) {
               </h1>
               {list.occasion_date && (
                 <div className="rg-mono" style={{ marginTop: 4, fontSize: 10, color: 'rgba(15,15,15,0.5)' }}>
-                  {new Date(list.occasion_date).toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                  {new Date(list.occasion_date).toLocaleDateString('es-AR',
+                    list.occasion === 'birthday'
+                      ? { day: 'numeric', month: 'long' }
+                      : { day: 'numeric', month: 'long', year: 'numeric' }
+                  )}
                 </div>
               )}
             </div>

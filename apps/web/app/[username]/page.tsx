@@ -22,7 +22,7 @@ export default async function UserProfilePage({ params }: Props) {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('username, display_name')
+    .select('id, username, display_name')
     .eq('username', username)
     .single()
 
@@ -31,6 +31,7 @@ export default async function UserProfilePage({ params }: Props) {
   const { data: lists } = await supabase
     .from('wishlists')
     .select('id, title, slug, occasion, occasion_date, created_at')
+    .eq('owner_id', profile.id)
     .eq('privacy_level', 'public')
     .order('created_at', { ascending: false })
 

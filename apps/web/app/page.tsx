@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { createServerSupabase } from '@/lib/supabase/server'
 
 const STEPS = [
   { n: '01', t: 'Armás tu lista',   d: 'Pegá links de Mercado Libre, Amazon, donde sea. O escribí "una torta de chocolate". Lo que quieras, como quieras.' },
@@ -74,6 +75,10 @@ type HomeProps = { searchParams: Promise<Record<string, string | string[] | unde
 
 export default async function HomePage({ searchParams }: HomeProps) {
   const params = await searchParams
+  // Redirect logged-in users straight to their dashboard
+  const supabase = await createServerSupabase()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (user) redirect('/dashboard')
   // Supabase falls back to Site URL when redirectTo isn't in allowlist — catch it here
   if (params.code || params.token_hash) {
     const qs = new URLSearchParams(

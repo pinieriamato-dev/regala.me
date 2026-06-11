@@ -56,6 +56,19 @@ function getTagTitle(html: string): string | null {
     .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#39;/g, "'")
 }
 
+function cleanTitle(title: string | null, siteName: string | null): string | null {
+  if (!title) return null
+  // Strip " | Site Name" or " - Site Name" suffixes from titles (common on Mercado Libre, Amazon, etc.)
+  if (siteName) {
+    const escaped = siteName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    title = title.replace(new RegExp(`\\s*[|\\-–]\\s*${escaped}\\s*$`, 'i'), '').trim()
+  }
+  // If the title is just the site name (bot-detection page), treat it as empty.
+  // Use space-stripped comparison to catch "Mercado Libre" vs "mercadolibre" (hostname-derived).
+  if (siteName && title.toLowerCase().replace(/\s+/g, '') === siteName.toLowerCase().replace(/\s+/g, '')) return null
+  return title || null
+}
+
 function getMetaName(html: string, name: string): string | null {
   let match = html.match(
     new RegExp(`<meta[^>]+name=["']${name}["'][^>]+content=["']([^"']+)["']`, 'i')
@@ -120,52 +133,53 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // redirect: 'manual' — we re-validate any Location header before following,
-    // preventing redirect-chain SSRF (e.g. public host → 302 → 169.254.169.254)
-    const res = await fetch(targetUrl.toString(), {
-      headers: FETCH_HEADERS,
-      signal: AbortSignal.timeout(8000),
-      redirect: 'manual',
-    })
+    // Follow up to 3 redirect hops, re-validating each destination via DNS to prevent
+    // redirect-chain SSRF (e.g. public host → 302 → 169.254.169.254).
+    // Mercado Libre and similar e-commerce sites often require 2+ hops to reach the product page.
+    let currentUrl = targetUrl
+    let html = ''
+    const MAX_HOPS = 3
 
-    // Handle one redirect level — re-validate destination hostname via DNS
-    if (res.status >= 300 && res.status < 400) {
-      const location = res.headers.get('location')
-      if (!location) return Response.json({ error: 'No se pudo acceder al producto' }, { status: 422 })
-
-      let redirectUrl: URL
-      try {
-        redirectUrl = new URL(location, targetUrl)
-      } catch {
-        return Response.json({ error: 'URL inválida' }, { status: 400 })
-      }
-
-      if (!['http:', 'https:'].includes(redirectUrl.protocol) || await isPrivateHost(redirectUrl.hostname)) {
-        return Response.json({ error: 'URL inválida' }, { status: 400 })
-      }
-
-      const res2 = await fetch(redirectUrl.toString(), {
+    for (let hop = 0; hop <= MAX_HOPS; hop++) {
+      const isLastAllowed = hop === MAX_HOPS
+      const res = await fetch(currentUrl.toString(), {
         headers: FETCH_HEADERS,
         signal: AbortSignal.timeout(8000),
-        redirect: 'error', // no further redirects after one hop
+        redirect: 'manual',
       })
 
-      if (!res2.ok) return Response.json({ error: 'No se pudo acceder al producto' }, { status: 422 })
-      const html = await readHtml(res2)
-      return Response.json({
-        title:       getOGTag(html, 'title') ?? getMetaName(html, 'title') ?? getTagTitle(html),
-        description: getOGTag(html, 'description') ?? getMetaName(html, 'description'),
-        image_url:   getOGTag(html, 'image'),
-        price:       extractPrice(html),
-        url: rawUrl,
-      })
+      if (res.status >= 300 && res.status < 400) {
+        if (isLastAllowed) return Response.json({ error: 'No se pudo acceder al producto' }, { status: 422 })
+        const location = res.headers.get('location')
+        if (!location) return Response.json({ error: 'No se pudo acceder al producto' }, { status: 422 })
+
+        let redirectUrl: URL
+        try {
+          redirectUrl = new URL(location, currentUrl)
+        } catch {
+          return Response.json({ error: 'URL inválida' }, { status: 400 })
+        }
+
+        if (!['http:', 'https:'].includes(redirectUrl.protocol) || await isPrivateHost(redirectUrl.hostname)) {
+          return Response.json({ error: 'URL inválida' }, { status: 400 })
+        }
+
+        currentUrl = redirectUrl
+        continue
+      }
+
+      if (!res.ok) return Response.json({ error: 'No se pudo acceder al producto' }, { status: 422 })
+      html = await readHtml(res)
+      break
     }
 
-    if (!res.ok) return Response.json({ error: 'No se pudo acceder al producto' }, { status: 422 })
-
-    const html = await readHtml(res)
+    const siteName = getOGTag(html, 'site_name')
+    // When og:site_name is absent, derive a site name from the hostname so that bot-block
+    // pages (e.g. "<title>Mercado Libre</title>" with no OG tags) are treated as empty title.
+    const hostSiteName = siteName ?? currentUrl.hostname.replace(/^www\./, '').split('.')[0]
+    const rawTitle = getOGTag(html, 'title') ?? getMetaName(html, 'title') ?? getTagTitle(html)
     return Response.json({
-      title:       getOGTag(html, 'title') ?? getMetaName(html, 'title') ?? getTagTitle(html),
+      title:       cleanTitle(rawTitle, hostSiteName),
       description: getOGTag(html, 'description') ?? getMetaName(html, 'description'),
       image_url:   getOGTag(html, 'image'),
       price:       extractPrice(html),

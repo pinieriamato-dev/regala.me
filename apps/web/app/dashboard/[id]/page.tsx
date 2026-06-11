@@ -3,9 +3,10 @@ import { redirect, notFound } from 'next/navigation'
 import { occasionEmoji } from 'shared'
 import type { Item, OccasionId } from 'shared'
 import Link from 'next/link'
-import { deleteWishlist, addItem, deleteItem } from '@/app/dashboard/actions'
+import { deleteWishlist, addItem } from '@/app/dashboard/actions'
 import AddItemForm from './add-item-form'
 import DeleteWishlistButton from './delete-wishlist-button'
+import ItemCard from './item-card'
 
 type Props = { params: Promise<{ id: string }> }
 
@@ -64,7 +65,11 @@ export default async function ListDetailPage({ params }: Props) {
             <h1 className="rg-display" style={{ fontSize: 'clamp(1.8rem, 5vw, 3rem)' }}>{list.title}</h1>
             {list.occasion_date && (
               <div className="rg-mono" style={{ fontSize: 9, color: 'rgba(15,15,15,0.45)', marginTop: 4 }}>
-                {new Date(list.occasion_date).toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                {new Date(list.occasion_date).toLocaleDateString('es-AR',
+                  list.occasion === 'birthday'
+                    ? { day: 'numeric', month: 'long' }
+                    : { day: 'numeric', month: 'long', year: 'numeric' }
+                )}
               </div>
             )}
           </div>
@@ -74,32 +79,46 @@ export default async function ListDetailPage({ params }: Props) {
 
       {/* Share card */}
       <div className="rg-card-ink" style={{ padding: '20px 22px', marginBottom: 24 }}>
-        <div className="rg-mono" style={{ fontSize: 9, color: 'rgba(251,248,238,0.5)', marginBottom: 6 }}>LINK PÚBLICO DE TU LISTA</div>
-        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, wordBreak: 'break-all', marginBottom: 16, opacity: 0.8 }}>{shareUrl}</p>
-        <div style={{ display: 'flex', gap: 10 }}>
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rg-btn"
-            style={{
-              flex: 1, padding: '10px', fontSize: 11, justifyContent: 'center',
-              background: '#25D366', color: 'var(--ink)', border: '2px solid var(--ink)',
-              boxShadow: 'var(--shadow-sm)',
-            }}
-          >
-            COMPARTIR POR WHATSAPP
-          </a>
-          <a
-            href={`/${username}/${list.slug}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rg-btn rg-btn-ghost"
-            style={{ padding: '10px 16px', fontSize: 11 }}
-          >
-            VER VISTA
-          </a>
-        </div>
+        {list.privacy_level === 'private' ? (
+          <>
+            <div className="rg-mono" style={{ fontSize: 9, color: 'rgba(251,248,238,0.5)', marginBottom: 6 }}>🔒 LISTA PRIVADA</div>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, wordBreak: 'break-all', marginBottom: 16, opacity: 0.8 }}>{shareUrl}</p>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'rgba(251,248,238,0.45)', margin: 0 }}>
+              SOLO VOS PODÉS VER ESTA LISTA. CAMBIÁ LA PRIVACIDAD PARA COMPARTIRLA.
+            </p>
+          </>
+        ) : (
+          <>
+            <div className="rg-mono" style={{ fontSize: 9, color: 'rgba(251,248,238,0.5)', marginBottom: 6 }}>
+              {list.privacy_level === 'link_only' ? '🔗 LINK PRIVADO — SOLO QUIEN TENGA EL LINK PUEDE VERLA' : 'LINK PÚBLICO DE TU LISTA'}
+            </div>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, wordBreak: 'break-all', marginBottom: 16, opacity: 0.8 }}>{shareUrl}</p>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rg-btn"
+                style={{
+                  flex: 1, padding: '10px', fontSize: 11, justifyContent: 'center',
+                  background: '#25D366', color: 'var(--ink)', border: '2px solid var(--ink)',
+                  boxShadow: 'var(--shadow-sm)',
+                }}
+              >
+                COMPARTIR POR WHATSAPP
+              </a>
+              <a
+                href={`/${username}/${list.slug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rg-btn rg-btn-ghost"
+                style={{ padding: '10px 16px', fontSize: 11 }}
+              >
+                VER VISTA
+              </a>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Items */}
@@ -108,76 +127,16 @@ export default async function ListDetailPage({ params }: Props) {
           ÍTEMS ({(items ?? []).length})
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {(items ?? []).map((item: Item) => {
-            const claimer = claimMap.get(item.id)
-            const deleteItemWithIds = deleteItem.bind(null, item.id, id)
-            return (
-              <div
-                key={item.id}
-                className="rg-card"
-                style={{
-                  padding: '14px 16px',
-                  opacity: claimer ? 0.7 : 1,
-                  display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12,
-                }}
-              >
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, flexWrap: 'wrap' }}>
-                    <p style={{
-                      fontWeight: 800, fontSize: 14, margin: 0,
-                      textDecoration: claimer ? 'line-through' : 'none',
-                      color: claimer ? 'rgba(15,15,15,0.5)' : 'var(--ink)',
-                    }}>
-                      {item.title}
-                    </p>
-                    {claimer && (
-                      list.is_surprise
-                        ? <span className="rg-sticker rg-sticker-green" style={{ fontSize: 8 }}>RECLAMADO</span>
-                        : <span className="rg-sticker rg-sticker-green" style={{ fontSize: 8 }}>✓ {claimer}</span>
-                    )}
-                    {!claimer && item.priority === 3 && (
-                      <span className="rg-sticker rg-sticker-red" style={{ fontSize: 8 }}>ESENCIAL</span>
-                    )}
-                    {!claimer && item.priority === 2 && (
-                      <span className="rg-sticker" style={{ fontSize: 8 }}>ME GUSTA</span>
-                    )}
-                  </div>
-                  {item.description && (
-                    <p style={{ fontSize: 12, color: 'rgba(15,15,15,0.6)', margin: '0 0 6px 0', lineHeight: 1.4 }}>
-                      {item.description}
-                    </p>
-                  )}
-                  <div style={{ display: 'flex', gap: 14, alignItems: 'center', flexWrap: 'wrap' }}>
-                    {item.price && (
-                      <span className="rg-mono" style={{ fontSize: 10 }}>
-                        ~{list.currency} {item.price.toLocaleString('es-AR')}
-                      </span>
-                    )}
-                    {/^https?:\/\//i.test(item.url ?? '') && (
-                      <a href={item.url!} target="_blank" rel="noopener noreferrer"
-                        className="rg-mono" style={{ fontSize: 10, color: 'var(--red)', textDecoration: 'none' }}>
-                        VER PRODUCTO →
-                      </a>
-                    )}
-                  </div>
-                </div>
-                {!claimer && (
-                  <form action={deleteItemWithIds}>
-                    <button
-                      type="submit"
-                      style={{
-                        background: 'none', border: 'none', cursor: 'pointer',
-                        fontFamily: 'var(--font-display)', fontSize: 18,
-                        color: 'rgba(15,15,15,0.3)', lineHeight: 1, padding: '4px 6px',
-                      }}
-                    >
-                      ×
-                    </button>
-                  </form>
-                )}
-              </div>
-            )
-          })}
+          {(items ?? []).map((item: Item) => (
+            <ItemCard
+              key={item.id}
+              item={item}
+              claimer={claimMap.get(item.id) ?? null}
+              listId={id}
+              currency={list.currency}
+              isSurprise={list.is_surprise ?? false}
+            />
+          ))}
         </div>
       </div>
 

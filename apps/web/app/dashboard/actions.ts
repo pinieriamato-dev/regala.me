@@ -115,6 +115,7 @@ export async function addItem(listId: string, formData: FormData) {
     description: formData.get('description'),
     price:       formData.get('price'),
     url:         formData.get('url'),
+    image_url:   formData.get('image_url'),
     priority:    formData.get('priority'),
   })
   if (!parsed.success) return
@@ -132,6 +133,37 @@ export async function addItem(listId: string, formData: FormData) {
     ...parsed.data,
     sort_order: (topItem?.sort_order ?? -1) + 1,
   })
+
+  revalidatePath(`/dashboard/${listId}`)
+}
+
+export async function editItem(itemId: string, listId: string, formData: FormData) {
+  const supabase = await createServerSupabase()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/auth')
+
+  const { data: ownedList } = await supabase
+    .from('wishlists').select('id').eq('id', listId).eq('owner_id', user.id).single()
+  if (!ownedList) return
+
+  const parsed = addItemSchema.safeParse({
+    title:       formData.get('title'),
+    description: formData.get('description'),
+    price:       formData.get('price'),
+    url:         formData.get('url'),
+    image_url:   formData.get('image_url'),
+    priority:    formData.get('priority'),
+  })
+  if (!parsed.success) return
+
+  await supabase.from('items').update({
+    title:       parsed.data.title,
+    description: parsed.data.description,
+    price:       parsed.data.price,
+    url:         parsed.data.url,
+    image_url:   parsed.data.image_url,
+    priority:    parsed.data.priority,
+  }).eq('id', itemId).eq('wishlist_id', listId)
 
   revalidatePath(`/dashboard/${listId}`)
 }
