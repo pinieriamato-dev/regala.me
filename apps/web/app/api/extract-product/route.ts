@@ -137,37 +137,17 @@ async function fetchMercadoLibreItem(itemId: string): Promise<MLResult | null> {
   }
 }
 
-// Catalog product pages (/p/MLAXXX) require the /products/ endpoint.
-// Price comes from the cheapest available item for that catalog product.
-async function fetchMercadoLibreProduct(productId: string): Promise<MLResult | null> {
-  try {
-    const res = await fetch(`https://api.mercadolibre.com/products/${productId}`, {
-      headers: { Accept: 'application/json' },
-      signal: AbortSignal.timeout(6000),
-    })
-    if (!res.ok) return null
-    const data = await res.json()
-    if (!data?.name) return null
-
-    const image_url: string | null = data.pictures?.[0]?.url ?? null
-
-    let price: number | null = null
-    try {
-      const itemsRes = await fetch(`https://api.mercadolibre.com/products/${productId}/items?limit=1`, {
-        headers: { Accept: 'application/json' },
-        signal: AbortSignal.timeout(4000),
-      })
-      if (itemsRes.ok) {
-        const itemsData = await itemsRes.json()
-        const first = itemsData?.results?.[0]
-        if (typeof first?.price === 'number') price = first.price
-      }
-    } catch { /* price stays null */ }
-
-    return { title: data.name as string, price, image_url }
-  } catch {
-    return null
-  }
+// ML catalog pages (/p/MLAXXX): the products API requires OAuth and the page HTML is
+// geo-blocked from Vercel datacenter IPs. Best effort: extract the title from the URL
+// slug (the path segment before /p/). Price and image will be null.
+function extractTitleFromMlCatalogPath(pathname: string): string | null {
+  const m = pathname.match(/\/([^/]+)\/p\//i)
+  if (!m) return null
+  return m[1]
+    .split('-')
+    .filter(Boolean)
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join(' ') || null
 }
 
 export async function GET(request: NextRequest) {
@@ -195,16 +175,18 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Fast path: MercadoLibre public REST API — reliable title + price + image.
-    // /p/ in the path = catalog product page → use /products/ endpoint.
-    // Regular listing URL → use /items/ endpoint.
+    // Fast path: MercadoLibre.
+    // Regular listing (/MLA123) → public items API: full title, price, image.
+    // Catalog page (/p/MLA123) → HTML is geo-blocked from Vercel, products API needs OAuth.
+    //   Extract title from URL slug; skip the futile HTML scrape.
     if (ML_HOSTNAME_RE.test(targetUrl.hostname)) {
       const mlMatch = targetUrl.href.match(ML_ITEM_ID_RE)
       if (mlMatch) {
-        const isCatalog = ML_CATALOG_PATH.test(targetUrl.pathname)
-        const mlData = isCatalog
-          ? await fetchMercadoLibreProduct(mlMatch[1])
-          : await fetchMercadoLibreItem(mlMatch[1])
+        if (ML_CATALOG_PATH.test(targetUrl.pathname)) {
+          const title = extractTitleFromMlCatalogPath(targetUrl.pathname)
+          return Response.json({ title, description: null, image_url: null, price: null, url: rawUrl })
+        }
+        const mlData = await fetchMercadoLibreItem(mlMatch[1])
         if (mlData?.title) {
           return Response.json({ ...mlData, description: null, url: rawUrl })
         }
