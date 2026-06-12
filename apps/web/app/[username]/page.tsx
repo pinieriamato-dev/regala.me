@@ -22,7 +22,7 @@ export default async function UserProfilePage({ params }: Props) {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('id, username, display_name')
+    .select('id, username, display_name, bio, birthday, avatar_url')
     .eq('username', username)
     .single()
 
@@ -42,12 +42,47 @@ export default async function UserProfilePage({ params }: Props) {
         <Logomark />
       </div>
       <div style={{ maxWidth: 600, margin: '0 auto', padding: '28px 20px' }}>
-        <h1 className="rg-display" style={{ fontSize: 'clamp(2.5rem, 8vw, 4rem)', marginBottom: 8 }}>
-          {(profile.display_name ?? username).toUpperCase()}
-        </h1>
-        <div className="rg-mono" style={{ fontSize: 10, marginBottom: 32, color: 'rgba(15,15,15,0.5)' }}>
-          @{username}
+        {/* Avatar + identity */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 18, marginBottom: 20 }}>
+          <div style={{
+            width: 80, height: 80, flexShrink: 0,
+            border: '2px solid var(--ink)', boxShadow: 'var(--shadow-sm)',
+            background: 'var(--yellow)', overflow: 'hidden',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            {profile.avatar_url && /^https?:\/\//i.test(profile.avatar_url)
+              ? <img src={profile.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              : <span className="rg-display" style={{ fontSize: 28 }}>
+                  {(profile.display_name ?? username).slice(0, 2).toUpperCase()}
+                </span>
+            }
+          </div>
+          <div>
+            <h1 className="rg-display" style={{ fontSize: 'clamp(1.8rem, 6vw, 3rem)', lineHeight: 1 }}>
+              {(profile.display_name ?? username).toUpperCase()}
+            </h1>
+            <div className="rg-mono" style={{ fontSize: 10, marginTop: 4, color: 'rgba(15,15,15,0.5)' }}>
+              @{username}
+            </div>
+          </div>
         </div>
+
+        {/* Bio + birthday */}
+        {(profile.bio || profile.birthday) && (
+          <div style={{ marginBottom: 28, display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {profile.bio && (
+              <p style={{ fontSize: 14, color: 'rgba(15,15,15,0.7)', margin: 0, lineHeight: 1.5 }}>
+                {profile.bio}
+              </p>
+            )}
+            {profile.birthday && (
+              <div className="rg-mono" style={{ fontSize: 10, color: 'rgba(15,15,15,0.5)' }}>
+                🎂 {new Date(profile.birthday).toLocaleDateString('es-AR', { day: 'numeric', month: 'long' })}
+              </div>
+            )}
+          </div>
+        )}
+        {!profile.bio && !profile.birthday && <div style={{ marginBottom: 28 }} />}
 
         {(lists ?? []).length === 0 ? (
           <div style={{ padding: '40px 24px', textAlign: 'center', border: '2px dashed var(--ink)' }}>

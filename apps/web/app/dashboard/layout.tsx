@@ -25,6 +25,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <Link href="/dashboard/new" className="rg-mono" style={{ fontSize: 10, color: 'rgba(15,15,15,0.55)', textDecoration: 'none' }}>
               + NUEVA
             </Link>
+            <Link href="/dashboard/profile" className="rg-mono" style={{ fontSize: 10, color: 'rgba(15,15,15,0.55)', textDecoration: 'none' }}>
+              MI PERFIL
+            </Link>
             <span style={{ width: 1, height: 14, background: 'rgba(15,15,15,0.15)', display: 'inline-block' }} />
             <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'rgba(15,15,15,0.5)' }}>
               {displayName.toUpperCase()}

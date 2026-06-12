@@ -90,6 +90,30 @@ export async function createWishlist(_prevState: CreateWishlistResult, formData:
   return { redirectTo: `/dashboard/${list.id}` }
 }
 
+export async function updateProfile(_prevState: { error?: string } | null, formData: FormData): Promise<{ error?: string } | null> {
+  const supabase = await createServerSupabase()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/auth')
+
+  const displayName = (formData.get('display_name') as string | null)?.trim() || null
+  const bio         = (formData.get('bio') as string | null)?.trim() || null
+  const birthdayRaw = (formData.get('birthday') as string | null)?.trim() || null
+  const avatarUrl   = (formData.get('avatar_url') as string | null)?.trim() || null
+
+  const birthday = birthdayRaw && /^\d{4}-\d{2}-\d{2}$/.test(birthdayRaw) ? birthdayRaw : null
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({ display_name: displayName, bio, birthday, avatar_url: avatarUrl || undefined })
+    .eq('id', user.id)
+
+  if (error) return { error: 'No se pudo guardar el perfil.' }
+
+  revalidatePath('/dashboard')
+  revalidatePath('/dashboard/profile')
+  return null
+}
+
 export async function updateSurprise(listId: string, isSurprise: boolean) {
   const supabase = await createServerSupabase()
   const { data: { user } } = await supabase.auth.getUser()
