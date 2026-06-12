@@ -19,15 +19,15 @@ type Props = {
 }
 
 export default function ItemCard({ item, claimer, listId, currency, isSurprise }: Props) {
-  const [hidden,   setHidden]   = useState(false)
-  const [editing,  setEditing]  = useState(false)
-  const [revealed, setRevealed] = useState(false)
+  const [hidden,  setHidden]  = useState(false)
+  const [editing, setEditing] = useState(false)
   const [deletePending, startDeleteTransition] = useTransition()
 
   if (hidden) return null
 
-  const isClaimed         = !!claimer
-  const blurForSurprise   = isSurprise && isClaimed && !revealed
+  // For surprise lists the owner sees all items as unclaimed — no spoilers.
+  const displayedClaimer = isSurprise ? null : claimer
+  const isClaimed        = !!displayedClaimer
 
   const handleDelete = () => {
     setHidden(true)
@@ -53,7 +53,7 @@ export default function ItemCard({ item, claimer, listId, currency, isSurprise }
       className="rg-card"
       style={{
         padding: '14px 16px',
-        opacity: isClaimed && !isSurprise ? 0.7 : 1,
+        opacity: isClaimed ? 0.7 : 1,
         display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12,
       }}
     >
@@ -61,19 +61,13 @@ export default function ItemCard({ item, claimer, listId, currency, isSurprise }
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, flexWrap: 'wrap' }}>
           <p style={{
             fontWeight: 800, fontSize: 14, margin: 0,
-            textDecoration: isClaimed && !isSurprise ? 'line-through' : 'none',
-            color: isClaimed && !isSurprise ? 'rgba(15,15,15,0.5)' : 'var(--ink)',
-            filter: blurForSurprise ? 'blur(4px)' : 'none',
-            transition: 'filter 0.2s',
-            userSelect: blurForSurprise ? 'none' : 'auto',
+            textDecoration: isClaimed ? 'line-through' : 'none',
+            color: isClaimed ? 'rgba(15,15,15,0.5)' : 'var(--ink)',
           }}>
             {item.title}
           </p>
-          {isClaimed && !isSurprise && (
-            <span className="rg-sticker rg-sticker-green" style={{ fontSize: 8 }}>✓ {claimer}</span>
-          )}
-          {isClaimed && isSurprise && (
-            <span className="rg-sticker rg-sticker-green" style={{ fontSize: 8 }}>RECLAMADO</span>
+          {isClaimed && (
+            <span className="rg-sticker rg-sticker-green" style={{ fontSize: 8 }}>✓ {displayedClaimer}</span>
           )}
           {!isClaimed && item.priority === 3 && (
             <span className="rg-sticker rg-sticker-red" style={{ fontSize: 8 }}>ESENCIAL</span>
@@ -83,16 +77,13 @@ export default function ItemCard({ item, claimer, listId, currency, isSurprise }
           )}
         </div>
         {item.description && (
-          <p style={{
-            fontSize: 12, color: 'rgba(15,15,15,0.6)', margin: '0 0 6px 0', lineHeight: 1.4,
-            filter: blurForSurprise ? 'blur(4px)' : 'none',
-          }}>
+          <p style={{ fontSize: 12, color: 'rgba(15,15,15,0.6)', margin: '0 0 6px 0', lineHeight: 1.4 }}>
             {item.description}
           </p>
         )}
         <div style={{ display: 'flex', gap: 14, alignItems: 'center', flexWrap: 'wrap' }}>
           {item.price && (
-            <span className="rg-mono" style={{ fontSize: 10, filter: blurForSurprise ? 'blur(4px)' : 'none' }}>
+            <span className="rg-mono" style={{ fontSize: 10 }}>
               ~{currency} {item.price.toLocaleString('es-AR')}
             </span>
           )}
@@ -103,18 +94,6 @@ export default function ItemCard({ item, claimer, listId, currency, isSurprise }
             </a>
           )}
         </div>
-        {isClaimed && isSurprise && (
-          <button
-            onClick={() => setRevealed(!revealed)}
-            className="rg-mono"
-            style={{
-              background: 'none', border: 'none', cursor: 'pointer', fontSize: 9,
-              color: 'rgba(15,15,15,0.45)', marginTop: 6, padding: 0, textDecoration: 'underline',
-            }}
-          >
-            {revealed ? 'OCULTAR' : '¿VER DE TODOS MODOS?'}
-          </button>
-        )}
       </div>
       <div style={{ display: 'flex', gap: 4, flexShrink: 0, alignItems: 'center' }}>
         <button

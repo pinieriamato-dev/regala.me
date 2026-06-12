@@ -108,6 +108,33 @@ function extractPrice(html: string): number | null {
   return null
 }
 
+// MercadoLibre public Items API — no key required.
+// Supports all ML country codes: MLA (AR), MLB (BR), MLM (MX), MLC (CL), MCO (CO), MLU (UY), etc.
+const ML_HOSTNAME_RE = /mercadolibre\.|mercadopago\.|mercadoshops\./i
+const ML_ITEM_ID_RE  = /\b(ML[A-Z]-?\d+|MCO\d+)\b/i
+
+async function fetchMercadoLibreItem(itemId: string): Promise<{
+  title: string | null; price: number | null; image_url: string | null
+} | null> {
+  const normalizedId = itemId.replace('-', '')
+  try {
+    const res = await fetch(`https://api.mercadolibre.com/items/${normalizedId}`, {
+      headers: { Accept: 'application/json' },
+      signal: AbortSignal.timeout(6000),
+    })
+    if (!res.ok) return null
+    const data = await res.json()
+    if (!data?.title) return null
+    return {
+      title:     data.title ?? null,
+      price:     typeof data.price === 'number' ? data.price : null,
+      image_url: data.pictures?.[0]?.secure_url ?? data.pictures?.[0]?.url ?? null,
+    }
+  } catch {
+    return null
+  }
+}
+
 export async function GET(request: NextRequest) {
   const supabase = await createServerSupabase()
   const { data: { user } } = await supabase.auth.getUser()
@@ -133,6 +160,17 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    // Fast path: MercadoLibre public REST API — reliable title + price + image
+    if (ML_HOSTNAME_RE.test(targetUrl.hostname)) {
+      const mlMatch = targetUrl.href.match(ML_ITEM_ID_RE)
+      if (mlMatch) {
+        const mlData = await fetchMercadoLibreItem(mlMatch[1])
+        if (mlData?.title) {
+          return Response.json({ ...mlData, description: null, url: rawUrl })
+        }
+      }
+    }
+
     // Follow up to 3 redirect hops, re-validating each destination via DNS to prevent
     // redirect-chain SSRF (e.g. public host → 302 → 169.254.169.254).
     // Mercado Libre and similar e-commerce sites often require 2+ hops to reach the product page.

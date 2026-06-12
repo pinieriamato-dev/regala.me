@@ -36,9 +36,16 @@ export default async function DashboardPage() {
             TUS <span className="rg-em">LISTAS.</span>
           </h1>
         </div>
-        <Link href="/dashboard/new" className="rg-btn rg-btn-primary">
-          + NUEVA LISTA
-        </Link>
+        <div style={{ display: 'flex', gap: 8 }}>
+          {(lists ?? []).length >= 2 && (
+            <Link href="/dashboard/merge" className="rg-btn rg-btn-ghost" style={{ padding: '9px 14px', fontSize: 11 }}>
+              COMBINAR
+            </Link>
+          )}
+          <Link href="/dashboard/new" className="rg-btn rg-btn-primary">
+            + NUEVA LISTA
+          </Link>
+        </div>
       </div>
 
       {/* URL extraction tip */}

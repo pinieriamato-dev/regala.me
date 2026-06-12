@@ -90,6 +90,38 @@ export async function createWishlist(_prevState: CreateWishlistResult, formData:
   return { redirectTo: `/dashboard/${list.id}` }
 }
 
+export async function mergeWishlists(sourceId: string, targetId: string) {
+  const supabase = await createServerSupabase()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/auth')
+
+  // Verify the user owns both lists
+  const { data: owned } = await supabase
+    .from('wishlists').select('id').eq('owner_id', user.id).in('id', [sourceId, targetId])
+  if (!owned || owned.length !== 2) return
+
+  // Find the position to append source items after target items
+  const { count: targetCount } = await supabase
+    .from('items').select('id', { count: 'exact', head: true }).eq('wishlist_id', targetId)
+
+  const { data: sourceItems } = await supabase
+    .from('items').select('id').eq('wishlist_id', sourceId).order('sort_order')
+
+  if (sourceItems?.length) {
+    const offset = targetCount ?? 0
+    await Promise.all(
+      sourceItems.map((item, i) =>
+        supabase.from('items')
+          .update({ wishlist_id: targetId, sort_order: offset + i })
+          .eq('id', item.id)
+      )
+    )
+  }
+
+  await supabase.from('wishlists').delete().eq('id', sourceId).eq('owner_id', user.id)
+  revalidatePath('/dashboard')
+}
+
 export async function deleteWishlist(id: string) {
   const supabase = await createServerSupabase()
   const { data: { user } } = await supabase.auth.getUser()
