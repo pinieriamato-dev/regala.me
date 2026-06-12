@@ -8,6 +8,7 @@ import AddItemForm from './add-item-form'
 import DeleteWishlistButton from './delete-wishlist-button'
 import ItemCard from './item-card'
 import PrivacyEditor from './privacy-editor'
+import SurpriseToggle from './surprise-toggle'
 
 type Props = { params: Promise<{ id: string }> }
 
@@ -121,6 +122,7 @@ export default async function ListDetailPage({ params }: Props) {
           </>
         )}
         <PrivacyEditor listId={id} current={(list.privacy_level ?? 'public') as 'public' | 'link_only' | 'private'} />
+        <SurpriseToggle listId={id} current={list.is_surprise ?? false} />
       </div>
 
       {/* Items */}
