@@ -90,6 +90,20 @@ export async function createWishlist(_prevState: CreateWishlistResult, formData:
   return { redirectTo: `/dashboard/${list.id}` }
 }
 
+export async function updatePrivacy(listId: string, privacyLevel: 'public' | 'link_only' | 'private') {
+  const supabase = await createServerSupabase()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/auth')
+
+  await supabase
+    .from('wishlists')
+    .update({ privacy_level: privacyLevel })
+    .eq('id', listId)
+    .eq('owner_id', user.id)
+
+  revalidatePath(`/dashboard/${listId}`)
+}
+
 export async function mergeWishlists(sourceId: string, targetId: string) {
   const supabase = await createServerSupabase()
   const { data: { user } } = await supabase.auth.getUser()

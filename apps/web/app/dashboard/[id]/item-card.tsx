@@ -159,8 +159,6 @@ function EditForm({
         <div className="rg-mono" style={{ fontSize: 9, marginBottom: 2, color: 'rgba(15,15,15,0.6)' }}>
           EDITANDO ÍTEM
         </div>
-        {/* Preserve image_url silently */}
-        <input type="hidden" name="image_url" value={item.image_url ?? ''} />
         <input
           name="title"
           type="text"
@@ -194,6 +192,14 @@ function EditForm({
           className="rg-input"
           style={{ fontSize: 13 }}
           placeholder="Link al producto (opcional)"
+        />
+        <input
+          name="image_url"
+          type="url"
+          defaultValue={item.image_url ?? ''}
+          className="rg-input"
+          style={{ fontSize: 13 }}
+          placeholder="Link de imagen (opcional)"
         />
         <div>
           <div className="rg-mono" style={{ fontSize: 9, marginBottom: 6, color: 'rgba(15,15,15,0.6)' }}>
