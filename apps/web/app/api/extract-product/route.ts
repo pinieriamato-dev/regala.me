@@ -108,14 +108,39 @@ function extractPrice(html: string): number | null {
   return null
 }
 
-// MercadoLibre public APIs — no key required.
+// MercadoLibre APIs.
 // Supports all ML country codes: MLA (AR), MLB (BR), MLM (MX), MLC (CL), MCO (CO), MLU (UY), etc.
 const ML_HOSTNAME_RE  = /mercadolibre\.|mercadopago\.|mercadoshops\./i
 const ML_ITEM_ID_RE   = /\b(ML[A-Z]-?\d+|MCO\d+)\b/i
-// Catalog product URLs contain /p/ before the ID (e.g. /p/MLA52947145)
 const ML_CATALOG_PATH = /\/p\//i
 
 type MLResult = { title: string | null; price: number | null; image_url: string | null }
+
+// Module-level token cache — survives across requests on warm serverless instances.
+let mlTokenCache: { token: string; expiresAt: number } | null = null
+
+async function getMLToken(): Promise<string | null> {
+  const now = Date.now()
+  if (mlTokenCache && mlTokenCache.expiresAt > now + 60_000) return mlTokenCache.token
+  const clientId     = process.env.ML_CLIENT_ID
+  const clientSecret = process.env.ML_CLIENT_SECRET
+  if (!clientId || !clientSecret) return null
+  try {
+    const res = await fetch('https://api.mercadolibre.com/oauth/token', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body:    new URLSearchParams({ grant_type: 'client_credentials', client_id: clientId, client_secret: clientSecret }),
+      signal:  AbortSignal.timeout(5000),
+    })
+    if (!res.ok) return null
+    const data = await res.json()
+    if (!data?.access_token) return null
+    mlTokenCache = { token: data.access_token, expiresAt: now + (data.expires_in ?? 21600) * 1000 }
+    return mlTokenCache.token
+  } catch {
+    return null
+  }
+}
 
 async function fetchMercadoLibreItem(itemId: string): Promise<MLResult | null> {
   const normalizedId = itemId.replace('-', '')
@@ -137,17 +162,44 @@ async function fetchMercadoLibreItem(itemId: string): Promise<MLResult | null> {
   }
 }
 
-// ML catalog pages (/p/MLAXXX): the products API requires OAuth and the page HTML is
-// geo-blocked from Vercel datacenter IPs. Best effort: extract the title from the URL
-// slug (the path segment before /p/). Price and image will be null.
-function extractTitleFromMlCatalogPath(pathname: string): string | null {
+// Catalog pages (/p/MLAXXX) are geo-blocked from Vercel IPs and the products API needs OAuth.
+// With ML_CLIENT_ID + ML_CLIENT_SECRET env vars set, we get a client credentials token
+// and call /products/{id} (title + image) + /products/{id}/items?limit=1 (price).
+// Falls back to slug-derived title if credentials are absent or the API fails.
+async function fetchMercadoLibreProduct(productId: string, pathname: string): Promise<MLResult | null> {
+  const token = await getMLToken()
+  if (token) {
+    try {
+      const headers = { Accept: 'application/json', Authorization: `Bearer ${token}` }
+      const res = await fetch(`https://api.mercadolibre.com/products/${productId}`, {
+        headers, signal: AbortSignal.timeout(6000),
+      })
+      if (res.ok) {
+        const data = await res.json()
+        if (data?.name) {
+          const image_url: string | null = data.pictures?.[0]?.url ?? null
+          let price: number | null = null
+          try {
+            const ir = await fetch(`https://api.mercadolibre.com/products/${productId}/items?limit=1`, {
+              headers, signal: AbortSignal.timeout(4000),
+            })
+            if (ir.ok) {
+              const id = await ir.json()
+              const first = id?.results?.[0]
+              if (typeof first?.price === 'number') price = first.price
+            }
+          } catch { /* price stays null */ }
+          return { title: data.name as string, price, image_url }
+        }
+      }
+    } catch { /* fall through to slug */ }
+  }
+  // No credentials or API failed — extract title from URL slug, price/image will be null.
   const m = pathname.match(/\/([^/]+)\/p\//i)
   if (!m) return null
-  return m[1]
-    .split('-')
-    .filter(Boolean)
-    .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
-    .join(' ') || null
+  const title = m[1].split('-').filter(Boolean)
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ') || null
+  return title ? { title, price: null, image_url: null } : null
 }
 
 export async function GET(request: NextRequest) {
@@ -183,8 +235,8 @@ export async function GET(request: NextRequest) {
       const mlMatch = targetUrl.href.match(ML_ITEM_ID_RE)
       if (mlMatch) {
         if (ML_CATALOG_PATH.test(targetUrl.pathname)) {
-          const title = extractTitleFromMlCatalogPath(targetUrl.pathname)
-          return Response.json({ title, description: null, image_url: null, price: null, url: rawUrl })
+          const mlData = await fetchMercadoLibreProduct(mlMatch[1], targetUrl.pathname)
+          return Response.json({ ...mlData, description: null, url: rawUrl })
         }
         const mlData = await fetchMercadoLibreItem(mlMatch[1])
         if (mlData?.title) {
