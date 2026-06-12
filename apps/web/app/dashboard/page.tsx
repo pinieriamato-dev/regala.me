@@ -48,6 +48,37 @@ export default async function DashboardPage() {
         </div>
       </div>
 
+      {/* Profile link */}
+      {profile?.username && (
+        <div className="rg-card-ink" style={{ padding: '16px 20px', marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+          <div style={{ minWidth: 0 }}>
+            <div className="rg-mono" style={{ fontSize: 9, color: 'rgba(251,248,238,0.5)', marginBottom: 4 }}>TU PERFIL PÚBLICO</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--paper)', wordBreak: 'break-all' }}>
+              {process.env.NEXT_PUBLIC_SITE_URL ?? 'https://regala.me'}/{profile.username}
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+            <Link
+              href={`/${profile.username}`}
+              target="_blank"
+              className="rg-btn rg-btn-ghost"
+              style={{ padding: '8px 14px', fontSize: 11, color: 'var(--paper)', borderColor: 'rgba(251,248,238,0.3)' }}
+            >
+              VER
+            </Link>
+            <a
+              href={`https://wa.me/?text=${encodeURIComponent(`¡Hola! Mirá mis listas de regalos en regala.me: ${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://regala.me'}/${profile.username}`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rg-btn"
+              style={{ padding: '8px 14px', fontSize: 11, background: '#25D366', color: 'var(--ink)', border: '2px solid rgba(251,248,238,0.3)', boxShadow: 'none' }}
+            >
+              COMPARTIR
+            </a>
+          </div>
+        </div>
+      )}
+
       {/* URL extraction tip */}
       <div style={{
         marginBottom: 28, padding: '14px 18px',

@@ -67,7 +67,11 @@ export default async function UserProfilePage({ params }: Props) {
                   <div style={{ fontWeight: 800, fontSize: 15 }}>{list.title}</div>
                   {list.occasion_date && (
                     <div className="rg-mono" style={{ fontSize: 9, marginTop: 3, color: 'rgba(15,15,15,0.5)' }}>
-                      {new Date(list.occasion_date).toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                      {new Date(list.occasion_date).toLocaleDateString('es-AR',
+                        list.occasion === 'birthday'
+                          ? { day: 'numeric', month: 'long' }
+                          : { day: 'numeric', month: 'long', year: 'numeric' }
+                      )}
                     </div>
                   )}
                 </div>
