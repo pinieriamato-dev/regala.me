@@ -97,36 +97,46 @@ export default function GifterItems({ items, claimedIds, currency, isOwnerSurpri
                 )}
               </div>
             ) : (
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, marginBottom: 6 }}>
-                  <p style={{ fontWeight: 800, fontSize: 15, margin: 0, lineHeight: 1.3 }}>{item.title}</p>
-                  {item.priority === 3 && (
-                    <span className="rg-sticker rg-sticker-red" style={{ fontSize: 8, flexShrink: 0 }}>ESENCIAL</span>
-                  )}
-                  {item.priority === 2 && (
-                    <span className="rg-sticker" style={{ fontSize: 8, flexShrink: 0 }}>ME GUSTA</span>
-                  )}
-                </div>
-                {item.description && (
-                  <p style={{ fontSize: 12, color: 'rgba(15,15,15,0.65)', margin: '0 0 8px 0', lineHeight: 1.45 }}>
-                    {item.description}
-                  </p>
+              <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                {/^https?:\/\//i.test(item.image_url ?? '') && (
+                  <img
+                    src={item.image_url!}
+                    alt=""
+                    style={{ width: 80, height: 80, objectFit: 'cover', border: '2px solid var(--ink)', flexShrink: 0 }}
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                  />
                 )}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 10, flexWrap: 'wrap', gap: 8 }}>
-                  {item.price ? (
-                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 700 }}>
-                      ~{currency} {item.price.toLocaleString('es-AR')}
-                    </div>
-                  ) : <div />}
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    {/^https?:\/\//i.test(item.url ?? '') && (
-                      <a href={item.url!} target="_blank" rel="noopener noreferrer"
-                        className="rg-btn rg-btn-ghost"
-                        style={{ padding: '7px 12px', fontSize: 11 }}>
-                        VER PRODUCTO
-                      </a>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, marginBottom: 6 }}>
+                    <p style={{ fontWeight: 800, fontSize: 15, margin: 0, lineHeight: 1.3 }}>{item.title}</p>
+                    {item.priority === 3 && (
+                      <span className="rg-sticker rg-sticker-red" style={{ fontSize: 8, flexShrink: 0 }}>ESENCIAL</span>
                     )}
-                    <ClaimButton itemId={item.id} listIsSurprise={listIsSurprise} onClaimed={handleClaimed} />
+                    {item.priority === 2 && (
+                      <span className="rg-sticker" style={{ fontSize: 8, flexShrink: 0 }}>ME GUSTA</span>
+                    )}
+                  </div>
+                  {item.description && (
+                    <p style={{ fontSize: 12, color: 'rgba(15,15,15,0.65)', margin: '0 0 8px 0', lineHeight: 1.45 }}>
+                      {item.description}
+                    </p>
+                  )}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 10, flexWrap: 'wrap', gap: 8 }}>
+                    {item.price ? (
+                      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 700 }}>
+                        ~{currency} {item.price.toLocaleString('es-AR')}
+                      </div>
+                    ) : <div />}
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                      {/^https?:\/\//i.test(item.url ?? '') && (
+                        <a href={item.url!} target="_blank" rel="noopener noreferrer"
+                          className="rg-btn rg-btn-ghost"
+                          style={{ padding: '7px 12px', fontSize: 11 }}>
+                          VER PRODUCTO
+                        </a>
+                      )}
+                      <ClaimButton itemId={item.id} listIsSurprise={listIsSurprise} onClaimed={handleClaimed} />
+                    </div>
                   </div>
                 </div>
               </div>

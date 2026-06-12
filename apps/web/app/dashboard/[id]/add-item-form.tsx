@@ -123,9 +123,19 @@ export default function AddItemForm({ listId, currency }: { listId: string; curr
           </p>
         )}
         {extracted && (
-          <p className="rg-mono" style={{ fontSize: 9, color: 'var(--ink)', marginTop: 8, margin: '8px 0 0' }}>
-            ✓ DATOS EXTRAÍDOS. REVISÁ Y AJUSTÁ SI HACE FALTA.
-          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 8 }}>
+            {/^https?:\/\//i.test(extracted.image_url ?? '') && (
+              <img
+                src={extracted.image_url!}
+                alt=""
+                style={{ width: 48, height: 48, objectFit: 'cover', border: '2px solid var(--ink)', flexShrink: 0 }}
+                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+              />
+            )}
+            <p className="rg-mono" style={{ fontSize: 9, color: 'var(--ink)', margin: 0 }}>
+              ✓ DATOS EXTRAÍDOS. REVISÁ Y AJUSTÁ SI HACE FALTA.
+            </p>
+          </div>
         )}
       </div>
 

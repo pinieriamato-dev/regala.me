@@ -57,6 +57,14 @@ export default function ItemCard({ item, claimer, listId, currency, isSurprise }
         display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12,
       }}
     >
+      {/^https?:\/\//i.test(item.image_url ?? '') && (
+        <img
+          src={item.image_url!}
+          alt=""
+          style={{ width: 56, height: 56, objectFit: 'cover', border: '2px solid var(--ink)', flexShrink: 0 }}
+          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+        />
+      )}
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, flexWrap: 'wrap' }}>
           <p style={{
