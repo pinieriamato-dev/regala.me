@@ -108,14 +108,16 @@ function extractPrice(html: string): number | null {
   return null
 }
 
-// MercadoLibre public Items API — no key required.
+// MercadoLibre public APIs — no key required.
 // Supports all ML country codes: MLA (AR), MLB (BR), MLM (MX), MLC (CL), MCO (CO), MLU (UY), etc.
-const ML_HOSTNAME_RE = /mercadolibre\.|mercadopago\.|mercadoshops\./i
-const ML_ITEM_ID_RE  = /\b(ML[A-Z]-?\d+|MCO\d+)\b/i
+const ML_HOSTNAME_RE  = /mercadolibre\.|mercadopago\.|mercadoshops\./i
+const ML_ITEM_ID_RE   = /\b(ML[A-Z]-?\d+|MCO\d+)\b/i
+// Catalog product URLs contain /p/ before the ID (e.g. /p/MLA52947145)
+const ML_CATALOG_PATH = /\/p\//i
 
-async function fetchMercadoLibreItem(itemId: string): Promise<{
-  title: string | null; price: number | null; image_url: string | null
-} | null> {
+type MLResult = { title: string | null; price: number | null; image_url: string | null }
+
+async function fetchMercadoLibreItem(itemId: string): Promise<MLResult | null> {
   const normalizedId = itemId.replace('-', '')
   try {
     const res = await fetch(`https://api.mercadolibre.com/items/${normalizedId}`, {
@@ -130,6 +132,39 @@ async function fetchMercadoLibreItem(itemId: string): Promise<{
       price:     typeof data.price === 'number' ? data.price : null,
       image_url: data.pictures?.[0]?.secure_url ?? data.pictures?.[0]?.url ?? null,
     }
+  } catch {
+    return null
+  }
+}
+
+// Catalog product pages (/p/MLAXXX) require the /products/ endpoint.
+// Price comes from the cheapest available item for that catalog product.
+async function fetchMercadoLibreProduct(productId: string): Promise<MLResult | null> {
+  try {
+    const res = await fetch(`https://api.mercadolibre.com/products/${productId}`, {
+      headers: { Accept: 'application/json' },
+      signal: AbortSignal.timeout(6000),
+    })
+    if (!res.ok) return null
+    const data = await res.json()
+    if (!data?.name) return null
+
+    const image_url: string | null = data.pictures?.[0]?.url ?? null
+
+    let price: number | null = null
+    try {
+      const itemsRes = await fetch(`https://api.mercadolibre.com/products/${productId}/items?limit=1`, {
+        headers: { Accept: 'application/json' },
+        signal: AbortSignal.timeout(4000),
+      })
+      if (itemsRes.ok) {
+        const itemsData = await itemsRes.json()
+        const first = itemsData?.results?.[0]
+        if (typeof first?.price === 'number') price = first.price
+      }
+    } catch { /* price stays null */ }
+
+    return { title: data.name as string, price, image_url }
   } catch {
     return null
   }
@@ -160,11 +195,16 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Fast path: MercadoLibre public REST API — reliable title + price + image
+    // Fast path: MercadoLibre public REST API — reliable title + price + image.
+    // /p/ in the path = catalog product page → use /products/ endpoint.
+    // Regular listing URL → use /items/ endpoint.
     if (ML_HOSTNAME_RE.test(targetUrl.hostname)) {
       const mlMatch = targetUrl.href.match(ML_ITEM_ID_RE)
       if (mlMatch) {
-        const mlData = await fetchMercadoLibreItem(mlMatch[1])
+        const isCatalog = ML_CATALOG_PATH.test(targetUrl.pathname)
+        const mlData = isCatalog
+          ? await fetchMercadoLibreProduct(mlMatch[1])
+          : await fetchMercadoLibreItem(mlMatch[1])
         if (mlData?.title) {
           return Response.json({ ...mlData, description: null, url: rawUrl })
         }
