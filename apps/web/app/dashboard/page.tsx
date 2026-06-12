@@ -62,7 +62,7 @@ export default async function DashboardPage() {
               href={`/${profile.username}`}
               target="_blank"
               className="rg-btn rg-btn-ghost"
-              style={{ padding: '8px 14px', fontSize: 11, color: 'var(--paper)', borderColor: 'rgba(251,248,238,0.3)' }}
+              style={{ padding: '8px 14px', fontSize: 11 }}
             >
               VER
             </Link>
