@@ -52,7 +52,7 @@ regala.me/                          ← monorepo root (Turborepo + pnpm)
 
 ```sql
 -- Auto-created on signup via trigger
-profiles (id PK, username UNIQUE, display_name, avatar_url, created_at)
+profiles (id PK, username UNIQUE, display_name, bio, birthday, avatar_url, created_at)
 
 wishlists (
   id PK, owner_id → profiles.id, title, slug,
@@ -61,7 +61,7 @@ wishlists (
   recipient_name TEXT nullable,
   is_surprise BOOL default false,
   currency TEXT default 'ARS',    -- ARS|BRL|MXN|CLP|COP|UYU|PEN|USD
-  is_public BOOL default true,
+  privacy_level TEXT default 'public',  -- 'public'|'link_only'|'private' (is_public column was dropped)
   created_at TIMESTAMPTZ
 )
 
@@ -83,12 +83,16 @@ claims (
 ```
 
 ### RLS policies (important)
-- `wishlists`: Owners can CRUD their own. Anyone can SELECT where `is_public = true`.
+- `wishlists`: Owners can CRUD their own. Anyone can SELECT where `privacy_level = 'public'` (public gifter view route 404s otherwise).
 - `items`: Owners can CRUD via their wishlist. Anyone can SELECT items of a public list.
 - `claims`: Anyone can INSERT (no auth required — gifters just enter their name). Owners can SELECT claims for their lists.
 
 ### No migration files in repo
 Schema was applied via Supabase MCP during initial setup. Any future schema changes should be applied via `mcp__claude_ai_Supabase__apply_migration` and documented here.
+
+### Supabase Storage
+Bucket `avatars` (public read, owner-scoped upload policies) backs `POST /api/upload-avatar`.
+Must exist with upload policies configured — not created via migration, set up manually in the dashboard.
 
 ---
 
@@ -99,6 +103,9 @@ Schema was applied via Supabase MCP during initial setup. Any future schema chan
 SUPABASE_URL=https://esyybmnwalscpnzfeowh.supabase.co
 SUPABASE_PUBLISHABLE_KEY=<publishable key>
 NEXT_PUBLIC_SITE_URL=https://regala.me        # optional, defaults to https://regala.me
+ML_CLIENT_ID=<optional — Mercado Libre client-credentials OAuth for /api/extract-product>
+ML_CLIENT_SECRET=<optional — see above>
+HCAPTCHA_SITE_KEY=<optional — gates signup/signin/reset forms; captcha is skipped entirely if unset>
 ```
 
 ### Mobile — `apps/mobile/.env`
@@ -117,7 +124,7 @@ EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<publishable key>
 ```bash
 # From monorepo root
 pnpm install                    # install all workspaces
-pnpm dev:web                    # Next.js on :3001 (port 3000 often taken)
+pnpm dev:web                    # Next.js on :3000 (pinned in apps/web/package.json)
 pnpm dev:mobile                 # Expo Metro bundler on :8081
 pnpm build                      # build all apps
 pnpm typecheck                  # typecheck all apps
@@ -125,8 +132,10 @@ pnpm --filter web typecheck     # typecheck one app
 pnpm --filter mobile typecheck
 ```
 
-### Starting web dev server
-Port 3000 may be in use. Use `npx next dev --port 3001` directly from `apps/web/` or update the `dev` script.
+### Dev server port note
+Port 3000 is pinned in the `dev` script. `apps/web/app/auth/actions.ts` still falls back to
+`http://localhost:3001` as a default `NEXT_PUBLIC_SITE_URL` when that env var is unset — this is
+now inconsistent with the pinned port; check before relying on the fallback in local dev.
 
 ### Mobile bundler issue (Windows)
 On Windows without Watchman, Metro's FallbackWatcher sometimes tries to watch temporary `expo-splash-screen_tmp_XXXXX` directories that don't exist. Fix: `apps/mobile/metro.config.js` already has a `blockList` for these. If issues persist, run `npx expo start --clear` directly from `apps/mobile/`.
@@ -165,11 +174,19 @@ createSlug(title)     // → kebab-case + base36 timestamp (unique)
   - All Supabase calls go through Server Actions or Server Components — no browser client exists.
 
 ### Server Actions
-All mutations go through Server Actions in `app/dashboard/actions.ts`:
-- `createWishlist(formData)` → insert + redirect to `/dashboard/[id]`
+All mutations go through Server Actions in `app/dashboard/actions.ts`, most wired to `useActionState`
+(so `(prevState, formData)` signatures, not plain `(formData)`):
+- `createWishlist(prevState, formData)` → insert + returns `{ redirectTo }`
 - `deleteWishlist(id)` → delete + redirect to `/dashboard`
-- `addItem(listId, formData)` → insert item
-- `deleteItem(itemId, listId)` → delete item
+- `addItem(listId, formData)` / `editItem(itemId, listId, formData)` / `deleteItem(itemId, listId)`
+- `updateProfile(prevState, formData)` → display_name/bio/birthday/avatar_url
+- `updateSurprise(listId, isSurprise)`, `updatePrivacy(listId, privacyLevel)`
+- `mergeWishlists(sourceId, targetId)` → moves items from source into target, appends after target's
+  existing items by `sort_order`, then deletes source. Both lists must be owned by the caller.
+
+`addItem`/`editItem` normalize LATAM-formatted price strings (e.g. `"66.500"` vs `"66,5"` vs
+`"1.234,56"`) via locale-aware separator detection before parsing — see `addItemSchema` in
+`actions.ts` if touching price handling.
 
 All actions call `revalidatePath()` after mutations.
 
@@ -292,12 +309,21 @@ URL: `regala.me/{username}/{slug}`
 
 Endpoint: `GET /api/extract-product?url=<encoded-url>`
 
-Fetches the URL server-side (Googlebot UA, 8s timeout, 200KB limit), then:
-1. Extracts Open Graph tags (`og:title`, `og:description`, `og:image`)
-2. Parses JSON-LD product schema for price
-3. Falls back to `og:price:amount` or regex
+Generic path: fetches the URL server-side (Googlebot UA, 8s timeout, 200KB limit), extracts OG tags,
+JSON-LD product price, falls back to `og:price:amount`/regex.
 
-Returns `{ title, description, image_url, price, url }`. Used by `add-item-form.tsx` to pre-fill item fields.
+**SSRF guard (do not remove)**: resolves the hostname via DNS first and blocks private/loopback/
+link-local ranges post-resolution, specifically to defeat DNS-rebinding and redirect-based bypasses.
+DNS failures are treated as blocked.
+
+**Mercado Libre special-case**: ML hosts (`mercadolibre.*`, `mercadopago.*`, `mercadoshops.*`) go
+through the ML API instead of HTML scraping — catalog pages (`/p/MLAXXX`) are geo-blocked from Vercel
+IPs and require an OAuth token. If `ML_CLIENT_ID`/`ML_CLIENT_SECRET` are set, a client-credentials
+token (cached module-level, ~6h TTL) is used to call `/products/{id}`; without credentials it falls
+back to a slug-derived title only (no price/image).
+
+Returns `{ title, description, image_url, price, url }`. Used by `add-item-form.tsx` to pre-fill
+item fields.
 
 ---
 
@@ -305,16 +331,15 @@ Returns `{ title, description, image_url, price, url }`. Used by `add-item-form.
 
 | # | Gap | Priority |
 |---|---|---|
-| 1 | No image upload (image_url field exists but no UI to upload) | P1 |
+| 1 | No image upload for wishlist *items* (image_url is URL-only; avatar upload exists via /api/upload-avatar, items don't) | P1 |
 | 2 | Mobile design not updated to brutalist web system | P1 |
 | 3 | No real-time claim updates on gifter view (currently requires reload) | P1 |
 | 4 | `dashboard/new/page.tsx` uses Tailwind classes, not `rg-*` system — inconsistent styling | P2 |
 | 5 | No user profile page at `regala.me/{username}` | P2 |
-| 6 | No privacy levels on wishlists (is_public is binary — no "link only" option) | P2 |
-| 7 | No push notifications when all items claimed | P2 |
-| 8 | No group gift contribution UI | P3 |
-| 9 | Sort order inconsistency between web and mobile | Low |
-| 10 | No OAuth (Google sign-in) despite spec mentioning it | P2 |
+| 6 | No push notifications when all items claimed | P2 |
+| 7 | No group gift contribution UI | P3 |
+| 8 | Sort order inconsistency between web and mobile | Low |
+| 9 | Wishlist merge (dashboard/merge) has no undo — deletes source list immediately after moving items | P2 |
 
 ---
 
