@@ -82,13 +82,31 @@ claims (
 )
 ```
 
-### RLS policies (important)
-- `wishlists`: Owners can CRUD their own. Anyone can SELECT where `privacy_level = 'public'` (public gifter view route 404s otherwise).
-- `items`: Owners can CRUD via their wishlist. Anyone can SELECT items of a public list.
-- `claims`: Anyone can INSERT (no auth required — gifters just enter their name). Owners can SELECT claims for their lists.
+### RLS policies (important — not verified against the live DB)
+The descriptions below are from initial setup. The code expects more than they say, and it works in
+production, so the live policies are probably broader. Verify with SQL before relying on either.
+- `wishlists`: Owners can CRUD their own. The gifter page reads lists with `privacy_level in ('public','link_only')` anonymously; `private` lists 404 (verified E2E).
+- `items`: Owners can CRUD via their wishlist. Anyone can SELECT items of a visible list.
+- `claims`: Anyone can INSERT (no auth required — gifters just enter their name). The gifter page also
+  reads `claims.item_id` anonymously to show claimed state. A second claim on the same item is rejected
+  ("¡Ya alguien lo reclamó!", verified E2E).
+
+### Profiles trigger
+A DB trigger creates `profiles` on signup. It derives `username` (e.g. `luislarrionda03261900-cccb`)
+and `display_name` from the **email local part**, ignoring the name typed at signup
+(`user_metadata.display_name`). Usernames can contain `+` (email aliases) — see "Route params" in §7.
 
 ### No migration files in repo
-Schema was applied via Supabase MCP during initial setup. Any future schema changes should be applied via `mcp__claude_ai_Supabase__apply_migration` and documented here.
+Schema was applied via Supabase MCP during initial setup. Any future schema changes should be applied via the Supabase MCP `apply_migration` tool and documented here.
+As of Oct 2026 the Supabase MCP connector in Claude sessions is denied SQL/advisor access — ask the user to grant it, or hand them the SQL to run.
+
+### Auth settings (Supabase dashboard)
+- **hCaptcha is enforced by Supabase Auth itself** (Attack Protection), not only by the app. Signup/login/reset
+  without a valid token fail with `captcha protection: request disallowed`. Automated browsers can't pass it —
+  for E2E, the user temporarily disables it in the dashboard, or you reuse an existing session cookie.
+- **Email uses Supabase's default mailer**: English template, sender `noreply@mail.app.supabase.io`, rate-limited
+  to a few emails/hour. Links are PKCE (`?code=`), which only completes in the browser that started the flow.
+  `/auth/callback` also supports `token_hash` links — switching the templates to those fixes cross-device confirmation.
 
 ### Supabase Storage
 Bucket `avatars` (public read, owner-scoped upload policies) backs `POST /api/upload-avatar`.
@@ -113,6 +131,12 @@ HCAPTCHA_SITE_KEY=<optional — gates signup/signin/reset forms; captcha is skip
 EXPO_PUBLIC_SUPABASE_URL=https://esyybmnwalscpnzfeowh.supabase.co
 EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<publishable key>
 ```
+
+### Turborepo strict env mode (gotcha — this broke prod login once)
+Turbo 2 strips env vars that aren't declared in `turbo.json` from the build. **Every new server env var must be
+added to `tasks.build.env` in `turbo.json`**, or statically prerendered pages will bake in `undefined`.
+(`NEXT_PUBLIC_*` vars pass through automatically.) Pages that must read runtime env should also be
+`export const dynamic = 'force-dynamic'` — see `app/auth/page.tsx`.
 
 > **NEVER commit `.env` files.** If the env files are missing, the user must create them manually — the tool sandbox blocks writing `.env*` files.
 > Use `printf '...\n' > /x/path/.env` (bash, NOT PowerShell backtick syntax which causes wrapping).
@@ -198,6 +222,8 @@ export default async function Page({ params }: Props) {
   const { id } = await params
 }
 ```
+Dynamic params arrive **still percent-encoded** (`ana+x` → `"ana%2Bx"`). Any param used in a DB lookup
+(usernames especially) must go through `decodeParam()` from `@/lib/params`.
 
 ### Auth middleware
 `apps/web/middleware.ts` handles redirects:
@@ -289,7 +315,7 @@ import { supabase } from '@/lib/supabase'
 ```
 
 ### Sort order for items
-Mobile's `add-item.tsx` uses `Date.now()` for `sort_order`. Web's `addItem()` server action uses numeric increment from the DB max. They're inconsistent — items added on mobile will appear at the end on web (large timestamp = high sort_order), which is probably fine.
+Mobile's `add-item.tsx` uses `Date.now()` for `sort_order`. Web's `addItem()` server action uses numeric increment from the DB max. They're inconsistent, and `Date.now()` (~1.7e12) overflows a Postgres `int4` — if `sort_order` is `INT`, mobile item inserts fail. Fix before reviving mobile.
 
 ---
 
@@ -298,8 +324,10 @@ Mobile's `add-item.tsx` uses `Date.now()` for `sort_order`. Web's `addItem()` se
 URL: `regala.me/{username}/{slug}`
 
 - **Server component**, `revalidate = 0` (always fresh)
-- Requires `is_public = true` on the wishlist — returns 404 otherwise
-- Claims are inserted client-side via the `ClaimButton` component
+- Shows lists with `privacy_level` `public` or `link_only`; `private` returns 404
+- Claims go through the `claimItem` server action (`app/[username]/[slug]/actions.ts`), triggered by `ClaimButton`
+- OG image: `opengraph-image.tsx` (Satori — every `<div>` with more than one child needs `display: flex`, or it 500s)
+- Surprise mode is **not** enforced yet: the owner still sees claimed counts/state and claimer names are in the dashboard payload (see ROADMAP.md)
 - No auth required for gifters — just `claimer_name` is collected
 - Viral footer on every public view: "¿QUERÉS HACER TU PROPIA LISTA?"
 
@@ -313,42 +341,51 @@ Generic path: fetches the URL server-side (Googlebot UA, 8s timeout, 200KB limit
 JSON-LD product price, falls back to `og:price:amount`/regex.
 
 **SSRF guard (do not remove)**: resolves the hostname via DNS first and blocks private/loopback/
-link-local ranges post-resolution, specifically to defeat DNS-rebinding and redirect-based bypasses.
-DNS failures are treated as blocked.
+link-local ranges post-resolution, and re-checks every redirect hop. DNS failures are treated as blocked.
+Known gaps: the check and the fetch resolve DNS separately (so rebinding isn't fully prevented), and
+IPv4-mapped IPv6, 100.64/10, 198.18/15 and multicast aren't blocked.
 
 **Mercado Libre special-case**: ML hosts (`mercadolibre.*`, `mercadopago.*`, `mercadoshops.*`) go
 through the ML API instead of HTML scraping — catalog pages (`/p/MLAXXX`) are geo-blocked from Vercel
 IPs and require an OAuth token. If `ML_CLIENT_ID`/`ML_CLIENT_SECRET` are set, a client-credentials
-token (cached module-level, ~6h TTL) is used to call `/products/{id}`; without credentials it falls
-back to a slug-derived title only (no price/image).
+token (cached module-level, ~6h TTL) is used to call `/products/{id}` (catalog) and `/items/{id}`
+(listings — ML now returns 403 for anonymous `/items` calls). If the API fails, both fall back to a
+slug-derived title only (no price/image). As of Oct 2026, listing links (`articulo.mercadolibre…/MLA-…`)
+still only get the slug title — the token is likely missing a scope; check the ML app.
 
 Returns `{ title, description, image_url, price, url }`. Used by `add-item-form.tsx` to pre-fill
 item fields.
 
 ---
 
-## 12. Known Gaps (as of May 2026)
+## 12. Roadmap & Backlog
 
-| # | Gap | Priority |
-|---|---|---|
-| 1 | No image upload for wishlist *items* (image_url is URL-only; avatar upload exists via /api/upload-avatar, items don't) | P1 |
-| 2 | Mobile design not updated to brutalist web system | P1 |
-| 3 | No real-time claim updates on gifter view (currently requires reload) | P1 |
-| 4 | `dashboard/new/page.tsx` uses Tailwind classes, not `rg-*` system — inconsistent styling | P2 |
-| 5 | No user profile page at `regala.me/{username}` | P2 |
-| 6 | No push notifications when all items claimed | P2 |
-| 7 | No group gift contribution UI | P3 |
-| 8 | Sort order inconsistency between web and mobile | Low |
-| 9 | Wishlist merge (dashboard/merge) has no undo — deletes source list immediately after moving items | P2 |
+The backlog lives in **`ROADMAP.md`** (status, priority, owner — "Claude" for code, "Gian" for dashboard/account tasks).
+Update it in the same PR whenever you finish or discover something. Strategy, brand voice and competitors are in
+`docs/project/` — read them before product, copy or marketing work.
 
 ---
 
 ## 13. Cost & Hosting Notes
 
 - **Supabase**: $10/month Pro (sa-east-1) — never downgrade without checking with user
-- **Vercel**: Free tier — web app not yet deployed
-- **Expo EAS**: Not yet configured
+- **Vercel**: live at **www.regala.me** (apex redirects to www). Project `regala-me` in team "Pinieri Amato Dev";
+  every push to a branch gets a preview deployment (protected — use the Vercel MCP `get_access_to_vercel_url`
+  to open it). Functions run in `iad1` while the DB is in São Paulo — moving to `gru1` is on the roadmap.
+- **Analytics / error tracking**: none yet (Vercel Web Analytics off) — on the roadmap.
+- **Expo EAS**: Not yet configured. Mobile is paused; the web (mobile-first) is the focus.
 - Always post the dollar cost explicitly before any `confirm_cost` call on infrastructure changes
+
+---
+
+## 13b. Working Agreements
+
+- **One PR per theme**, branch from latest `main`, PR link always shared with the user (they want it every time).
+- **Verify on the Vercel preview** before calling something done: mobile viewport (390px), no horizontal scroll,
+  and the real flow (create list → add item → share → claim as anonymous gifter).
+- Run `pnpm --filter web typecheck` before pushing; don't commit `apps/web/tsconfig.tsbuildinfo` changes.
+- The production DB is shared by previews — clean up any test lists/claims you create.
+- Product copy is **Argentine Spanish (voseo)**; code, comments and commits in English.
 
 ---
 
