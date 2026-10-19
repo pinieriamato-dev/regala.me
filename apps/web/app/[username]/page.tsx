@@ -5,11 +5,13 @@ import type { OccasionId } from 'shared'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import Logomark from '@/components/Logomark'
+import { decodeParam } from '@/lib/params'
 
 type Props = { params: Promise<{ username: string }> }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { username } = await params
+  const { username: rawUsername } = await params
+  const username = decodeParam(rawUsername)
   return {
     title: `Listas de ${username} — regala.me`,
     description: `Mirá las listas de regalos de ${username} en regala.me.`,
@@ -17,7 +19,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function UserProfilePage({ params }: Props) {
-  const { username } = await params
+  const { username: rawUsername } = await params
+  const username = decodeParam(rawUsername)
   const supabase = await createServerSupabase()
 
   const { data: profile } = await supabase

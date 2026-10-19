@@ -1,5 +1,6 @@
 import { ImageResponse } from 'next/og'
 import { createServerSupabase } from '@/lib/supabase/server'
+import { decodeParam } from '@/lib/params'
 
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
@@ -7,7 +8,8 @@ export const contentType = 'image/png'
 type Props = { params: Promise<{ username: string; slug: string }> }
 
 export default async function OGImage({ params }: Props) {
-  const { username, slug } = await params
+  const { username: rawUsername, slug } = await params
+  const username = decodeParam(rawUsername)
   const supabase = await createServerSupabase()
 
   const { data: list } = await supabase
