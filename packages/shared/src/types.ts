@@ -14,6 +14,8 @@ export interface Profile {
   id: string
   username: string
   display_name: string | null
+  bio: string | null
+  birthday: string | null
   avatar_url: string | null
   created_at: string
 }
@@ -28,7 +30,6 @@ export interface Wishlist {
   recipient_name: string | null
   is_surprise: boolean
   currency: Currency
-  is_public: boolean
   privacy_level: 'public' | 'link_only' | 'private'
   created_at: string
 }

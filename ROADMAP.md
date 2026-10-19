@@ -5,7 +5,7 @@
 > **Status:** `todo` · `doing` · `blocked` · `done`
 > Focus: **web (mobile-first)**. Native app is paused.
 
-Last updated: 2026-10-19 (trust bugs N1–N7)
+Last updated: 2026-10-19 (hygiene H1, H5, H6)
 
 ---
 
@@ -60,12 +60,12 @@ Last updated: 2026-10-19 (trust bugs N1–N7)
 
 | # | Item | Owner | Status |
 |---|---|---|---|
-| H1 | GitHub Actions CI: typecheck + shared tests on every PR | Claude | todo |
+| H1 | GitHub Actions CI: typecheck + shared tests on every PR | Claude | done |
 | H2 | Turn the Oct-2026 Playwright E2E run into a repeatable script (runs against a preview) | Claude | todo |
 | H3 | Generated Supabase types (`supabase gen types`) so schema drift fails typecheck | Claude (needs G3) | todo |
 | H4 | ESLint config (`next lint` currently prompts for setup) | Claude | todo |
-| H5 | Fix `shared/types.ts` (`is_public` → `privacy_level`; Profile missing `bio`/`birthday`) | Claude | todo |
-| H6 | Gitignore `apps/web/tsconfig.tsbuildinfo` (changes on every typecheck) | Claude | todo |
+| H5 | Fix `shared/types.ts` (`is_public` → `privacy_level`; Profile missing `bio`/`birthday`) | Claude | done |
+| H6 | Gitignore `apps/web/tsconfig.tsbuildinfo` (changes on every typecheck) | Claude | done |
 
 ---
 
@@ -73,6 +73,7 @@ Last updated: 2026-10-19 (trust bugs N1–N7)
 
 | Date | What | PR |
 |---|---|---|
+| 2026-10-19 | Hygiene: GitHub Actions CI (typecheck + shared tests), shared types fixed (`is_public` removed, Profile `bio`/`birthday`), tsbuildinfo untracked | — |
 | 2026-10-19 | Trust bugs: surprise mode enforced server-side (N1), claim rate limits + name checks (N3), `link_only` label/noindex/random slugs (N4), safe merge with feedback (N5), functions in `gru1` (N6), delete confirmation (N7); claim undo/release (N2, SQL applied by Gian) | #9 |
 | 2026-10-19 | Email signup/login blocked on prod (captcha key missing from build); `+` usernames 404; OG image 500; ML listing links 500; duplicate lists on repeated taps; price rounding on edit; cross-device confirm message; mobile horizontal overflow | #7 |
 | 2026-10-19 | Supabase captcha re-enabled and E2E test user deleted | — (Gian) |

@@ -45,3 +45,6 @@ Thumbs.db
 # Internal planning docs
 audit-report.md
 docs/superpowers/
+
+# TypeScript incremental build info (changes on every typecheck)
+*.tsbuildinfo
