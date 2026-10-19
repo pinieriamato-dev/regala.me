@@ -1,5 +1,17 @@
 import { describe, it, expect } from 'vitest'
-import { createSlug, daysUntil, occasionEmoji } from '../index'
+import { createSlug, daysUntil, formatPrice, occasionEmoji } from '../index'
+
+describe('formatPrice', () => {
+  it('groups digits with the separator of the currency country', () => {
+    expect(formatPrice(66500, 'ARS')).toBe('66.500')
+    expect(formatPrice(1234.5, 'MXN')).toBe('1,234.5')
+    expect(formatPrice(1234, 'BRL')).toBe('1.234')
+  })
+
+  it('falls back to es-AR for unknown codes', () => {
+    expect(formatPrice(66500, 'XYZ')).toBe('66.500')
+  })
+})
 
 describe('createSlug', () => {
   it('produces lowercase kebab-case', () => {

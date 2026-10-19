@@ -5,7 +5,7 @@
 > **Status:** `todo` · `doing` · `blocked` · `done`
 > Focus: **web (mobile-first)**. Native app is paused.
 
-Last updated: 2026-10-19 (hygiene H1, H5, H6; landing X4)
+Last updated: 2026-10-19 (later items L7, L8 partial, L9; landing X4)
 
 ---
 
@@ -37,7 +37,7 @@ Last updated: 2026-10-19 (hygiene H1, H5, H6; landing X4)
 |---|---|---|---|---|
 | X1 | **Amigo invisible.** Create a group, invite via link, draw names, each participant gets their own regala.me list. | Proven demand (Elfster). Every participant becomes a list creator, giving a December acquisition spike. | Claude | todo |
 | X2 | **Product analytics** (PostHog). Events: `list_created`, `item_added`, `link_extracted`, `list_shared`, `list_viewed`, `item_claimed`, `signup_from_gifter_footer`. | Measure the viral loop (gifter → creator). | Claude | todo |
-| X3 | **Branded OG image.** Archivo Black, bigger title, item count, owner name. | It's the WhatsApp card, the main acquisition surface. | Claude | todo |
+| X3 | **Branded OG image.** Archivo Black, bigger title, item count, owner name. | It's the WhatsApp card, the main acquisition surface. | Claude | done |
 | X4 | **Landing page cleanup.** Invented testimonials removed (real quotes pending, see G5); "GRATIS" removed from the landing CTAs; each occasion tile has its own line. | Trust, and the "never promise free forever" rule. | Claude + Gian (quotes) | done |
 | X5 | **Owner notification on claim** (email; respect surprise mode). | Retention + "magic moment". | Claude (after G2) | todo |
 | X6 | **Realtime claimed state** on the gifter page (Supabase Realtime). | Avoids two people buying the same gift. | Claude | todo |
@@ -53,9 +53,7 @@ Last updated: 2026-10-19 (hygiene H1, H5, H6; landing X4)
 | L4 | Item image upload + drag reorder | |
 | L5 | PWA (manifest + install prompt) | App-like without stores. |
 | L6 | SEO landing pages per occasion/country + comparison pages | milistita.com is already doing this. |
-| L7 | Currency-aware formatting (today always `es-AR`) | Needed for MX/CL/CO. |
-| L8 | SSRF guard hardening (pin the resolved IP, block IPv4-mapped IPv6 and the missing ranges) | See CLAUDE.md §11. |
-| L9 | Avatar upload: check magic bytes, delete the old file on format change | |
+| L8 | SSRF guard: **pin the resolved IP** so the fetch can't re-resolve DNS (IPv4-mapped IPv6 and missing ranges are done). | See CLAUDE.md §11. |
 
 ## Engineering hygiene
 
@@ -74,6 +72,7 @@ Last updated: 2026-10-19 (hygiene H1, H5, H6; landing X4)
 
 | Date | What | PR |
 |---|---|---|
+| 2026-10-19 | Later: currency-aware price grouping (L7), avatar magic-byte check + stale file cleanup (L9), SSRF ranges + IPv4-mapped IPv6 (L8 part 1) | — |
 | 2026-10-19 | Hygiene: GitHub Actions CI (typecheck + shared tests), shared types fixed (`is_public` removed, Profile `bio`/`birthday`), tsbuildinfo untracked | — |
 | 2026-10-19 | Trust bugs: surprise mode enforced server-side (N1), claim rate limits + name checks (N3), `link_only` label/noindex/random slugs (N4), safe merge with feedback (N5), functions in `gru1` (N6), delete confirmation (N7); claim undo/release (N2, SQL applied by Gian) | #9 |
 | 2026-10-19 | Email signup/login blocked on prod (captcha key missing from build); `+` usernames 404; OG image 500; ML listing links 500; duplicate lists on repeated taps; price rounding on edit; cross-device confirm message; mobile horizontal overflow | #7 |
