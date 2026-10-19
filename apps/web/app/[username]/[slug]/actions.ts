@@ -2,7 +2,9 @@
 
 import { createHash, randomUUID } from 'node:crypto'
 import { headers } from 'next/headers'
+import { after } from 'next/server'
 import { createServerSupabase } from '@/lib/supabase/server'
+import { notifyOwnerOfClaim } from '@/lib/notify-owner'
 import { z } from 'zod'
 
 type ClaimState = { error?: string; success?: boolean; releaseToken?: string | null } | null
@@ -74,7 +76,7 @@ export async function claimItem(_prevState: ClaimState, formData: FormData): Pro
 
   const { data: item } = await supabase
     .from('items')
-    .select('id, wishlist_id, wishlists!inner(privacy_level)')
+    .select('id, title, wishlist_id, wishlists!inner(privacy_level)')
     .eq('id', parsed.data.item_id)
     .in('wishlists.privacy_level', ['public', 'link_only'])
     .single()
@@ -111,6 +113,12 @@ export async function claimItem(_prevState: ClaimState, formData: FormData): Pro
     if (error.code === '23505') return { error: '¡Ya alguien lo reclamó! Elegí otro regalo.' }
     return { error: 'No se pudo reclamar el regalo. Intentá de nuevo.' }
   }
+
+  after(() => notifyOwnerOfClaim({
+    listId: item.wishlist_id,
+    itemTitle: item.title,
+    claimerName: parsed.data.name,
+  }))
 
   return { success: true, releaseToken: tokenSaved ? releaseToken : null }
 }
