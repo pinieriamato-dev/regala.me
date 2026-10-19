@@ -12,7 +12,9 @@
         "ML_CLIENT_ID",
         "ML_CLIENT_SECRET",
         "POSTHOG_KEY",
-        "POSTHOG_HOST"
+        "POSTHOG_HOST",
+        "RESEND_API_KEY",
+        "SUPABASE_SERVICE_ROLE_KEY"
       ]
     },
     "dev": {

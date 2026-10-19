@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { deleteItem, editItem, releaseClaim } from '@/app/dashboard/actions'
-import type { Item, Priority } from 'shared'
+import { formatPrice, type Item, type Priority } from 'shared'
 
 const PRIORITIES: { value: Priority; label: string }[] = [
   { value: 1, label: 'OPCIONAL' },
@@ -119,7 +119,7 @@ export default function ItemCard({ item, claimer, listId, currency, isSurprise }
         <div style={{ display: 'flex', gap: 14, alignItems: 'center', flexWrap: 'wrap' }}>
           {item.price && (
             <span className="rg-mono" style={{ fontSize: 10 }}>
-              ~{currency} {item.price.toLocaleString('es-AR')}
+              ~{currency} {formatPrice(item.price, currency)}
             </span>
           )}
           {/^https?:\/\//i.test(item.url ?? '') && (

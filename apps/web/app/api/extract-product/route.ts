@@ -5,13 +5,18 @@ import { trackEvent } from '@/lib/analytics'
 
 // Private/loopback/link-local ranges — checked after DNS resolution to defeat DNS-rebinding
 // and redirect-based SSRF bypasses
-const PRIVATE_IPV4 = /^(127\.|10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|169\.254\.|0\.0\.0\.0)/
-const PRIVATE_IPV6 = /^(::1$|fc|fd|fe80:)/i
+// 0/8, loopback, RFC1918, link-local, CGNAT (100.64/10), benchmarking (198.18/15), multicast and reserved (224/4+)
+const PRIVATE_IPV4 = /^(0\.|127\.|10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|169\.254\.|100\.(6[4-9]|[7-9]\d|1[01]\d|12[0-7])\.|198\.(1[89])\.|(22[4-9]|23\d|24\d|25[0-5])\.)/
+const PRIVATE_IPV6 = /^(::$|::1$|fc|fd|fe80:|ff)/i
 
 async function isPrivateHost(hostname: string): Promise<boolean> {
   try {
     const records = await dns.lookup(hostname, { all: true })
-    return records.some(r => PRIVATE_IPV4.test(r.address) || PRIVATE_IPV6.test(r.address))
+    return records.some(r => {
+      // IPv4-mapped IPv6 (::ffff:10.0.0.1) must be checked as the IPv4 it wraps
+      const address = r.address.replace(/^::ffff:(?=\d+\.\d+\.\d+\.\d+$)/i, '')
+      return PRIVATE_IPV4.test(address) || PRIVATE_IPV6.test(address)
+    })
   } catch {
     return true // DNS failure → block
   }

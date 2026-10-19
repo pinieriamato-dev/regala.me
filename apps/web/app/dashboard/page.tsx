@@ -45,6 +45,9 @@ export default async function DashboardPage() {
               COMBINAR
             </Link>
           )}
+          <Link href="/dashboard/amigo" className="rg-btn rg-btn-ghost" style={{ padding: '9px 14px', fontSize: 11 }}>
+            AMIGO INVISIBLE
+          </Link>
           <Link href="/dashboard/new" className="rg-btn rg-btn-primary">
             + NUEVA LISTA
           </Link>

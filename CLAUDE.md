@@ -353,8 +353,8 @@ JSON-LD product price, falls back to `og:price:amount`/regex.
 
 **SSRF guard (do not remove)**: resolves the hostname via DNS first and blocks private/loopback/
 link-local ranges post-resolution, and re-checks every redirect hop. DNS failures are treated as blocked.
-Known gaps: the check and the fetch resolve DNS separately (so rebinding isn't fully prevented), and
-IPv4-mapped IPv6, 100.64/10, 198.18/15 and multicast aren't blocked.
+Known gaps: the check and the fetch resolve DNS separately (so rebinding isn't fully prevented). IPv4-mapped IPv6,
+100.64/10, 198.18/15, multicast and reserved (224/4+) are blocked since L8.
 
 **Mercado Libre special-case**: ML hosts (`mercadolibre.*`, `mercadopago.*`, `mercadoshops.*`) go
 through the ML API instead of HTML scraping — catalog pages (`/p/MLAXXX`) are geo-blocked from Vercel
