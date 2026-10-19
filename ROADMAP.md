@@ -5,7 +5,7 @@
 > **Status:** `todo` · `doing` · `blocked` · `done`
 > Focus: **web (mobile-first)**. Native app is paused.
 
-Last updated: 2026-10-19 (later items L7, L8 partial, L9)
+Last updated: 2026-10-19 (later items L7, L8 partial, L9; landing X4)
 
 ---
 
@@ -29,6 +29,7 @@ Last updated: 2026-10-19 (later items L7, L8 partial, L9)
 | G2 | **Custom SMTP (Resend) + Spanish email templates** in Supabase Auth. Use `token_hash` links: `{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=email`. | Default mailer is English, sent from supabase.io, and rate-limited to a few emails/hour. PKCE links fail cross-device. | Gian (+Claude writes templates) | todo |
 | G3 | **Grant SQL access to the Supabase connector.** | Needed for P1, RLS audit and real metrics. | Gian | todo |
 | G4 | **Mercado Libre app scopes.** Check the ML Developers app; listing links only get a slug title, with no price or image. | Product-link extraction is the main differentiator. | Gian | todo |
+| G5 | **Real testimonials for the landing.** Send 2–3 real quotes from people who used regala.me (with first name and city, and their OK). Claude adds them back to the landing as a section. | Replaces the invented quotes removed in X4. Nothing fake goes back on the page. | Gian | todo |
 
 ## Next — growth (Navidad window: launch by ~Nov 15)
 
@@ -37,7 +38,7 @@ Last updated: 2026-10-19 (later items L7, L8 partial, L9)
 | X1 | **Amigo invisible.** Create a group, invite via link, draw names, each participant gets their own regala.me list. | Proven demand (Elfster). Every participant becomes a list creator, giving a December acquisition spike. | Claude | todo |
 | X2 | **Product analytics** (PostHog). Events: `list_created`, `item_added`, `link_extracted`, `list_shared`, `list_viewed`, `item_claimed`, `signup_from_gifter_footer`. | Measure the viral loop (gifter → creator). | Claude | todo |
 | X3 | **Branded OG image.** Archivo Black, bigger title, item count, owner name. | It's the WhatsApp card, the main acquisition surface. | Claude | done |
-| X4 | **Landing page cleanup.** Real testimonials instead of invented ones; remove "CREAR LISTA GRATIS"; per-occasion sections. | Trust, and the "never promise free forever" rule. | Claude + Gian (quotes) | todo |
+| X4 | **Landing page cleanup.** Invented testimonials removed (real quotes pending, see G5); "GRATIS" removed from the landing CTAs; each occasion tile has its own line. | Trust, and the "never promise free forever" rule. | Claude + Gian (quotes) | done |
 | X5 | **Owner notification on claim** (email; respect surprise mode). | Retention + "magic moment". | Claude (after G2) | todo |
 | X6 | **Realtime claimed state** on the gifter page (Supabase Realtime). | Avoids two people buying the same gift. | Claude | todo |
 

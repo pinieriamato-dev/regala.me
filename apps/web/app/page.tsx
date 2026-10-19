@@ -27,16 +27,14 @@ const WITH = [
 ]
 
 const USE_CASES = [
-  ['◐', 'Cumpleaños'],   ['○', 'Baby showers'],
-  ['◆', 'Casamientos'],  ['✿', 'Quinces'],
-  ['◇', 'Egresos'],     ['●', 'Mudanzas'],
-  ['◓', 'Aniversarios'], ['◈', 'Cosas que querés y ya'],
-]
-
-const TESTIMONIALS = [
-  { q: 'No más "ya lo compré, no compres lo mismo" en el grupo. Cambió mi cumple.', name: 'Sofí M.', city: 'Buenos Aires', rotate: '-1.5deg', bg: 'var(--paper)' },
-  { q: 'Lo usé para el baby de mi hermana. Las primas dejaron de pelearse por el moisés.', name: 'Lucía G.', city: 'Córdoba', rotate: '1deg', bg: 'var(--yellow)' },
-  { q: 'Lo armaba a mano para mi casamiento, mensaje por mensaje. Esto cambia todo.', name: 'Tomás L.', city: 'Mendoza', rotate: '-0.8deg', bg: 'var(--paper)' },
+  ['◐', 'Cumpleaños', 'Que nadie te regale dos veces lo mismo.'],
+  ['○', 'Baby showers', 'El moisés y la cuna, sin pelea entre primas.'],
+  ['◆', 'Casamientos', 'Lo que ellos quieren, anotado en un link.'],
+  ['✿', 'Quinces', 'Cada tía sabe qué le toca.'],
+  ['◇', 'Egresos', 'Del diploma al viaje, todo en un lugar.'],
+  ['●', 'Mudanzas', 'Lo que falta para la casa nueva, a la vista.'],
+  ['◓', 'Aniversarios', 'Ideas para dos, sin adivinar.'],
+  ['◈', 'Cosas que querés y ya', 'Tu lista, sin excusa.'],
 ]
 
 const FAQS = [
@@ -138,7 +136,7 @@ export default async function HomePage({ searchParams }: HomeProps) {
             border: '1.5px solid var(--ink)',
             transform: 'rotate(-3deg)',
           }}>
-            EJEMPLO REAL
+            EJEMPLO
           </div>
           <div style={{
             width: 260, background: 'var(--paper)',
@@ -230,31 +228,12 @@ export default async function HomePage({ searchParams }: HomeProps) {
           CUALQUIER <span className="rg-em">EXCUSA.</span>
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
-          {USE_CASES.map(([g, l]) => (
-            <div key={l} className="flex items-center gap-3 p-3 md:p-4 border-2 border-ink bg-paper shadow-hard-sm">
-              <span style={{ fontFamily: 'var(--font-display)', fontSize: 28 }}>{g}</span>
-              <span className="font-bold text-sm">{l}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── TESTIMONIALS ─────────────────────────────────── */}
-      <section className="px-5 md:px-9 py-12 md:py-14 border-t-2 border-ink">
-        <div className="rg-mono mb-1.5">Lo que dice la gente</div>
-        <h2 className="rg-display mb-7" style={{ fontSize: 'clamp(2.5rem, 5vw, 5rem)' }}>
-          (PORQUE <span className="rg-em">FUNCIONA.</span>)
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {TESTIMONIALS.map((t, i) => (
-            <div key={i} className="p-5 border-2 border-ink shadow-hard" style={{
-              background: t.bg,
-              transform: `rotate(${t.rotate})`,
-            }}>
-              <div className="rg-display text-red" style={{ fontSize: 56, lineHeight: 0.5 }}>"</div>
-              <div className="text-sm leading-relaxed font-semibold mt-2.5">{t.q}</div>
-              <div className="mt-4" style={{ fontFamily: 'var(--font-display)', fontSize: 10, letterSpacing: 1 }}>
-                — {t.name.toUpperCase()} · {t.city.toUpperCase()}
+          {USE_CASES.map(([g, l, hint]) => (
+            <div key={l} className="flex items-start gap-3 p-3 md:p-4 border-2 border-ink bg-paper shadow-hard-sm">
+              <span style={{ fontFamily: 'var(--font-display)', fontSize: 28, lineHeight: 1 }}>{g}</span>
+              <div>
+                <div className="font-bold text-sm">{l}</div>
+                <div className="text-xs leading-snug mt-0.5" style={{ color: 'rgba(15,15,15,0.7)' }}>{hint}</div>
               </div>
             </div>
           ))}
@@ -290,10 +269,10 @@ export default async function HomePage({ searchParams }: HomeProps) {
           DEJÁ DE<br />PELEAR POR<br /><span className="text-yellow">LOS REGALOS.</span>
         </h2>
         <p className="mb-8 mt-4 text-base" style={{ color: 'rgba(251,248,238,0.6)' }}>
-          Gratis. Sin instalar nada. En dos minutos.
+          Sin instalar nada. En dos minutos.
         </p>
         <Link href="/auth?mode=signup" className="rg-btn rg-btn-yellow" style={{ padding: '18px 32px', fontSize: 16 }}>
-          CREAR MI LISTA GRATIS →
+          CREAR MI LISTA →
         </Link>
       </section>
 
