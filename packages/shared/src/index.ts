@@ -12,6 +12,15 @@ export const OCCASIONS = [
 
 export const CURRENCIES: Currency[] = ['ARS', 'BRL', 'MXN', 'CLP', 'COP', 'UYU', 'PEN', 'USD']
 
+// Digit grouping follows the country that uses each currency (1.234 in AR, 1,234 in MX). Unknown codes fall back to es-AR.
+const PRICE_LOCALE: Record<Currency, string> = {
+  ARS: 'es-AR', BRL: 'pt-BR', MXN: 'es-MX', CLP: 'es-CL', COP: 'es-CO', UYU: 'es-UY', PEN: 'es-PE', USD: 'en-US',
+}
+
+export function formatPrice(amount: number, currency: string): string {
+  return amount.toLocaleString(PRICE_LOCALE[currency as Currency] ?? 'es-AR')
+}
+
 export function occasionEmoji(id: OccasionId | null | undefined): string {
   return OCCASIONS.find(o => o.id === id)?.emoji ?? '🎁'
 }
