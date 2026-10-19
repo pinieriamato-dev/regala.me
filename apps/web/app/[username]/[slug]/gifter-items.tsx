@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect, useTransition } from 'react'
 import { formatPrice, type Item } from 'shared'
+import { withAffiliateTag } from '@/lib/affiliate'
 import ClaimButton from './claim-button'
 import { releaseClaim } from './actions'
 
@@ -189,7 +190,7 @@ export default function GifterItems({ items, claimedIds, currency, ownerSurprise
                     ) : <div />}
                     <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
                       {/^https?:\/\//i.test(item.url ?? '') && (
-                        <a href={item.url!} target="_blank" rel="noopener noreferrer"
+                        <a href={withAffiliateTag(item.url!)} target="_blank" rel="noopener noreferrer"
                           className="rg-btn rg-btn-ghost"
                           style={{ padding: '7px 12px', fontSize: 11 }}>
                           VER PRODUCTO

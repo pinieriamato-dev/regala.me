@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { deleteItem, editItem, moveItem, releaseClaim } from '@/app/dashboard/actions'
+import { withAffiliateTag } from '@/lib/affiliate'
 import { formatPrice, type Item, type Priority } from 'shared'
 import ItemImageField from './item-image-field'
 
@@ -126,7 +127,7 @@ export default function ItemCard({ item, claimer, listId, currency, isSurprise, 
             </span>
           )}
           {/^https?:\/\//i.test(item.url ?? '') && (
-            <a href={item.url!} target="_blank" rel="noopener noreferrer"
+            <a href={withAffiliateTag(item.url!)} target="_blank" rel="noopener noreferrer"
               className="rg-mono" style={{ fontSize: 10, color: 'var(--red)', textDecoration: 'none' }}>
               VER PRODUCTO →
             </a>
