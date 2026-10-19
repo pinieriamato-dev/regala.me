@@ -10,7 +10,11 @@
         "NEXT_PUBLIC_SITE_URL",
         "HCAPTCHA_SITE_KEY",
         "ML_CLIENT_ID",
-        "ML_CLIENT_SECRET"
+        "ML_CLIENT_SECRET",
+        "POSTHOG_KEY",
+        "POSTHOG_HOST",
+        "RESEND_API_KEY",
+        "SUPABASE_SERVICE_ROLE_KEY"
       ]
     },
     "dev": {

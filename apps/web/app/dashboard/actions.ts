@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { createSlug } from 'shared'
 import { z } from 'zod'
+import { trackEvent } from '@/lib/analytics'
 
 const createWishlistSchema = z.object({
   title:         z.string().min(1, 'El nombre es obligatorio').max(120),
@@ -86,6 +87,7 @@ export async function createWishlist(_prevState: CreateWishlistResult, formData:
 
   if (error) return { error: 'No se pudo crear la lista. Intentá de nuevo.' }
 
+  trackEvent('list_created', user.id, { occasion, currency, is_surprise, privacy_level })
   revalidatePath('/dashboard')
   return { redirectTo: `/dashboard/${list.id}` }
 }
@@ -225,11 +227,19 @@ export async function addItem(listId: string, formData: FormData) {
     .limit(1)
     .single()
 
-  await supabase.from('items').insert({
+  const { error: insertError } = await supabase.from('items').insert({
     wishlist_id: listId,
     ...parsed.data,
     sort_order: (topItem?.sort_order ?? -1) + 1,
   })
+
+  if (!insertError) {
+    trackEvent('item_added', user.id, {
+      priority: parsed.data.priority,
+      has_price: parsed.data.price !== null,
+      has_url: parsed.data.url !== null,
+    })
+  }
 
   revalidatePath(`/dashboard/${listId}`)
 }
