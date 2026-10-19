@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { deleteItem, editItem, releaseClaim } from '@/app/dashboard/actions'
+import { deleteItem, editItem, moveItem, releaseClaim } from '@/app/dashboard/actions'
 import { formatPrice, type Item, type Priority } from 'shared'
+import ItemImageField from './item-image-field'
 
 const PRIORITIES: { value: Priority; label: string }[] = [
   { value: 1, label: 'OPCIONAL' },
@@ -16,9 +17,11 @@ type Props = {
   listId: string
   currency: string
   isSurprise: boolean
+  canMoveUp: boolean
+  canMoveDown: boolean
 }
 
-export default function ItemCard({ item, claimer, listId, currency, isSurprise }: Props) {
+export default function ItemCard({ item, claimer, listId, currency, isSurprise, canMoveUp, canMoveDown }: Props) {
   const [hidden,  setHidden]  = useState(false)
   const [editing, setEditing] = useState(false)
   const [confirming, setConfirming] = useState<'delete' | 'release' | null>(null)
@@ -172,6 +175,28 @@ export default function ItemCard({ item, claimer, listId, currency, isSurprise }
         )}
       </div>
       <div style={{ display: 'flex', gap: 4, flexShrink: 0, alignItems: 'center' }}>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          {(['up', 'down'] as const).map((direction) => {
+            const enabled = direction === 'up' ? canMoveUp : canMoveDown
+            return (
+              <button
+                key={direction}
+                type="button"
+                disabled={!enabled}
+                onClick={() => moveItem(item.id, listId, direction)}
+                aria-label={direction === 'up' ? `Subir ${item.title}` : `Bajar ${item.title}`}
+                style={{
+                  background: 'none', border: 'none', padding: '2px 6px',
+                  cursor: enabled ? 'pointer' : 'default',
+                  fontSize: 12, lineHeight: 1,
+                  color: enabled ? 'rgba(15,15,15,0.55)' : 'rgba(15,15,15,0.12)',
+                }}
+              >
+                {direction === 'up' ? '▲' : '▼'}
+              </button>
+            )
+          })}
+        </div>
         <button
           onClick={() => setEditing(true)}
           className="rg-mono"
@@ -271,14 +296,7 @@ function EditForm({
           style={{ fontSize: 13 }}
           placeholder="Link al producto (opcional)"
         />
-        <input
-          name="image_url"
-          type="url"
-          defaultValue={item.image_url ?? ''}
-          className="rg-input"
-          style={{ fontSize: 13 }}
-          placeholder="Link de imagen (opcional)"
-        />
+        <ItemImageField defaultValue={item.image_url} />
         <div>
           <div className="rg-mono" style={{ fontSize: 9, marginBottom: 6, color: 'rgba(15,15,15,0.6)' }}>
             PRIORIDAD
