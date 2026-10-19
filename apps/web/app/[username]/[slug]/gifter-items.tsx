@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect, useTransition } from 'react'
-import type { Item } from 'shared'
+import { formatPrice, type Item } from 'shared'
 import ClaimButton from './claim-button'
 import { releaseClaim } from './actions'
 
@@ -113,7 +113,7 @@ export default function GifterItems({ items, claimedIds, currency, ownerSurprise
                 </p>
                 {item.price && (
                   <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'rgba(15,15,15,0.35)', marginTop: 3 }}>
-                    ~{currency} {item.price.toLocaleString('es-AR')}
+                    ~{currency} {formatPrice(item.price, currency)}
                   </p>
                 )}
                 {isMine && mine[item.id] && (
@@ -179,7 +179,7 @@ export default function GifterItems({ items, claimedIds, currency, ownerSurprise
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 10, flexWrap: 'wrap', gap: 8 }}>
                     {item.price ? (
                       <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 700 }}>
-                        ~{currency} {item.price.toLocaleString('es-AR')}
+                        ~{currency} {formatPrice(item.price, currency)}
                       </div>
                     ) : <div />}
                     <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
