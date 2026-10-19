@@ -15,10 +15,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
         borderBottom: '2px solid var(--ink)',
         position: 'sticky', top: 0, zIndex: 10,
       }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '14px 24px',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '14px 16px',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
           <Logomark size={20} href="/dashboard" />
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, whiteSpace: 'nowrap' }}>
             <Link href="/dashboard" className="rg-mono" style={{ fontSize: 10, color: 'rgba(15,15,15,0.55)', textDecoration: 'none' }}>
               MIS LISTAS
             </Link>
@@ -28,8 +28,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <Link href="/dashboard/profile" className="rg-mono" style={{ fontSize: 10, color: 'rgba(15,15,15,0.55)', textDecoration: 'none' }}>
               MI PERFIL
             </Link>
-            <span style={{ width: 1, height: 14, background: 'rgba(15,15,15,0.15)', display: 'inline-block' }} />
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'rgba(15,15,15,0.5)' }}>
+            {/* Name + divider don't fit next to the links on phones */}
+            <span className="hidden sm:inline-block" style={{ width: 1, height: 14, background: 'rgba(15,15,15,0.15)' }} />
+            <span className="hidden sm:inline" style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'rgba(15,15,15,0.5)' }}>
               {displayName.toUpperCase()}
             </span>
             <form action={signOut}>
@@ -44,7 +45,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           </div>
         </div>
       </header>
-      <main style={{ maxWidth: 1100, margin: '0 auto', padding: '32px 24px' }}>
+      <main style={{ maxWidth: 1100, margin: '0 auto', padding: '32px 16px' }}>
         {children}
       </main>
     </div>
