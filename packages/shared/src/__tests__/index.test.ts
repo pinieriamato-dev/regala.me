@@ -13,9 +13,11 @@ describe('createSlug', () => {
     expect(slug).not.toContain('á')
   })
 
-  it('appends a unique base36 suffix', () => {
+  it('appends a random 8-char base36 suffix', () => {
     const a = createSlug('test')
-    expect(a).toMatch(/^test-[a-z0-9]+$/)
+    const b = createSlug('test')
+    expect(a).toMatch(/^test-[a-z0-9]{8}$/)
+    expect(a).not.toBe(b)
   })
 
   it('handles special characters', () => {

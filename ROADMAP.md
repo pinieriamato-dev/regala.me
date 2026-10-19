@@ -5,7 +5,7 @@
 > **Status:** `todo` · `doing` · `blocked` · `done`
 > Focus: **web (mobile-first)**. Native app is paused.
 
-Last updated: 2026-10-19 (after the E2E run, PR #7)
+Last updated: 2026-10-19 (trust bugs N1–N7)
 
 ---
 
@@ -13,13 +13,13 @@ Last updated: 2026-10-19 (after the E2E run, PR #7)
 
 | # | Item | Why | Owner | Status |
 |---|---|---|---|---|
-| N1 | **Enforce surprise mode server-side.** Don't send claimer names/claimed state to the owner when `is_surprise`. Hide the claimed count on the dashboard and claimed badges on the owner's public view. | Today the owner sees "1 RECLAMADOS", "✓ RECLAMADO Mate imperial", and names are in the HTML. Breaks the core promise. | Claude | todo |
-| N2 | **Undo / release a claim.** Gifter "deshacer" (token in localStorage), owner "liberar" button. | Mistakes currently need a manual DB edit. | Claude | todo |
-| N3 | **Claim abuse protection.** Rate limit per IP + per list on `claimItem`, length/charset checks on names. | A script can claim a whole list in seconds. | Claude | todo |
-| N4 | **`link_only` lists done right.** Correct label (not "LISTA PÚBLICA"), `noindex`, random slug suffix. | Today they're labelled public, indexable and the slug is guessable. | Claude | todo |
-| N5 | **Transactional merge.** Single Postgres function (RPC), plus success feedback and a redirect. | Partial failure can delete items; no feedback after merging. | Claude (needs SQL) | todo |
-| N6 | **Move Vercel functions to `gru1` (São Paulo).** | DB is in sa-east-1; every page makes several US↔BR round trips. | Claude | todo |
-| N7 | **Item delete confirmation / undo.** | Deleting is instant and irreversible. | Claude | todo |
+| N1 | **Enforce surprise mode server-side.** Don't send claimer names/claimed state to the owner when `is_surprise`. Hide the claimed count on the dashboard and claimed badges on the owner's public view. | Today the owner sees "1 RECLAMADOS", "✓ RECLAMADO Mate imperial", and names are in the HTML. Breaks the core promise. | Claude | done |
+| N2 | **Undo / release a claim.** Gifter "deshacer" (token in localStorage), owner "liberar" button. | Mistakes currently need a manual DB edit. **Code shipped; needs `docs/sql/2026-10-19-claim-release.sql` run in Supabase** — until then the buttons show an error. | Claude + Gian (run SQL) | blocked |
+| N3 | **Claim abuse protection.** Rate limit per IP + per list on `claimItem`, length/charset checks on names. | A script can claim a whole list in seconds. Per-IP limit is in-memory per instance (best-effort); per-list limit (10/min) is checked in the DB. | Claude | done |
+| N4 | **`link_only` lists done right.** Correct label (not "LISTA PÚBLICA"), `noindex`, random slug suffix. | Today they're labelled public, indexable and the slug is guessable. New slugs get a random suffix; existing lists keep their slug so shared links don't break. | Claude | done |
+| N5 | **Transactional merge.** Single Postgres function (RPC), plus success feedback and a redirect. | Partial failure can delete items; no feedback after merging. Done without SQL: items move in one atomic UPDATE and the source is only deleted once verified empty. | Claude | done |
+| N6 | **Move Vercel functions to `gru1` (São Paulo).** | DB is in sa-east-1; every page makes several US↔BR round trips. | Claude | done |
+| N7 | **Item delete confirmation / undo.** | Deleting is instant and irreversible. | Claude | done |
 
 ## Now — needs Gian (≈15 min total)
 
@@ -27,7 +27,7 @@ Last updated: 2026-10-19 (after the E2E run, PR #7)
 |---|---|---|---|---|
 | G1 | **Enable Vercel Web Analytics** (Project → Analytics → Enable). | Zero visibility on traffic today. | Gian | todo |
 | G2 | **Custom SMTP (Resend) + Spanish email templates** in Supabase Auth. Use `token_hash` links: `{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=email`. | Default mailer is English, sent from supabase.io, and rate-limited to a few emails/hour. PKCE links fail cross-device. | Gian (+Claude writes templates) | todo |
-| G3 | **Grant SQL access to the Supabase connector.** | Needed for N5, P1, RLS audit and real metrics. | Gian | todo |
+| G3 | **Grant SQL access to the Supabase connector.** Meanwhile, run `docs/sql/2026-10-19-claim-release.sql` by hand (unblocks N2). | Needed for N2, P1, RLS audit and real metrics. | Gian | todo |
 | G4 | **Mercado Libre app scopes.** Check the ML Developers app; listing links only get a slug title, with no price or image. | Product-link extraction is the main differentiator. | Gian | todo |
 
 ## Next — growth (Navidad window: launch by ~Nov 15)
@@ -73,6 +73,7 @@ Last updated: 2026-10-19 (after the E2E run, PR #7)
 
 | Date | What | PR |
 |---|---|---|
+| 2026-10-19 | Trust bugs: surprise mode enforced server-side (N1), claim rate limits + name checks (N3), `link_only` label/noindex/random slugs (N4), safe merge with feedback (N5), functions in `gru1` (N6), delete confirmation (N7); claim undo/release code for N2 (waits on SQL) | this PR |
 | 2026-10-19 | Email signup/login blocked on prod (captcha key missing from build); `+` usernames 404; OG image 500; ML listing links 500; duplicate lists on repeated taps; price rounding on edit; cross-device confirm message; mobile horizontal overflow | #7 |
 | 2026-10-19 | Supabase captcha re-enabled and E2E test user deleted | — (Gian) |
 | ≤ 2026-06 | OG image, post-claim nudge, `/{username}` profile page, avatar upload, merge, surprise toggle, privacy levels, ML extraction | #1–#6 |

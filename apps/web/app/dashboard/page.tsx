@@ -19,7 +19,10 @@ export default async function DashboardPage() {
       .from('profiles').select('username').eq('id', user.id).single(),
   ])
 
-  const allItemIds = (lists ?? []).flatMap(l => (l.items ?? []).map((i: { id: string }) => i.id))
+  // Surprise lists never query claims, so the owner can't learn what was claimed from the payload either.
+  const allItemIds = (lists ?? [])
+    .filter(l => !l.is_surprise)
+    .flatMap(l => (l.items ?? []).map((i: { id: string }) => i.id))
   const { data: claims } = allItemIds.length
     ? await supabase.from('claims').select('item_id').in('item_id', allItemIds)
     : { data: [] }
@@ -147,7 +150,13 @@ export default async function DashboardPage() {
                   </div>
                 </div>
 
-                {total > 0 && (
+                {total > 0 && list.is_surprise && (
+                  <div className="rg-mono" style={{ fontSize: 9, marginBottom: 14, color: 'rgba(15,15,15,0.5)' }}>
+                    {total} ÍTEMS · LO RECLAMADO ES SORPRESA
+                  </div>
+                )}
+
+                {total > 0 && !list.is_surprise && (
                   <div style={{ marginBottom: 14 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'var(--font-mono)', fontSize: 9, marginBottom: 5, color: 'rgba(15,15,15,0.5)' }}>
                       <span>{claimed} RECLAMADOS</span><span>{total} ÍTEMS</span>

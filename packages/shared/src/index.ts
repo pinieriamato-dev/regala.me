@@ -24,6 +24,17 @@ export function daysUntil(dateStr: string | null | undefined): string | null {
   return `en ${diff} día${diff === 1 ? '' : 's'}`
 }
 
+const SLUG_ALPHABET = 'abcdefghijklmnopqrstuvwxyz0123456789'
+
+// Random (not time-based) so `link_only` list URLs can't be guessed from the title + creation date.
+function randomSuffix(length = 8): string {
+  const bytes = new Uint8Array(length)
+  const cryptoApi = (globalThis as { crypto?: { getRandomValues?: (a: Uint8Array) => Uint8Array } }).crypto
+  if (cryptoApi?.getRandomValues) cryptoApi.getRandomValues(bytes)
+  else for (let i = 0; i < length; i++) bytes[i] = Math.floor(Math.random() * 256)
+  return Array.from(bytes, b => SLUG_ALPHABET[b % SLUG_ALPHABET.length]).join('')
+}
+
 export function createSlug(title: string): string {
   return (
     title
@@ -35,6 +46,6 @@ export function createSlug(title: string): string {
       .replace(/\s+/g, '-')
       .slice(0, 40) +
     '-' +
-    Date.now().toString(36)
+    randomSuffix()
   )
 }

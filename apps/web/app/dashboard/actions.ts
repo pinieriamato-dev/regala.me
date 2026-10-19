@@ -142,36 +142,49 @@ export async function updatePrivacy(listId: string, privacyLevel: 'public' | 'li
   revalidatePath(`/dashboard/${listId}`)
 }
 
-export async function mergeWishlists(sourceId: string, targetId: string) {
+export async function mergeWishlists(sourceId: string, targetId: string): Promise<{ error: string } | undefined> {
   const supabase = await createServerSupabase()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth')
 
+  const failed = { error: 'No se pudieron combinar las listas. No se borró nada; probá de nuevo.' }
+  if (sourceId === targetId) return failed
+
   // Verify the user owns both lists
   const { data: owned } = await supabase
     .from('wishlists').select('id').eq('owner_id', user.id).in('id', [sourceId, targetId])
-  if (!owned || owned.length !== 2) return
+  if (!owned || owned.length !== 2) return failed
 
-  // Find the position to append source items after target items
-  const { count: targetCount } = await supabase
-    .from('items').select('id', { count: 'exact', head: true }).eq('wishlist_id', targetId)
+  const { data: topItem } = await supabase
+    .from('items').select('sort_order').eq('wishlist_id', targetId)
+    .order('sort_order', { ascending: false }).limit(1).maybeSingle()
 
-  const { data: sourceItems } = await supabase
+  const { data: sourceItems, error: readError } = await supabase
     .from('items').select('id').eq('wishlist_id', sourceId).order('sort_order')
+  if (readError) return failed
 
-  if (sourceItems?.length) {
-    const offset = targetCount ?? 0
-    await Promise.all(
-      sourceItems.map((item, i) =>
-        supabase.from('items')
-          .update({ wishlist_id: targetId, sort_order: offset + i })
-          .eq('id', item.id)
-      )
+  // Move every item in a single UPDATE: one statement is atomic, so items are never split between lists.
+  const { error: moveError } = await supabase
+    .from('items').update({ wishlist_id: targetId }).eq('wishlist_id', sourceId)
+  if (moveError) return failed
+
+  // Append after the target's items. Best-effort: a failure here only affects order, never loses items.
+  const base = (topItem?.sort_order ?? -1) + 1
+  await Promise.all(
+    (sourceItems ?? []).map((item, i) =>
+      supabase.from('items').update({ sort_order: base + i }).eq('id', item.id)
     )
-  }
+  )
+
+  // Only delete the source once it's verifiably empty, so a failed move can never take items with it.
+  const { count: left, error: countError } = await supabase
+    .from('items').select('id', { count: 'exact', head: true }).eq('wishlist_id', sourceId)
+  if (countError || left !== 0) return failed
 
   await supabase.from('wishlists').delete().eq('id', sourceId).eq('owner_id', user.id)
   revalidatePath('/dashboard')
+  revalidatePath(`/dashboard/${targetId}`)
+  redirect(`/dashboard/${targetId}?merged=1`)
 }
 
 export async function deleteWishlist(id: string) {
@@ -264,4 +277,21 @@ export async function deleteItem(itemId: string, listId: string) {
   await supabase.from('items').delete().eq('id', itemId).eq('wishlist_id', listId)
 
   revalidatePath(`/dashboard/${listId}`)
+}
+
+export async function releaseClaim(itemId: string, listId: string): Promise<{ error?: string }> {
+  const supabase = await createServerSupabase()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/auth')
+
+  const { data: ownedList } = await supabase
+    .from('wishlists').select('id').eq('id', listId).eq('owner_id', user.id).single()
+  if (!ownedList) return { error: 'No se pudo liberar.' }
+
+  // SECURITY DEFINER function that checks ownership (docs/sql/2026-10-19-claim-release.sql).
+  const { data: released, error } = await supabase.rpc('release_claim_as_owner', { p_item_id: itemId })
+  if (error || !released) return { error: 'No se pudo liberar. Probá de nuevo.' }
+
+  revalidatePath(`/dashboard/${listId}`)
+  return {}
 }

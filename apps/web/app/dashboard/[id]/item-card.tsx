@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { deleteItem, editItem } from '@/app/dashboard/actions'
+import { deleteItem, editItem, releaseClaim } from '@/app/dashboard/actions'
 import type { Item, Priority } from 'shared'
 
 const PRIORITIES: { value: Priority; label: string }[] = [
@@ -21,18 +21,31 @@ type Props = {
 export default function ItemCard({ item, claimer, listId, currency, isSurprise }: Props) {
   const [hidden,  setHidden]  = useState(false)
   const [editing, setEditing] = useState(false)
+  const [confirming, setConfirming] = useState<'delete' | 'release' | null>(null)
+  const [actionError, setActionError] = useState<string | null>(null)
   const [deletePending, startDeleteTransition] = useTransition()
+  const [releasePending, startReleaseTransition] = useTransition()
 
   if (hidden) return null
 
-  // For surprise lists the owner sees all items as unclaimed — no spoilers.
+  // Surprise lists: the page doesn't fetch claims at all, so `claimer` is already null; this is a backstop.
   const displayedClaimer = isSurprise ? null : claimer
   const isClaimed        = !!displayedClaimer
 
   const handleDelete = () => {
+    setConfirming(null)
     setHidden(true)
     startDeleteTransition(async () => {
       await deleteItem(item.id, listId)
+    })
+  }
+
+  const handleRelease = () => {
+    setConfirming(null)
+    setActionError(null)
+    startReleaseTransition(async () => {
+      const res = await releaseClaim(item.id, listId)
+      if (res.error) setActionError(res.error)
     })
   }
 
@@ -77,6 +90,20 @@ export default function ItemCard({ item, claimer, listId, currency, isSurprise }
           {isClaimed && (
             <span className="rg-sticker rg-sticker-green" style={{ fontSize: 8 }}>✓ {displayedClaimer}</span>
           )}
+          {isClaimed && (
+            <button
+              type="button"
+              onClick={() => setConfirming('release')}
+              disabled={releasePending}
+              className="rg-mono"
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer', fontSize: 9,
+                color: 'rgba(15,15,15,0.55)', padding: '4px 2px', textDecoration: 'underline',
+              }}
+            >
+              {releasePending ? '...' : 'LIBERAR'}
+            </button>
+          )}
           {!isClaimed && item.priority === 3 && (
             <span className="rg-sticker rg-sticker-red" style={{ fontSize: 8 }}>ESENCIAL</span>
           )}
@@ -102,6 +129,47 @@ export default function ItemCard({ item, claimer, listId, currency, isSurprise }
             </a>
           )}
         </div>
+        {confirming && (
+          <div
+            role="alertdialog"
+            aria-label={confirming === 'delete' ? 'Confirmar borrado' : 'Confirmar liberar'}
+            style={{
+              marginTop: 10, padding: '10px 12px', background: 'var(--yellow)',
+              border: '2px solid var(--ink)', display: 'flex', flexDirection: 'column', gap: 8,
+            }}
+          >
+            <span className="rg-mono" style={{ fontSize: 9, color: 'var(--ink)' }}>
+              {confirming === 'delete'
+                ? isClaimed
+                  ? `¿BORRAR ESTE ÍTEM? ${displayedClaimer?.toUpperCase()} YA LO RECLAMÓ.`
+                  : isSurprise
+                    ? '¿BORRAR ESTE ÍTEM? SI ALGUIEN LO RECLAMÓ, SE PIERDE.'
+                    : '¿BORRAR ESTE ÍTEM? NO SE PUEDE DESHACER.'
+                : `¿LIBERAR? ${displayedClaimer?.toUpperCase()} YA NO LO VA A TENER RECLAMADO.`}
+            </span>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button
+                type="button"
+                onClick={confirming === 'delete' ? handleDelete : handleRelease}
+                className="rg-btn rg-btn-primary"
+                style={{ flex: 1, padding: '8px', fontSize: 10, minHeight: 36 }}
+              >
+                {confirming === 'delete' ? 'SÍ, BORRAR' : 'SÍ, LIBERAR'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfirming(null)}
+                className="rg-btn rg-btn-ghost"
+                style={{ flex: 1, padding: '8px', fontSize: 10, minHeight: 36 }}
+              >
+                CANCELAR
+              </button>
+            </div>
+          </div>
+        )}
+        {actionError && (
+          <p style={{ fontSize: 11, color: 'var(--red)', fontWeight: 700, margin: '6px 0 0' }}>{actionError}</p>
+        )}
       </div>
       <div style={{ display: 'flex', gap: 4, flexShrink: 0, alignItems: 'center' }}>
         <button
@@ -115,8 +183,9 @@ export default function ItemCard({ item, claimer, listId, currency, isSurprise }
           EDITAR
         </button>
         <button
-          onClick={handleDelete}
+          onClick={() => setConfirming('delete')}
           disabled={deletePending}
+          aria-label={`Borrar ${item.title}`}
           style={{
             background: 'none', border: 'none',
             cursor: deletePending ? 'default' : 'pointer',

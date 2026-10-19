@@ -4,7 +4,6 @@ import { useState, useTransition } from 'react'
 import { mergeWishlists } from '@/app/dashboard/actions'
 import { occasionEmoji } from 'shared'
 import type { OccasionId } from 'shared'
-import Link from 'next/link'
 
 export type ListSummary = {
   id: string
@@ -17,7 +16,7 @@ export default function MergeForm({ lists }: { lists: ListSummary[] }) {
   const [sourceId, setSourceId] = useState<string | null>(null)
   const [targetId, setTargetId] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
-  const [done, setDone] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const source = lists.find(l => l.id === sourceId)
   const target = lists.find(l => l.id === targetId)
@@ -25,25 +24,12 @@ export default function MergeForm({ lists }: { lists: ListSummary[] }) {
 
   const handleMerge = () => {
     if (!canMerge) return
+    setError(null)
     startTransition(async () => {
-      await mergeWishlists(sourceId!, targetId!)
-      setDone(true)
+      // On success the action redirects to the merged list, so we only come back here on failure.
+      const res = await mergeWishlists(sourceId!, targetId!)
+      if (res?.error) setError(res.error)
     })
-  }
-
-  if (done) {
-    return (
-      <div className="rg-card" style={{ padding: '40px 32px', textAlign: 'center' }}>
-        <div className="rg-display" style={{ fontSize: 56, lineHeight: 1, marginBottom: 12, color: 'var(--green)' }}>✓</div>
-        <h2 className="rg-display" style={{ fontSize: 28, marginBottom: 8 }}>LISTAS COMBINADAS.</h2>
-        <p style={{ fontSize: 13, color: 'rgba(15,15,15,0.6)', marginBottom: 24 }}>
-          Los ítems de <strong>{source?.title}</strong> ahora están en <strong>{target?.title}</strong>.
-        </p>
-        <Link href="/dashboard" className="rg-btn rg-btn-primary" style={{ padding: '14px 28px', fontSize: 13 }}>
-          VER MIS LISTAS →
-        </Link>
-      </div>
-    )
   }
 
   return (
@@ -146,6 +132,10 @@ export default function MergeForm({ lists }: { lists: ListSummary[] }) {
             {source.items.length + target.items.length} ÍTEMS EN TOTAL — {source.title.toUpperCase()} DESAPARECE
           </div>
         </div>
+      )}
+
+      {error && (
+        <p role="alert" style={{ fontSize: 12, color: 'var(--red)', fontWeight: 700, margin: 0 }}>{error}</p>
       )}
 
       <button

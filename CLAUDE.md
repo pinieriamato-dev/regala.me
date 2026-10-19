@@ -78,8 +78,11 @@ claims (
   claimer_phone TEXT nullable,
   is_group_gift BOOL,
   contribution_amount NUMERIC nullable,
+  release_token_hash TEXT nullable, -- sha256 of the gifter's undo token (docs/sql/2026-10-19-claim-release.sql)
   created_at TIMESTAMPTZ
 )
+-- RPCs (SECURITY DEFINER): release_claim(p_item_id, p_token) for gifter undo,
+-- release_claim_as_owner(p_item_id) for the owner's "LIBERAR". Pending: SQL file must be run by Gian.
 ```
 
 ### RLS policies (important — not verified against the live DB)
@@ -97,7 +100,8 @@ and `display_name` from the **email local part**, ignoring the name typed at sig
 (`user_metadata.display_name`). Usernames can contain `+` (email aliases) — see "Route params" in §7.
 
 ### No migration files in repo
-Schema was applied via Supabase MCP during initial setup. Any future schema changes should be applied via the Supabase MCP `apply_migration` tool and documented here.
+Schema was applied via Supabase MCP during initial setup. SQL that a session couldn't apply itself lives in
+`docs/sql/` (run by hand in the Supabase SQL editor). Any future schema changes should be applied via the Supabase MCP `apply_migration` tool and documented here.
 As of Oct 2026 the Supabase MCP connector in Claude sessions is denied SQL/advisor access — ask the user to grant it, or hand them the SQL to run.
 
 ### Auth settings (Supabase dashboard)
@@ -205,8 +209,9 @@ All mutations go through Server Actions in `app/dashboard/actions.ts`, most wire
 - `addItem(listId, formData)` / `editItem(itemId, listId, formData)` / `deleteItem(itemId, listId)`
 - `updateProfile(prevState, formData)` → display_name/bio/birthday/avatar_url
 - `updateSurprise(listId, isSurprise)`, `updatePrivacy(listId, privacyLevel)`
-- `mergeWishlists(sourceId, targetId)` → moves items from source into target, appends after target's
-  existing items by `sort_order`, then deletes source. Both lists must be owned by the caller.
+- `mergeWishlists(sourceId, targetId)` → moves all items in one UPDATE, renumbers them after the target's,
+  deletes the source only once it's verified empty, then redirects to `/dashboard/{target}?merged=1`.
+- `releaseClaim(itemId, listId)` → owner "LIBERAR" via the `release_claim_as_owner` RPC.
 
 `addItem`/`editItem` normalize LATAM-formatted price strings (e.g. `"66.500"` vs `"66,5"` vs
 `"1.234,56"`) via locale-aware separator detection before parsing — see `addItemSchema` in
@@ -327,7 +332,11 @@ URL: `regala.me/{username}/{slug}`
 - Shows lists with `privacy_level` `public` or `link_only`; `private` returns 404
 - Claims go through the `claimItem` server action (`app/[username]/[slug]/actions.ts`), triggered by `ClaimButton`
 - OG image: `opengraph-image.tsx` (Satori — every `<div>` with more than one child needs `display: flex`, or it 500s)
-- Surprise mode is **not** enforced yet: the owner still sees claimed counts/state and claimer names are in the dashboard payload (see ROADMAP.md)
+- Surprise mode is enforced server-side: for `is_surprise` lists the dashboard and the owner's gifter view never
+  query claims (no names, counts or claimed state in the payload), and the OG description omits the available count
+- `claimItem` validates names (2–60 chars, a letter, no links/markup) and rate-limits: per IP in memory
+  (best-effort), per list via a DB count (10/min). Gifters get an undo token in localStorage (`regalame:claim:<itemId>`)
+- `link_only` lists: "LINK PRIVADO" label, `noindex`, excluded from sitemap/profile; `createSlug` uses a random suffix
 - No auth required for gifters — just `claimer_name` is collected
 - Viral footer on every public view: "¿QUERÉS HACER TU PROPIA LISTA?"
 
@@ -371,7 +380,7 @@ Update it in the same PR whenever you finish or discover something. Strategy, br
 - **Supabase**: $10/month Pro (sa-east-1) — never downgrade without checking with user
 - **Vercel**: live at **www.regala.me** (apex redirects to www). Project `regala-me` in team "Pinieri Amato Dev";
   every push to a branch gets a preview deployment (protected — use the Vercel MCP `get_access_to_vercel_url`
-  to open it). Functions run in `iad1` while the DB is in São Paulo — moving to `gru1` is on the roadmap.
+  to open it). Functions run in `gru1` (São Paulo, next to the DB) via `apps/web/vercel.json`.
 - **Analytics / error tracking**: none yet (Vercel Web Analytics off) — on the roadmap.
 - **Expo EAS**: Not yet configured. Mobile is paused; the web (mobile-first) is the focus.
 - Always post the dollar cost explicitly before any `confirm_cost` call on infrastructure changes
