@@ -5,7 +5,7 @@
 > **Status:** `todo` · `doing` · `blocked` · `done`
 > Focus: **web (mobile-first)**. Native app is paused.
 
-Last updated: 2026-10-19 (after #12, #13, #14, #17 merged)
+Last updated: 2026-10-19 (after #12, #13, #14, #16, #17, #18 merged)
 
 ---
 
@@ -35,18 +35,17 @@ Last updated: 2026-10-19 (after #12, #13, #14, #17 merged)
 
 | # | Item | Why | Owner | Status |
 |---|---|---|---|---|
-| X1 | **Amigo invisible.** Create a group, invite via link, draw names, each participant gets their own regala.me list. | Proven demand (Elfster). Every participant becomes a list creator, giving a December acquisition spike. | Claude | todo |
+| X1 | **Amigo invisible.** Create a group, invite via link, draw names, each participant gets their own regala.me list. Merged in #18; its SQL is not confirmed as run yet. | Proven demand (Elfster). Every participant becomes a list creator, giving a December acquisition spike. | Claude | doing |
 | X2 | **Product analytics** (PostHog). Events: `list_created`, `item_added`, `link_extracted`, `list_shared`, `list_viewed`, `item_claimed`, `signup_from_gifter_footer`. | Measure the viral loop (gifter → creator). | Claude | todo |
 | X3 | **Branded OG image.** Archivo Black, bigger title, item count, owner name. | It's the WhatsApp card, the main acquisition surface. | Claude | done |
 | X4 | **Landing page cleanup.** Invented testimonials removed (real quotes pending, see G5); "GRATIS" removed from the landing CTAs; each occasion tile has its own line. | Trust, and the "never promise free forever" rule. | Claude + Gian (quotes) | done |
 | X5 | **Owner notification on claim** (email; respect surprise mode). | Retention + "magic moment". | Claude (after G2) | todo |
-| X6 | **Realtime claimed state** on the gifter page (Supabase Realtime). | Avoids two people buying the same gift. | Claude | todo |
+| X6 | **Realtime claimed state** on the gifter page (Supabase Realtime). Merged in #16. Anon revoke applied by Gian; realtime publication SQL not confirmed yet, so activation is pending. | Avoids two people buying the same gift. | Claude | doing |
 
 ## Later
 
 | # | Item | Notes |
 |---|---|---|
-| P1 | Username/display_name not derived from email. Use the signup name; let users pick a username. **Status: doing.** Draft trigger merged in #12. SQL in `docs/sql/2026-10-19-profile-name-trigger.sql`, pending Gian's review and manual apply (live SQL access denied, see G3). | DB trigger change (needs G3). Today emails leak into public URLs and the sitemap. |
 | L1 | Mercado Libre affiliate links on "Comprar" | Main monetization. Needs ML Afiliados approval + monotributo. |
 | L2 | Group gift / colecta via Mercado Pago | DB columns already exist. |
 | L3 | Premium per event (wedding / quinceañera / baby shower) | Cover, invitation + QR, RSVP, custom URL. |
@@ -72,6 +71,7 @@ Last updated: 2026-10-19 (after #12, #13, #14, #17 merged)
 
 | Date | What | PR |
 |---|---|---|
+| 2026-10-19 | Profile name from the signup name, not the email (P1). Trigger applied by Gian and verified live | #12 |
 | 2026-10-19 | Branded OG image (X3) | #14 |
 | 2026-10-19 | Landing page cleanup (X4) | #13 |
 | 2026-10-19 | Later: currency-aware price grouping (L7), avatar magic-byte check + stale file cleanup (L9), SSRF ranges + IPv4-mapped IPv6 (L8 part 1) | #17 |
