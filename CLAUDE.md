@@ -82,7 +82,7 @@ claims (
   created_at TIMESTAMPTZ
 )
 -- RPCs (SECURITY DEFINER): release_claim(p_item_id, p_token) for gifter undo,
--- release_claim_as_owner(p_item_id) for the owner's "LIBERAR". Pending: SQL file must be run by Gian.
+-- release_claim_as_owner(p_item_id) for the owner's "LIBERAR". Applied 2026-10-19.
 ```
 
 ### RLS policies (important — not verified against the live DB)
