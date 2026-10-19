@@ -5,7 +5,7 @@
 > **Status:** `todo` · `doing` · `blocked` · `done`
 > Focus: **web (mobile-first)**. Native app is paused.
 
-Last updated: 2026-10-19 (after #12, #13, #14, #15, #16, #17, #18, #19, #21, #22, #23, #25 merged)
+Last updated: 2026-10-19 (after #12, #13, #14, #15, #16, #17, #18, #19, #21, #22, #23, #25, #26 merged)
 
 ---
 
@@ -52,7 +52,6 @@ Last updated: 2026-10-19 (after #12, #13, #14, #15, #16, #17, #18, #19, #21, #22
 | L4 | Item image upload + drag reorder | |
 | L5 | PWA (manifest + install prompt) | App-like without stores. |
 | L6 | SEO landing pages per occasion/country + comparison pages | milistita.com is already doing this. |
-| L8 | SSRF guard: **pin the resolved IP** so the fetch can't re-resolve DNS (IPv4-mapped IPv6 and missing ranges are done). | See CLAUDE.md §11. |
 
 ## Engineering hygiene
 
@@ -71,6 +70,7 @@ Last updated: 2026-10-19 (after #12, #13, #14, #15, #16, #17, #18, #19, #21, #22
 
 | Date | What | PR |
 |---|---|---|
+| 2026-10-19 | SSRF guard: pin the resolved IP so the fetch can't re-resolve DNS (L8 part 3) | #26 |
 | 2026-10-19 | SSRF guard: full link-local range and IPv4-mapped IPv6 (L8 part 2, delta on #17) | #23 |
 | 2026-10-19 | Item photo upload and drag reorder (L4) | #22 |
 | 2026-10-19 | Per-occasion SEO landing pages (L6) | #21 |
