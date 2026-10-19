@@ -44,7 +44,7 @@ export default async function OGImage({ params }: Props) {
         </div>
         {name && (
           <div style={{ fontSize: 32, color: 'rgba(15,15,15,0.55)', fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: 2 }}>
-            de {name}
+            {`de ${name}`}
           </div>
         )}
         <div style={{

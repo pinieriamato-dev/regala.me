@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useState, useEffect } from 'react'
+import { useActionState, useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createWishlist } from '@/app/dashboard/actions'
 import type { CreateWishlistResult } from '@/app/dashboard/actions'
@@ -25,15 +25,23 @@ export default function NewListPage() {
   const [currency,  setCurrency] = useState<Currency>('ARS')
   const [surprise,  setSurprise] = useState(false)
   const [privacy,   setPrivacy]  = useState<Privacy>('public')
+  // Repeated taps queue one createWishlist call each (duplicate lists), and the
+  // button re-enables between the action resolving and the redirect landing.
+  const submitted = useRef(false)
+  const busy = pending || (!!state && 'redirectTo' in state)
 
   useEffect(() => {
     if (state && 'redirectTo' in state) {
       router.push(state.redirectTo)
+    } else if (state && 'error' in state) {
+      submitted.current = false
     }
   }, [state, router])
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    if (submitted.current) return
+    submitted.current = true
     const fd = new FormData(e.currentTarget)
     fd.set('occasion', occasion === 'personal' ? '' : occasion)
     fd.set('currency', currency)
@@ -230,11 +238,11 @@ export default function NewListPage() {
 
           <button
             type="submit"
-            disabled={pending}
+            disabled={busy}
             className="rg-btn rg-btn-primary"
-            style={{ width: '100%', padding: '16px', fontSize: 14, opacity: pending ? 0.6 : 1 }}
+            style={{ width: '100%', padding: '16px', fontSize: 14, opacity: busy ? 0.6 : 1 }}
           >
-            {pending ? 'CREANDO...' : 'CREAR LISTA →'}
+            {busy ? 'CREANDO...' : 'CREAR LISTA →'}
           </button>
         </form>
       </div>

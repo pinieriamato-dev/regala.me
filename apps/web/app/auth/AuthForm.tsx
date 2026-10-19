@@ -17,9 +17,11 @@ export default function AuthForm({ siteKey }: AuthFormProps) {
   const [mode, setMode] = useState<Mode>(
     params.get('mode') === 'signup' ? 'signup' : 'signin'
   )
-  const urlError = params.get('error') === 'confirmation_failed'
-    ? 'El link de confirmación expiró o no es válido. Intentá registrarte de nuevo.'
-    : null
+  const urlError = ({
+    confirmation_failed: 'El link expiró o no es válido. Probá ingresar; si no podés, pedí un link nuevo.',
+    other_device: 'Tu email ya está confirmado. Ingresá con tu email y contraseña.',
+    recovery_other_device: 'Abrí el link de recuperación en el mismo navegador donde lo pediste, o pedí uno nuevo.',
+  } as Record<string, string>)[params.get('error') ?? ''] ?? null
   const [authState, authAction, authPending] = useActionState(handleAuth, null)
   const [forgotState, forgotAction, forgotPending] = useActionState(requestPasswordReset, null)
   const [googlePending, setGooglePending] = useState(false)

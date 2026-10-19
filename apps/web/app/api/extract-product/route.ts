@@ -142,11 +142,30 @@ async function getMLToken(): Promise<string | null> {
   }
 }
 
-async function fetchMercadoLibreItem(itemId: string): Promise<MLResult | null> {
+function titleFromSlug(slug: string): string | null {
+  return slug.split('-').filter(Boolean)
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ') || null
+}
+
+// The items API rejects anonymous calls (403 PolicyAgent), so it needs the same
+// client-credentials token as the products API. Falls back to a slug-derived title.
+async function fetchMercadoLibreItem(itemId: string, pathname: string): Promise<MLResult | null> {
   const normalizedId = itemId.replace('-', '')
+  const token = await getMLToken()
+  if (token) {
+    const item = await fetchMercadoLibreItemApi(normalizedId, token)
+    if (item) return item
+  }
+  // Listing paths look like /MLA-123456-titulo-del-producto-_JM
+  const m = pathname.match(/^\/[A-Z]{3}-?\d+-(.+?)(?:-?_JM)?$/i)
+  const title = m ? titleFromSlug(m[1]) : null
+  return title ? { title, price: null, image_url: null } : null
+}
+
+async function fetchMercadoLibreItemApi(itemId: string, token: string): Promise<MLResult | null> {
   try {
-    const res = await fetch(`https://api.mercadolibre.com/items/${normalizedId}`, {
-      headers: { Accept: 'application/json' },
+    const res = await fetch(`https://api.mercadolibre.com/items/${itemId}`, {
+      headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
       signal: AbortSignal.timeout(6000),
     })
     if (!res.ok) return null
@@ -197,8 +216,7 @@ async function fetchMercadoLibreProduct(productId: string, pathname: string): Pr
   // No credentials or API failed — extract title from URL slug, price/image will be null.
   const m = pathname.match(/\/([^/]+)\/p\//i)
   if (!m) return null
-  const title = m[1].split('-').filter(Boolean)
-    .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ') || null
+  const title = titleFromSlug(m[1])
   return title ? { title, price: null, image_url: null } : null
 }
 
@@ -228,7 +246,7 @@ export async function GET(request: NextRequest) {
 
   try {
     // Fast path: MercadoLibre.
-    // Regular listing (/MLA123) → public items API: full title, price, image.
+    // Regular listing (/MLA123) → items API (OAuth): full title, price, image.
     // Catalog page (/p/MLA123) → HTML is geo-blocked from Vercel, products API needs OAuth.
     //   Extract title from URL slug; skip the futile HTML scrape.
     if (ML_HOSTNAME_RE.test(targetUrl.hostname)) {
@@ -238,7 +256,7 @@ export async function GET(request: NextRequest) {
           const mlData = await fetchMercadoLibreProduct(mlMatch[1], targetUrl.pathname)
           return Response.json({ ...mlData, description: null, url: rawUrl })
         }
-        const mlData = await fetchMercadoLibreItem(mlMatch[1])
+        const mlData = await fetchMercadoLibreItem(mlMatch[1], targetUrl.pathname)
         if (mlData?.title) {
           return Response.json({ ...mlData, description: null, url: rawUrl })
         }
