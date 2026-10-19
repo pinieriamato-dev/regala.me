@@ -73,6 +73,7 @@ Last updated: 2026-10-19 (hygiene H1, H5, H6)
 
 | Date | What | PR |
 |---|---|---|
+| 2026-10-19 | SEO (L6): per-occasion pages at `/regalos-para/[occasion]` (birthday, baby shower, wedding, quinceanera, graduation), in the sitemap. Comparison pages not started. | — |
 | 2026-10-19 | Hygiene: GitHub Actions CI (typecheck + shared tests), shared types fixed (`is_public` removed, Profile `bio`/`birthday`), tsbuildinfo untracked | — |
 | 2026-10-19 | Trust bugs: surprise mode enforced server-side (N1), claim rate limits + name checks (N3), `link_only` label/noindex/random slugs (N4), safe merge with feedback (N5), functions in `gru1` (N6), delete confirmation (N7); claim undo/release (N2, SQL applied by Gian) | #9 |
 | 2026-10-19 | Email signup/login blocked on prod (captcha key missing from build); `+` usernames 404; OG image 500; ML listing links 500; duplicate lists on repeated taps; price rounding on edit; cross-device confirm message; mobile horizontal overflow | #7 |

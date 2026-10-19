@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next'
 import { createServerSupabase } from '@/lib/supabase/server'
+import { OCCASION_PAGES } from '@/lib/occasion-pages'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = await createServerSupabase()
@@ -20,6 +21,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     { url: 'https://regala.me', lastModified: new Date(), changeFrequency: 'weekly', priority: 1 },
+    ...Object.keys(OCCASION_PAGES).map((occasion): MetadataRoute.Sitemap[number] => ({
+      url: `https://regala.me/regalos-para/${occasion}`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    })),
     ...gifterPages,
   ]
 }
