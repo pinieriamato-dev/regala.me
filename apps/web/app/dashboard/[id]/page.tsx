@@ -145,7 +145,7 @@ export default async function ListDetailPage({ params, searchParams }: Props) {
           ÍTEMS ({(items ?? []).length})
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {(items ?? []).map((item: Item) => (
+          {(items ?? []).map((item: Item, index: number) => (
             <ItemCard
               key={item.id}
               item={item}
@@ -153,6 +153,8 @@ export default async function ListDetailPage({ params, searchParams }: Props) {
               listId={id}
               currency={list.currency}
               isSurprise={list.is_surprise ?? false}
+              canMoveUp={index > 0}
+              canMoveDown={index < (items ?? []).length - 1}
             />
           ))}
         </div>

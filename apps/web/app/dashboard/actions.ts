@@ -289,6 +289,37 @@ export async function deleteItem(itemId: string, listId: string) {
   revalidatePath(`/dashboard/${listId}`)
 }
 
+export async function moveItem(itemId: string, listId: string, direction: 'up' | 'down') {
+  const supabase = await createServerSupabase()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/auth')
+
+  const { data: ownedList } = await supabase
+    .from('wishlists').select('id').eq('id', listId).eq('owner_id', user.id).single()
+  if (!ownedList) return
+
+  const { data: items } = await supabase
+    .from('items').select('id, sort_order').eq('wishlist_id', listId)
+    .order('sort_order').order('created_at')
+  if (!items) return
+
+  const index = items.findIndex((item) => item.id === itemId)
+  const swapWith = direction === 'up' ? index - 1 : index + 1
+  if (index === -1 || swapWith < 0 || swapWith >= items.length) return
+
+  // Renumber the whole list. Swapping two values would do nothing if sort_order already has ties.
+  const reordered = [...items]
+  ;[reordered[index], reordered[swapWith]] = [reordered[swapWith], reordered[index]]
+  await Promise.all(
+    reordered
+      .map((item, position) => ({ id: item.id, from: item.sort_order, to: position }))
+      .filter((row) => row.from !== row.to)
+      .map((row) => supabase.from('items').update({ sort_order: row.to }).eq('id', row.id))
+  )
+
+  revalidatePath(`/dashboard/${listId}`)
+}
+
 export async function releaseClaim(itemId: string, listId: string): Promise<{ error?: string }> {
   const supabase = await createServerSupabase()
   const { data: { user } } = await supabase.auth.getUser()
