@@ -5,7 +5,7 @@
 > **Status:** `todo` · `doing` · `blocked` · `done`
 > Focus: **web (mobile-first)**. Native app is paused.
 
-Last updated: 2026-10-19 (X1 amigo invisible, hygiene H1, H5, H6)
+Last updated: 2026-10-19 (hygiene H1, H5, H6)
 
 ---
 
@@ -34,7 +34,7 @@ Last updated: 2026-10-19 (X1 amigo invisible, hygiene H1, H5, H6)
 
 | # | Item | Why | Owner | Status |
 |---|---|---|---|---|
-| X1 | **Amigo invisible.** Create a group, invite via link, draw names, each participant gets their own regala.me list. | Proven demand (Elfster). Every participant becomes a list creator, giving a December acquisition spike. **Code done; needs `docs/sql/2026-10-19-amigo-invisible.sql` run in Supabase (Gian) before it works.** | Claude | done |
+| X1 | **Amigo invisible.** Create a group, invite via link, draw names, each participant gets their own regala.me list. | Proven demand (Elfster). Every participant becomes a list creator, giving a December acquisition spike. | Claude | todo |
 | X2 | **Product analytics** (PostHog). Events: `list_created`, `item_added`, `link_extracted`, `list_shared`, `list_viewed`, `item_claimed`, `signup_from_gifter_footer`. | Measure the viral loop (gifter → creator). | Claude | todo |
 | X3 | **Branded OG image.** Archivo Black, bigger title, item count, owner name. | It's the WhatsApp card, the main acquisition surface. | Claude | todo |
 | X4 | **Landing page cleanup.** Real testimonials instead of invented ones; remove "CREAR LISTA GRATIS"; per-occasion sections. | Trust, and the "never promise free forever" rule. | Claude + Gian (quotes) | todo |
@@ -73,7 +73,6 @@ Last updated: 2026-10-19 (X1 amigo invisible, hygiene H1, H5, H6)
 
 | Date | What | PR |
 |---|---|---|
-| 2026-10-19 | Amigo invisible (X1): groups, invite link `/unirse/[code]`, draw (single cycle, min. 3), each participant gets a surprise `link_only` list. SQL pending Gian | — |
 | 2026-10-19 | Hygiene: GitHub Actions CI (typecheck + shared tests), shared types fixed (`is_public` removed, Profile `bio`/`birthday`), tsbuildinfo untracked | — |
 | 2026-10-19 | Trust bugs: surprise mode enforced server-side (N1), claim rate limits + name checks (N3), `link_only` label/noindex/random slugs (N4), safe merge with feedback (N5), functions in `gru1` (N6), delete confirmation (N7); claim undo/release (N2, SQL applied by Gian) | #9 |
 | 2026-10-19 | Email signup/login blocked on prod (captcha key missing from build); `+` usernames 404; OG image 500; ML listing links 500; duplicate lists on repeated taps; price rounding on edit; cross-device confirm message; mobile horizontal overflow | #7 |
