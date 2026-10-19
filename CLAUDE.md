@@ -370,7 +370,7 @@ item fields.
 ## 12. Roadmap & Backlog
 
 The backlog lives in **`ROADMAP.md`** (status, priority, owner — "Claude" for code, "Gian" for dashboard/account tasks).
-Update it in the same PR whenever you finish or discover something. Strategy, brand voice and competitors are in
+Don't edit it in feature PRs: every PR touching it causes merge conflicts. Update it in a separate ROADMAP-only PR after the feature PRs merge, marking what landed. Strategy, brand voice and competitors are in
 `docs/project/` — read them before product, copy or marketing work.
 
 ---

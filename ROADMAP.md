@@ -1,11 +1,11 @@
 # regala.me — Roadmap
 
-> Single source of truth for what's next. Update it in the same PR that finishes or discovers work.
+> Single source of truth for what's next. Feature PRs don't touch this file; it's updated in its own ROADMAP-only PR after merges.
 > **Owner:** `Claude` = code change Claude can do in a session · `Gian` = needs dashboard/account access.
 > **Status:** `todo` · `doing` · `blocked` · `done`
 > Focus: **web (mobile-first)**. Native app is paused.
 
-Last updated: 2026-10-19 (later items L7, L8 partial, L9; landing X4)
+Last updated: 2026-10-19 (after #12, #13, #14, #17 merged)
 
 ---
 
@@ -46,7 +46,7 @@ Last updated: 2026-10-19 (later items L7, L8 partial, L9; landing X4)
 
 | # | Item | Notes |
 |---|---|---|
-| P1 | Username/display_name not derived from email. Use the signup name; let users pick a username. **Status: doing.** SQL in `docs/sql/2026-10-19-profile-name-trigger.sql`, pending Gian's review and manual apply (live SQL access denied, see G3). | DB trigger change (needs G3). Today emails leak into public URLs and the sitemap. |
+| P1 | Username/display_name not derived from email. Use the signup name; let users pick a username. **Status: doing.** Draft trigger merged in #12. SQL in `docs/sql/2026-10-19-profile-name-trigger.sql`, pending Gian's review and manual apply (live SQL access denied, see G3). | DB trigger change (needs G3). Today emails leak into public URLs and the sitemap. |
 | L1 | Mercado Libre affiliate links on "Comprar" | Main monetization. Needs ML Afiliados approval + monotributo. |
 | L2 | Group gift / colecta via Mercado Pago | DB columns already exist. |
 | L3 | Premium per event (wedding / quinceañera / baby shower) | Cover, invitation + QR, RSVP, custom URL. |
@@ -72,8 +72,10 @@ Last updated: 2026-10-19 (later items L7, L8 partial, L9; landing X4)
 
 | Date | What | PR |
 |---|---|---|
-| 2026-10-19 | Later: currency-aware price grouping (L7), avatar magic-byte check + stale file cleanup (L9), SSRF ranges + IPv4-mapped IPv6 (L8 part 1) | — |
-| 2026-10-19 | Hygiene: GitHub Actions CI (typecheck + shared tests), shared types fixed (`is_public` removed, Profile `bio`/`birthday`), tsbuildinfo untracked | — |
+| 2026-10-19 | Branded OG image (X3) | #14 |
+| 2026-10-19 | Landing page cleanup (X4) | #13 |
+| 2026-10-19 | Later: currency-aware price grouping (L7), avatar magic-byte check + stale file cleanup (L9), SSRF ranges + IPv4-mapped IPv6 (L8 part 1) | #17 |
+| 2026-10-19 | Hygiene: GitHub Actions CI (typecheck + shared tests), shared types fixed (`is_public` removed, Profile `bio`/`birthday`), tsbuildinfo untracked | #11 |
 | 2026-10-19 | Trust bugs: surprise mode enforced server-side (N1), claim rate limits + name checks (N3), `link_only` label/noindex/random slugs (N4), safe merge with feedback (N5), functions in `gru1` (N6), delete confirmation (N7); claim undo/release (N2, SQL applied by Gian) | #9 |
 | 2026-10-19 | Email signup/login blocked on prod (captcha key missing from build); `+` usernames 404; OG image 500; ML listing links 500; duplicate lists on repeated taps; price rounding on edit; cross-device confirm message; mobile horizontal overflow | #7 |
 | 2026-10-19 | Supabase captcha re-enabled and E2E test user deleted | — (Gian) |
