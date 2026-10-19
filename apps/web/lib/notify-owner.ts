@@ -7,7 +7,7 @@ type ClaimNotice = {
 }
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://regala.me'
-const FROM = 'regala.me <avisos@app.regala.me>'
+const FROM = 'Regala.Me <no-reply@app.regala.me>'
 
 const HTML_ESCAPES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }
 const escapeHtml = (value: string) => value.replace(/[&<>"']/g, c => HTML_ESCAPES[c])
