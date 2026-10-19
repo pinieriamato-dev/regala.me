@@ -6,6 +6,7 @@ import { after } from 'next/server'
 import { createServerSupabase } from '@/lib/supabase/server'
 import { notifyOwnerOfClaim } from '@/lib/notify-owner'
 import { z } from 'zod'
+import { trackEvent } from '@/lib/analytics'
 
 type ClaimState = { error?: string; success?: boolean; releaseToken?: string | null } | null
 
@@ -113,6 +114,9 @@ export async function claimItem(_prevState: ClaimState, formData: FormData): Pro
     if (error.code === '23505') return { error: '¡Ya alguien lo reclamó! Elegí otro regalo.' }
     return { error: 'No se pudo reclamar el regalo. Intentá de nuevo.' }
   }
+
+  // Gifters are anonymous, so events group by list rather than by person.
+  trackEvent('item_claimed', `list:${item.wishlist_id}`, { wishlist_id: item.wishlist_id })
 
   after(() => notifyOwnerOfClaim({
     listId: item.wishlist_id,

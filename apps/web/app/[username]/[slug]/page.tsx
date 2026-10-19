@@ -7,6 +7,7 @@ import GifterItems from './gifter-items'
 import ClaimsRealtime from './claims-realtime'
 import Logomark from '@/components/Logomark'
 import { decodeParam } from '@/lib/params'
+import { trackEvent } from '@/lib/analytics'
 
 export const revalidate = 0
 
@@ -78,6 +79,12 @@ export default async function GifterPage({ params }: Props) {
 
   const data = await getListData(username, slug)
   if (!data) notFound()
+
+  trackEvent('list_viewed', `list:${data.list.id}`, {
+    privacy_level: data.list.privacy_level,
+    is_surprise: data.list.is_surprise,
+    item_count: data.items.length,
+  })
 
   const { list, items, claimedIds } = data
   const isOwnerSurpriseView = !!(list.is_surprise && user?.id === list.owner_id)
