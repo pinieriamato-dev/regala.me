@@ -7,14 +7,23 @@ import { trackEvent } from '@/lib/analytics'
 // and redirect-based SSRF bypasses
 // 0/8, loopback, RFC1918, link-local, CGNAT (100.64/10), benchmarking (198.18/15), multicast and reserved (224/4+)
 const PRIVATE_IPV4 = /^(0\.|127\.|10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|169\.254\.|100\.(6[4-9]|[7-9]\d|1[01]\d|12[0-7])\.|198\.(1[89])\.|(22[4-9]|23\d|24\d|25[0-5])\.)/
-const PRIVATE_IPV6 = /^(::$|::1$|fc|fd|fe80:|ff)/i
+const PRIVATE_IPV6 = /^(::$|::1$|fc|fd|fe[89ab]|ff)/i // fe80::/10 is the whole link-local range
+
+function unmapIPv4(address: string): string {
+  const dotted = address.replace(/^::ffff:(?=\d+\.\d+\.\d+\.\d+$)/i, '')
+  const hex = dotted.match(/^::ffff:([0-9a-f]{1,4}):([0-9a-f]{1,4})$/i)
+  if (!hex) return dotted
+  const high = parseInt(hex[1], 16)
+  const low = parseInt(hex[2], 16)
+  return `${high >> 8}.${high & 255}.${low >> 8}.${low & 255}`
+}
 
 async function isPrivateHost(hostname: string): Promise<boolean> {
   try {
     const records = await dns.lookup(hostname, { all: true })
     return records.some(r => {
-      // IPv4-mapped IPv6 (::ffff:10.0.0.1) must be checked as the IPv4 it wraps
-      const address = r.address.replace(/^::ffff:(?=\d+\.\d+\.\d+\.\d+$)/i, '')
+      // IPv4-mapped IPv6 (::ffff:10.0.0.1 or hex ::ffff:a00:1) must be checked as the IPv4 it wraps
+      const address = unmapIPv4(r.address)
       return PRIVATE_IPV4.test(address) || PRIVATE_IPV6.test(address)
     })
   } catch {
