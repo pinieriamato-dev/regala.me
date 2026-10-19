@@ -5,7 +5,7 @@
 > **Status:** `todo` · `doing` · `blocked` · `done`
 > Focus: **web (mobile-first)**. Native app is paused.
 
-Last updated: 2026-10-19 (after #12, #13, #14, #15, #16, #17, #18, #25 merged)
+Last updated: 2026-10-19 (after #12, #13, #14, #15, #16, #17, #18, #19, #21, #22, #23, #25 merged)
 
 ---
 
@@ -71,6 +71,10 @@ Last updated: 2026-10-19 (after #12, #13, #14, #15, #16, #17, #18, #25 merged)
 
 | Date | What | PR |
 |---|---|---|
+| 2026-10-19 | SSRF guard: full link-local range and IPv4-mapped IPv6 (L8 part 2, delta on #17) | #23 |
+| 2026-10-19 | Item photo upload and drag reorder (L4) | #22 |
+| 2026-10-19 | Per-occasion SEO landing pages (L6) | #21 |
+| 2026-10-19 | Installable PWA: manifest, generated icons and install button (L5) | #19 |
 | 2026-10-19 | Amigo invisible (X1), SQL applied | #18 |
 | 2026-10-19 | Server-side PostHog product analytics (X2), with PostHog env vars set | #15 |
 | 2026-10-19 | Profile name from the signup name, not the email (P1). Trigger applied by Gian and verified live | #12 |
