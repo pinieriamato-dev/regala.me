@@ -35,7 +35,7 @@ Last updated: 2026-10-19 (after #12, #13, #14, #15, #16, #17, #18, #25 merged)
 
 | # | Item | Why | Owner | Status |
 |---|---|---|---|---|
-| X1 | **Amigo invisible.** Create a group, invite via link, draw names, each participant gets their own regala.me list. Merged in #18; its SQL is not confirmed as run yet. | Proven demand (Elfster). Every participant becomes a list creator, giving a December acquisition spike. | Claude | doing |
+| X1 | **Amigo invisible.** Create a group, invite via link, draw names, each participant gets their own regala.me list. Merged in #18; SQL run and confirmed. | Proven demand (Elfster). Every participant becomes a list creator, giving a December acquisition spike. | Claude | done |
 | X2 | **Product analytics** (PostHog). Events: `list_created`, `item_added`, `link_extracted`, `list_shared`, `list_viewed`, `item_claimed`, `signup_from_gifter_footer`. | Measure the viral loop (gifter → creator). | Claude | done |
 | X3 | **Branded OG image.** Archivo Black, bigger title, item count, owner name. | It's the WhatsApp card, the main acquisition surface. | Claude | done |
 | X4 | **Landing page cleanup.** Invented testimonials removed (real quotes pending, see G5); "GRATIS" removed from the landing CTAs; each occasion tile has its own line. | Trust, and the "never promise free forever" rule. | Claude + Gian (quotes) | done |
@@ -71,6 +71,7 @@ Last updated: 2026-10-19 (after #12, #13, #14, #15, #16, #17, #18, #25 merged)
 
 | Date | What | PR |
 |---|---|---|
+| 2026-10-19 | Amigo invisible (X1), SQL applied | #18 |
 | 2026-10-19 | Server-side PostHog product analytics (X2), with PostHog env vars set | #15 |
 | 2026-10-19 | Profile name from the signup name, not the email (P1). Trigger applied by Gian and verified live | #12 |
 | 2026-10-19 | Realtime claimed state on the gifter page (X6). `claims` in the realtime publication, anon revoke applied | #16 |
