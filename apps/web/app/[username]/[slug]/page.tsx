@@ -5,6 +5,7 @@ import { occasionEmoji } from 'shared'
 import type { Item, Claim, OccasionId } from 'shared'
 import GifterItems from './gifter-items'
 import Logomark from '@/components/Logomark'
+import { decodeParam } from '@/lib/params'
 
 export const revalidate = 0
 
@@ -43,7 +44,8 @@ const getListData = cache(async (username: string, slug: string) => {
 })
 
 export async function generateMetadata({ params }: Props) {
-  const { username, slug } = await params
+  const { username: rawUsername, slug } = await params
+  const username = decodeParam(rawUsername)
   const data = await getListData(username, slug)
   if (!data) return { title: 'regala.me' }
 
@@ -62,7 +64,8 @@ export async function generateMetadata({ params }: Props) {
 }
 
 export default async function GifterPage({ params }: Props) {
-  const { username, slug } = await params
+  const { username: rawUsername, slug } = await params
+  const username = decodeParam(rawUsername)
 
   const supabase = await createServerSupabase()
   const { data: { user } } = await supabase.auth.getUser()

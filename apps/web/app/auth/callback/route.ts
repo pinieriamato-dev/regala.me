@@ -31,6 +31,14 @@ export async function GET(request: NextRequest) {
     if (!error) {
       return NextResponse.redirect(`${origin}${next}`)
     }
+    // PKCE links only complete in the browser that started the flow. Opened on
+    // another device (or in the mail app's browser) the verifier cookie is
+    // missing — but for signups Supabase has already confirmed the email.
+    const hasVerifier = request.cookies.getAll().some(c => c.name.endsWith('-code-verifier'))
+    if (!hasVerifier) {
+      const reason = type === 'recovery' ? 'recovery_other_device' : 'other_device'
+      return NextResponse.redirect(`${origin}/auth?error=${reason}`)
+    }
   }
 
   return NextResponse.redirect(`${origin}/auth?error=confirmation_failed`)

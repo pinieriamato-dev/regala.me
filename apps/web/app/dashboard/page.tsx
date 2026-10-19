@@ -29,7 +29,7 @@ export default async function DashboardPage() {
   return (
     <div>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 32 }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between', gap: 16, marginBottom: 32 }}>
         <div>
           <div className="rg-mono" style={{ marginBottom: 4 }}>Mis listas</div>
           <h1 className="rg-display" style={{ fontSize: 'clamp(3rem, 6vw, 5rem)' }}>

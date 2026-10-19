@@ -1,5 +1,6 @@
 import { ImageResponse } from 'next/og'
 import { createServerSupabase } from '@/lib/supabase/server'
+import { decodeParam } from '@/lib/params'
 
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
@@ -7,7 +8,8 @@ export const contentType = 'image/png'
 type Props = { params: Promise<{ username: string; slug: string }> }
 
 export default async function OGImage({ params }: Props) {
-  const { username, slug } = await params
+  const { username: rawUsername, slug } = await params
+  const username = decodeParam(rawUsername)
   const supabase = await createServerSupabase()
 
   const { data: list } = await supabase
@@ -44,7 +46,7 @@ export default async function OGImage({ params }: Props) {
         </div>
         {name && (
           <div style={{ fontSize: 32, color: 'rgba(15,15,15,0.55)', fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: 2 }}>
-            de {name}
+            {`de ${name}`}
           </div>
         )}
         <div style={{

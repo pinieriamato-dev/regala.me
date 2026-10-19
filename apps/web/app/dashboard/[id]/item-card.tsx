@@ -188,7 +188,8 @@ function EditForm({
           name="price"
           type="text"
           inputMode="decimal"
-          defaultValue={item.price ? String(Math.round(item.price)) : ''}
+          // es-AR decimal comma so addItemSchema parses it back unchanged (12345.5 → "12345,5")
+          defaultValue={item.price ? String(item.price).replace('.', ',') : ''}
           className="rg-input"
           style={{ fontSize: 13 }}
           placeholder={`Precio en ${currency} (opcional)`}
