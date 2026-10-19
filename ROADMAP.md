@@ -5,7 +5,7 @@
 > **Status:** `todo` · `doing` · `blocked` · `done`
 > Focus: **web (mobile-first)**. Native app is paused.
 
-Last updated: 2026-10-19 (after #12, #13, #14, #16, #17, #18 merged)
+Last updated: 2026-10-19 (after #12, #13, #14, #16, #17, #18, #25 merged)
 
 ---
 
@@ -40,7 +40,7 @@ Last updated: 2026-10-19 (after #12, #13, #14, #16, #17, #18 merged)
 | X3 | **Branded OG image.** Archivo Black, bigger title, item count, owner name. | It's the WhatsApp card, the main acquisition surface. | Claude | done |
 | X4 | **Landing page cleanup.** Invented testimonials removed (real quotes pending, see G5); "GRATIS" removed from the landing CTAs; each occasion tile has its own line. | Trust, and the "never promise free forever" rule. | Claude + Gian (quotes) | done |
 | X5 | **Owner notification on claim** (email; respect surprise mode). | Retention + "magic moment". | Claude (after G2) | done |
-| X6 | **Realtime claimed state** on the gifter page (Supabase Realtime). Merged in #16. Anon revoke applied by Gian; realtime publication SQL not confirmed yet, so activation is pending. | Avoids two people buying the same gift. | Claude | doing |
+| X6 | **Realtime claimed state** on the gifter page (Supabase Realtime). Merged in #16; live. | Avoids two people buying the same gift. | Claude | done |
 
 ## Later
 
@@ -72,6 +72,7 @@ Last updated: 2026-10-19 (after #12, #13, #14, #16, #17, #18 merged)
 | Date | What | PR |
 |---|---|---|
 | 2026-10-19 | Profile name from the signup name, not the email (P1). Trigger applied by Gian and verified live | #12 |
+| 2026-10-19 | Realtime claimed state on the gifter page (X6). `claims` in the realtime publication, anon revoke applied | #16 |
 | 2026-10-19 | Owner email on claim (X5) and Resend SMTP for auth and claim emails (G2) | #25 |
 | 2026-10-19 | Branded OG image (X3) | #14 |
 | 2026-10-19 | Landing page cleanup (X4) | #13 |
