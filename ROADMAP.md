@@ -26,7 +26,7 @@ Last updated: 2026-10-19 (after #12, #13, #14, #16, #17, #18 merged)
 | # | Item | Why | Owner | Status |
 |---|---|---|---|---|
 | G1 | **Enable Vercel Web Analytics** (Project → Analytics → Enable). | Zero visibility on traffic today. | Gian | todo |
-| G2 | **Custom SMTP (Resend) + Spanish email templates** in Supabase Auth. Use `token_hash` links: `{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=email`. | Default mailer is English, sent from supabase.io, and rate-limited to a few emails/hour. PKCE links fail cross-device. | Gian (+Claude writes templates) | todo |
+| G2 | **Custom SMTP (Resend) + Spanish email templates** in Supabase Auth. Use `token_hash` links: `{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=email`. | Default mailer is English, sent from supabase.io, and rate-limited to a few emails/hour. PKCE links fail cross-device. | Gian (+Claude writes templates) | done |
 | G3 | **Grant SQL access to the Supabase connector.** | Needed for P1, RLS audit and real metrics. | Gian | todo |
 | G4 | **Mercado Libre app scopes.** Check the ML Developers app; listing links only get a slug title, with no price or image. | Product-link extraction is the main differentiator. | Gian | todo |
 | G5 | **Real testimonials for the landing.** Send 2–3 real quotes from people who used regala.me (with first name and city, and their OK). Claude adds them back to the landing as a section. | Replaces the invented quotes removed in X4. Nothing fake goes back on the page. | Gian | todo |
@@ -39,7 +39,7 @@ Last updated: 2026-10-19 (after #12, #13, #14, #16, #17, #18 merged)
 | X2 | **Product analytics** (PostHog). Events: `list_created`, `item_added`, `link_extracted`, `list_shared`, `list_viewed`, `item_claimed`, `signup_from_gifter_footer`. | Measure the viral loop (gifter → creator). | Claude | todo |
 | X3 | **Branded OG image.** Archivo Black, bigger title, item count, owner name. | It's the WhatsApp card, the main acquisition surface. | Claude | done |
 | X4 | **Landing page cleanup.** Invented testimonials removed (real quotes pending, see G5); "GRATIS" removed from the landing CTAs; each occasion tile has its own line. | Trust, and the "never promise free forever" rule. | Claude + Gian (quotes) | done |
-| X5 | **Owner notification on claim** (email; respect surprise mode). | Retention + "magic moment". | Claude (after G2) | todo |
+| X5 | **Owner notification on claim** (email; respect surprise mode). | Retention + "magic moment". | Claude (after G2) | done |
 | X6 | **Realtime claimed state** on the gifter page (Supabase Realtime). Merged in #16. Anon revoke applied by Gian; realtime publication SQL not confirmed yet, so activation is pending. | Avoids two people buying the same gift. | Claude | doing |
 
 ## Later
@@ -72,6 +72,7 @@ Last updated: 2026-10-19 (after #12, #13, #14, #16, #17, #18 merged)
 | Date | What | PR |
 |---|---|---|
 | 2026-10-19 | Profile name from the signup name, not the email (P1). Trigger applied by Gian and verified live | #12 |
+| 2026-10-19 | Owner email on claim (X5) and Resend SMTP for auth and claim emails (G2) | #25 |
 | 2026-10-19 | Branded OG image (X3) | #14 |
 | 2026-10-19 | Landing page cleanup (X4) | #13 |
 | 2026-10-19 | Later: currency-aware price grouping (L7), avatar magic-byte check + stale file cleanup (L9), SSRF ranges + IPv4-mapped IPv6 (L8 part 1) | #17 |
