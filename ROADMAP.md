@@ -36,7 +36,7 @@ Last updated: 2026-10-19 (hygiene H1, H5, H6)
 |---|---|---|---|---|
 | X1 | **Amigo invisible.** Create a group, invite via link, draw names, each participant gets their own regala.me list. | Proven demand (Elfster). Every participant becomes a list creator, giving a December acquisition spike. | Claude | todo |
 | X2 | **Product analytics** (PostHog). Events: `list_created`, `item_added`, `link_extracted`, `list_shared`, `list_viewed`, `item_claimed`, `signup_from_gifter_footer`. | Measure the viral loop (gifter → creator). | Claude | todo |
-| X3 | **Branded OG image.** Archivo Black, bigger title, item count, owner name. | It's the WhatsApp card, the main acquisition surface. | Claude | todo |
+| X3 | **Branded OG image.** Archivo Black, bigger title, item count, owner name. | It's the WhatsApp card, the main acquisition surface. | Claude | done |
 | X4 | **Landing page cleanup.** Real testimonials instead of invented ones; remove "CREAR LISTA GRATIS"; per-occasion sections. | Trust, and the "never promise free forever" rule. | Claude + Gian (quotes) | todo |
 | X5 | **Owner notification on claim** (email; respect surprise mode). | Retention + "magic moment". | Claude (after G2) | todo |
 | X6 | **Realtime claimed state** on the gifter page (Supabase Realtime). | Avoids two people buying the same gift. | Claude | todo |
