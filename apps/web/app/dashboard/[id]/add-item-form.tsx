@@ -2,6 +2,7 @@
 
 import { useTransition, useState, useRef } from 'react'
 import { addItem } from '@/app/dashboard/actions'
+import ItemImageField from './item-image-field'
 
 const PRIORITIES = [
   { value: 1, label: 'OPCIONAL' },
@@ -171,13 +172,7 @@ export default function AddItemForm({ listId, currency }: { listId: string; curr
           className="rg-input"
           style={{ fontSize: 13 }}
         />
-        <input
-          name="image_url"
-          type="url"
-          placeholder="Link de imagen (opcional)"
-          className="rg-input"
-          style={{ fontSize: 13 }}
-        />
+        <ItemImageField />
 
         <div>
           <div className="rg-mono" style={{ fontSize: 9, marginBottom: 8, color: 'rgba(15,15,15,0.6)' }}>PRIORIDAD</div>
