@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect, useTransition } from 'react'
 import { formatPrice, type Item } from 'shared'
 import ClaimButton from './claim-button'
+import ColectaButton from './colecta-button'
 import { releaseClaim } from './actions'
 
 type Props = {
@@ -11,6 +12,8 @@ type Props = {
   currency: string
   // Owner looking at their own surprise list: the server sends no claim data, so hide claim UI too.
   ownerSurpriseView: boolean
+  // Set only when Mercado Pago is configured and the list isn't a surprise: money raised per item.
+  colecta?: { returnPath: string; raised: Record<string, number> }
 }
 
 const tokenKey = (itemId: string) => `regalame:claim:${itemId}`
@@ -25,7 +28,7 @@ function writeToken(itemId: string, token: string | null) {
   } catch {}
 }
 
-export default function GifterItems({ items, claimedIds, currency, ownerSurpriseView }: Props) {
+export default function GifterItems({ items, claimedIds, currency, ownerSurpriseView, colecta }: Props) {
   const [localClaimed, setLocalClaimed] = useState<Set<string>>(() => new Set(claimedIds))
   // Items this browser claimed → undo token (null when the claim can't be undone).
   const [mine,         setMine]         = useState<Record<string, string | null>>({})
@@ -99,6 +102,8 @@ export default function GifterItems({ items, claimedIds, currency, ownerSurprise
       {items.map((item) => {
         const claimed = claimedSet.has(item.id)
         const isMine  = item.id in mine
+        const raised    = colecta?.raised[item.id] ?? 0
+        const remaining = item.price ? Math.ceil(item.price - raised) : 0
 
         return (
           <article key={item.id} aria-label={`${item.title}${claimed ? ', reclamado' : ', disponible'}`} style={{
@@ -197,6 +202,14 @@ export default function GifterItems({ items, claimedIds, currency, ownerSurprise
                       )}
                       {!ownerSurpriseView && <ClaimButton itemId={item.id} onClaimed={handleClaimed} />}
                     </div>
+                    {colecta && !ownerSurpriseView && item.price && remaining > 0 && (
+                      <div style={{ marginTop: 10, paddingTop: 10, borderTop: '2px dashed var(--ink)' }}>
+                        <p className="rg-mono" style={{ fontSize: 9, margin: '0 0 6px' }}>
+                          COLECTA · {formatPrice(raised, currency)} DE {formatPrice(item.price, currency)}
+                        </p>
+                        <ColectaButton itemId={item.id} returnPath={colecta.returnPath} remaining={remaining} />
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

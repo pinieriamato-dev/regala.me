@@ -14,7 +14,8 @@
         "POSTHOG_KEY",
         "POSTHOG_HOST",
         "RESEND_API_KEY",
-        "SUPABASE_SERVICE_ROLE_KEY"
+        "SUPABASE_SERVICE_ROLE_KEY",
+        "MP_ACCESS_TOKEN"
       ]
     },
     "dev": {

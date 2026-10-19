@@ -24,7 +24,7 @@ export default async function DashboardPage() {
     .filter(l => !l.is_surprise)
     .flatMap(l => (l.items ?? []).map((i: { id: string }) => i.id))
   const { data: claims } = allItemIds.length
-    ? await supabase.from('claims').select('item_id').in('item_id', allItemIds)
+    ? await supabase.from('claims').select('item_id').eq('is_group_gift', false).in('item_id', allItemIds)
     : { data: [] }
 
   const claimedSet = new Set((claims ?? []).map((c: { item_id: string }) => c.item_id))

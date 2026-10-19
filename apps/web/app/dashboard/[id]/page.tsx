@@ -42,7 +42,7 @@ export default async function ListDetailPage({ params, searchParams }: Props) {
   const itemIds = (items ?? []).map((i: Item) => i.id)
   const { data: claims } = list.is_surprise || itemIds.length === 0
     ? { data: [] as { item_id: string; claimer_name: string }[] }
-    : await supabase.from('claims').select('item_id, claimer_name').in('item_id', itemIds)
+    : await supabase.from('claims').select('item_id, claimer_name').eq('is_group_gift', false).in('item_id', itemIds)
 
   const claimMap = new Map(
     (claims ?? []).map(c => [c.item_id, c.claimer_name])
