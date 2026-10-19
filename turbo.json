@@ -3,7 +3,15 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"],
+      "env": [
+        "SUPABASE_URL",
+        "SUPABASE_PUBLISHABLE_KEY",
+        "NEXT_PUBLIC_SITE_URL",
+        "HCAPTCHA_SITE_KEY",
+        "ML_CLIENT_ID",
+        "ML_CLIENT_SECRET"
+      ]
     },
     "dev": {
       "cache": false,
