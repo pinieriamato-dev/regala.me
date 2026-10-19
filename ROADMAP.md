@@ -1,11 +1,11 @@
 # regala.me — Roadmap
 
-> Single source of truth for what's next. Update it in the same PR that finishes or discovers work.
+> Single source of truth for what's next. Feature PRs don't touch this file; it's updated in its own ROADMAP-only PR after merges.
 > **Owner:** `Claude` = code change Claude can do in a session · `Gian` = needs dashboard/account access.
 > **Status:** `todo` · `doing` · `blocked` · `done`
 > Focus: **web (mobile-first)**. Native app is paused.
 
-Last updated: 2026-10-19 (later items L7, L8 partial, L9)
+Last updated: 2026-10-19 (after #12, #13, #14, #15, #16, #17, #18, #25 merged)
 
 ---
 
@@ -26,26 +26,26 @@ Last updated: 2026-10-19 (later items L7, L8 partial, L9)
 | # | Item | Why | Owner | Status |
 |---|---|---|---|---|
 | G1 | **Enable Vercel Web Analytics** (Project → Analytics → Enable). | Zero visibility on traffic today. | Gian | todo |
-| G2 | **Custom SMTP (Resend) + Spanish email templates** in Supabase Auth. Use `token_hash` links: `{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=email`. | Default mailer is English, sent from supabase.io, and rate-limited to a few emails/hour. PKCE links fail cross-device. | Gian (+Claude writes templates) | todo |
+| G2 | **Custom SMTP (Resend) + Spanish email templates** in Supabase Auth. Use `token_hash` links: `{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=email`. | Default mailer is English, sent from supabase.io, and rate-limited to a few emails/hour. PKCE links fail cross-device. | Gian (+Claude writes templates) | done |
 | G3 | **Grant SQL access to the Supabase connector.** | Needed for P1, RLS audit and real metrics. | Gian | todo |
 | G4 | **Mercado Libre app scopes.** Check the ML Developers app; listing links only get a slug title, with no price or image. | Product-link extraction is the main differentiator. | Gian | todo |
+| G5 | **Real testimonials for the landing.** Send 2–3 real quotes from people who used regala.me (with first name and city, and their OK). Claude adds them back to the landing as a section. | Replaces the invented quotes removed in X4. Nothing fake goes back on the page. | Gian | todo |
 
 ## Next — growth (Navidad window: launch by ~Nov 15)
 
 | # | Item | Why | Owner | Status |
 |---|---|---|---|---|
-| X1 | **Amigo invisible.** Create a group, invite via link, draw names, each participant gets their own regala.me list. | Proven demand (Elfster). Every participant becomes a list creator, giving a December acquisition spike. | Claude | todo |
-| X2 | **Product analytics** (PostHog). Events: `list_created`, `item_added`, `link_extracted`, `list_shared`, `list_viewed`, `item_claimed`, `signup_from_gifter_footer`. | Measure the viral loop (gifter → creator). | Claude | todo |
-| X3 | **Branded OG image.** Archivo Black, bigger title, item count, owner name. | It's the WhatsApp card, the main acquisition surface. | Claude | todo |
-| X4 | **Landing page cleanup.** Real testimonials instead of invented ones; remove "CREAR LISTA GRATIS"; per-occasion sections. | Trust, and the "never promise free forever" rule. | Claude + Gian (quotes) | todo |
-| X5 | **Owner notification on claim** (email; respect surprise mode). | Retention + "magic moment". | Claude (after G2) | todo |
-| X6 | **Realtime claimed state** on the gifter page (Supabase Realtime). | Avoids two people buying the same gift. | Claude | todo |
+| X1 | **Amigo invisible.** Create a group, invite via link, draw names, each participant gets their own regala.me list. Merged in #18; SQL run and confirmed. | Proven demand (Elfster). Every participant becomes a list creator, giving a December acquisition spike. | Claude | done |
+| X2 | **Product analytics** (PostHog). Events: `list_created`, `item_added`, `link_extracted`, `list_shared`, `list_viewed`, `item_claimed`, `signup_from_gifter_footer`. | Measure the viral loop (gifter → creator). | Claude | done |
+| X3 | **Branded OG image.** Archivo Black, bigger title, item count, owner name. | It's the WhatsApp card, the main acquisition surface. | Claude | done |
+| X4 | **Landing page cleanup.** Invented testimonials removed (real quotes pending, see G5); "GRATIS" removed from the landing CTAs; each occasion tile has its own line. | Trust, and the "never promise free forever" rule. | Claude + Gian (quotes) | done |
+| X5 | **Owner notification on claim** (email; respect surprise mode). | Retention + "magic moment". | Claude (after G2) | done |
+| X6 | **Realtime claimed state** on the gifter page (Supabase Realtime). Merged in #16; live. | Avoids two people buying the same gift. | Claude | done |
 
 ## Later
 
 | # | Item | Notes |
 |---|---|---|
-| P1 | Username/display_name not derived from email. Use the signup name; let users pick a username. | DB trigger change (needs G3). Today emails leak into public URLs and the sitemap. |
 | L1 | Mercado Libre affiliate links on "Comprar" | Main monetization. Needs ML Afiliados approval + monotributo. |
 | L2 | Group gift / colecta via Mercado Pago | DB columns already exist. |
 | L3 | Premium per event (wedding / quinceañera / baby shower) | Cover, invitation + QR, RSVP, custom URL. |
@@ -71,8 +71,15 @@ Last updated: 2026-10-19 (later items L7, L8 partial, L9)
 
 | Date | What | PR |
 |---|---|---|
-| 2026-10-19 | Later: currency-aware price grouping (L7), avatar magic-byte check + stale file cleanup (L9), SSRF ranges + IPv4-mapped IPv6 (L8 part 1) | — |
-| 2026-10-19 | Hygiene: GitHub Actions CI (typecheck + shared tests), shared types fixed (`is_public` removed, Profile `bio`/`birthday`), tsbuildinfo untracked | — |
+| 2026-10-19 | Amigo invisible (X1), SQL applied | #18 |
+| 2026-10-19 | Server-side PostHog product analytics (X2), with PostHog env vars set | #15 |
+| 2026-10-19 | Profile name from the signup name, not the email (P1). Trigger applied by Gian and verified live | #12 |
+| 2026-10-19 | Realtime claimed state on the gifter page (X6). `claims` in the realtime publication, anon revoke applied | #16 |
+| 2026-10-19 | Owner email on claim (X5) and Resend SMTP for auth and claim emails (G2) | #25 |
+| 2026-10-19 | Branded OG image (X3) | #14 |
+| 2026-10-19 | Landing page cleanup (X4) | #13 |
+| 2026-10-19 | Later: currency-aware price grouping (L7), avatar magic-byte check + stale file cleanup (L9), SSRF ranges + IPv4-mapped IPv6 (L8 part 1) | #17 |
+| 2026-10-19 | Hygiene: GitHub Actions CI (typecheck + shared tests), shared types fixed (`is_public` removed, Profile `bio`/`birthday`), tsbuildinfo untracked | #11 |
 | 2026-10-19 | Trust bugs: surprise mode enforced server-side (N1), claim rate limits + name checks (N3), `link_only` label/noindex/random slugs (N4), safe merge with feedback (N5), functions in `gru1` (N6), delete confirmation (N7); claim undo/release (N2, SQL applied by Gian) | #9 |
 | 2026-10-19 | Email signup/login blocked on prod (captcha key missing from build); `+` usernames 404; OG image 500; ML listing links 500; duplicate lists on repeated taps; price rounding on edit; cross-device confirm message; mobile horizontal overflow | #7 |
 | 2026-10-19 | Supabase captcha re-enabled and E2E test user deleted | — (Gian) |

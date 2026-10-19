@@ -128,6 +128,8 @@ NEXT_PUBLIC_SITE_URL=https://regala.me        # optional, defaults to https://re
 ML_CLIENT_ID=<optional — Mercado Libre client-credentials OAuth for /api/extract-product>
 ML_CLIENT_SECRET=<optional — see above>
 HCAPTCHA_SITE_KEY=<optional — gates signup/signin/reset forms; captcha is skipped entirely if unset>
+POSTHOG_KEY=<optional — server-side product analytics (lib/analytics.ts); events are skipped if unset>
+POSTHOG_HOST=<optional — defaults to https://us.i.posthog.com; use the EU host for an EU project>
 ```
 
 ### Mobile — `apps/mobile/.env`
@@ -370,7 +372,7 @@ item fields.
 ## 12. Roadmap & Backlog
 
 The backlog lives in **`ROADMAP.md`** (status, priority, owner — "Claude" for code, "Gian" for dashboard/account tasks).
-Update it in the same PR whenever you finish or discover something. Strategy, brand voice and competitors are in
+Don't edit it in feature PRs: every PR touching it causes merge conflicts. Update it in a separate ROADMAP-only PR after the feature PRs merge, marking what landed. Strategy, brand voice and competitors are in
 `docs/project/` — read them before product, copy or marketing work.
 
 ---

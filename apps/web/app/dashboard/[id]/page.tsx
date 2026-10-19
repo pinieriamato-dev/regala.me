@@ -9,6 +9,7 @@ import DeleteWishlistButton from './delete-wishlist-button'
 import ItemCard from './item-card'
 import PrivacyEditor from './privacy-editor'
 import SurpriseToggle from './surprise-toggle'
+import TrackedLink from '@/components/TrackedLink'
 
 type Props = {
   params: Promise<{ id: string }>
@@ -107,8 +108,10 @@ export default async function ListDetailPage({ params, searchParams }: Props) {
             </div>
             <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, wordBreak: 'break-all', marginBottom: 16, opacity: 0.8 }}>{shareUrl}</p>
             <div style={{ display: 'flex', gap: 10 }}>
-              <a
+              <TrackedLink
                 href={whatsappUrl}
+                listId={list.id}
+                event="list_shared"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="rg-btn"
@@ -119,7 +122,7 @@ export default async function ListDetailPage({ params, searchParams }: Props) {
                 }}
               >
                 COMPARTIR POR WHATSAPP
-              </a>
+              </TrackedLink>
               <a
                 href={`/${username}/${list.slug}`}
                 target="_blank"

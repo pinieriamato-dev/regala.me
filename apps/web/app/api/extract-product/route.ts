@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server'
 import { createServerSupabase } from '@/lib/supabase/server'
 import dns from 'node:dns/promises'
+import { trackEvent } from '@/lib/analytics'
 
 // Private/loopback/link-local ranges — checked after DNS resolution to defeat DNS-rebinding
 // and redirect-based SSRF bypasses
@@ -268,10 +269,12 @@ export async function GET(request: NextRequest) {
       if (mlMatch) {
         if (ML_CATALOG_PATH.test(targetUrl.pathname)) {
           const mlData = await fetchMercadoLibreProduct(mlMatch[1], targetUrl.pathname)
+          trackEvent('link_extracted', user.id, { source: 'mercadolibre' })
           return Response.json({ ...mlData, description: null, url: rawUrl })
         }
         const mlData = await fetchMercadoLibreItem(mlMatch[1], targetUrl.pathname)
         if (mlData?.title) {
+          trackEvent('link_extracted', user.id, { source: 'mercadolibre' })
           return Response.json({ ...mlData, description: null, url: rawUrl })
         }
       }
@@ -322,6 +325,7 @@ export async function GET(request: NextRequest) {
     // pages (e.g. "<title>Mercado Libre</title>" with no OG tags) are treated as empty title.
     const hostSiteName = siteName ?? currentUrl.hostname.replace(/^www\./, '').split('.')[0]
     const rawTitle = getOGTag(html, 'title') ?? getMetaName(html, 'title') ?? getTagTitle(html)
+    trackEvent('link_extracted', user.id, { source: 'generic' })
     return Response.json({
       title:       cleanTitle(rawTitle, hostSiteName),
       description: getOGTag(html, 'description') ?? getMetaName(html, 'description'),

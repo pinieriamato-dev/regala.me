@@ -33,6 +33,11 @@ export default function GifterItems({ items, claimedIds, currency, ownerSurprise
   const [undoError,    setUndoError]    = useState<{ id: string; message: string } | null>(null)
   const [undoPending,  startUndo]       = useTransition()
 
+  // Server refreshes (live claims) carry the authoritative set; follow them.
+  useEffect(() => {
+    setLocalClaimed(new Set(claimedIds))
+  }, [claimedIds])
+
   useEffect(() => {
     const found: Record<string, string> = {}
     for (const id of claimedIds) {
