@@ -49,12 +49,17 @@ export async function generateMetadata({ params }: Props) {
   const data = await getListData(username, slug)
   if (!data) return { title: 'regala.me' }
 
-  const { list, available, claimedIds } = data
-  const description = `${available} regalos disponibles para ${list.title}. Elegí el tuyo en regala.me.`
+  const { list, items, available } = data
+  // Surprise lists: the WhatsApp preview is also seen by the owner, so don't reveal how many were claimed.
+  const description = list.is_surprise
+    ? `${items.length} regalos para ${list.title}. Elegí el tuyo en regala.me.`
+    : `${available} regalos disponibles para ${list.title}. Elegí el tuyo en regala.me.`
 
   return {
     title: `${list.title} — regala.me`,
     description,
+    // link_only lists are reachable by URL but must not show up in search engines.
+    robots: list.privacy_level === 'link_only' ? { index: false, follow: false } : undefined,
     openGraph: {
       title: `${list.title} — regala.me`,
       description,
@@ -73,7 +78,7 @@ export default async function GifterPage({ params }: Props) {
   const data = await getListData(username, slug)
   if (!data) notFound()
 
-  const { list, items, claimedIds, available } = data
+  const { list, items, claimedIds } = data
   const isOwnerSurpriseView = !!(list.is_surprise && user?.id === list.owner_id)
 
   const emoji = occasionEmoji(list.occasion as OccasionId)
@@ -91,7 +96,7 @@ export default async function GifterPage({ params }: Props) {
       }}>
         <Logomark />
         <span className="rg-mono" style={{ fontSize: 10, color: 'rgba(15,15,15,0.45)' }}>
-          {isOwnerSurpriseView ? 'MODO SORPRESA' : 'LISTA PÚBLICA'}
+          {isOwnerSurpriseView ? 'MODO SORPRESA' : list.privacy_level === 'link_only' ? 'LINK PRIVADO' : 'LISTA PÚBLICA'}
         </span>
       </div>
 
@@ -119,20 +124,19 @@ export default async function GifterPage({ params }: Props) {
           {isOwnerSurpriseView && (
             <div className="rg-card-yellow" style={{ padding: '10px 14px', marginBottom: 14 }}>
               <span className="rg-mono" style={{ fontSize: 9 }}>
-                🎁 ESTÁS VIENDO TU PROPIA LISTA EN MODO SORPRESA — LOS REGALOS RECLAMADOS ESTÁN OCULTOS
+                🎁 ESTÁS VIENDO TU PROPIA LISTA EN MODO SORPRESA — NO TE MOSTRAMOS QUÉ RECLAMARON
               </span>
             </div>
           )}
 
         </div>
 
-        {/* Items (client component handles surprise blur + claim) */}
+        {/* Items. The owner's surprise view gets no claim data at all, not just hidden UI. */}
         <GifterItems
           items={items}
-          claimedIds={claimedIds}
+          claimedIds={isOwnerSurpriseView ? [] : claimedIds}
           currency={currency}
-          isOwnerSurpriseView={isOwnerSurpriseView}
-          listIsSurprise={list.is_surprise ?? false}
+          ownerSurpriseView={isOwnerSurpriseView}
         />
 
         {/* Viral footer */}

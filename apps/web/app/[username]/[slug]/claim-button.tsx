@@ -5,41 +5,19 @@ import { claimItem } from './actions'
 
 interface Props {
   itemId: string
-  listIsSurprise: boolean
-  onClaimed?: (itemId: string) => void
+  onClaimed?: (itemId: string, releaseToken: string | null) => void
 }
 
-export default function ClaimButton({ itemId, listIsSurprise: _listIsSurprise, onClaimed }: Props) {
+export default function ClaimButton({ itemId, onClaimed }: Props) {
   const [open, setOpen] = useState(false)
   const [state, action, pending] = useActionState(claimItem, null)
 
   useEffect(() => {
-    if (state?.success) onClaimed?.(itemId)
-  }, [state?.success, itemId, onClaimed])
+    if (state?.success) onClaimed?.(itemId, state.releaseToken ?? null)
+  }, [state, itemId, onClaimed])
 
-  if (state?.success) {
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%', marginTop: 8 }}>
-        <span className="rg-sticker rg-sticker-green" style={{ fontSize: 11, padding: '5px 12px', alignSelf: 'flex-start' }}>
-          ✓ ¡GRACIAS!
-        </span>
-        <a
-          href="/auth?mode=signup"
-          style={{
-            display: 'block', padding: '12px 14px',
-            background: 'var(--yellow)', border: '2px solid var(--ink)', boxShadow: 'var(--shadow-sm)',
-            fontSize: 11, fontFamily: 'var(--font-display)', textDecoration: 'none', color: 'var(--ink)',
-            textTransform: 'uppercase', letterSpacing: -0.3,
-          }}
-        >
-          ¿TENÉS UN CUMPLE PRÓXIMAMENTE?<br />
-          <span style={{ fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 10 }}>
-            Armá tu lista en 2 min →
-          </span>
-        </a>
-      </div>
-    )
-  }
+  // The parent re-renders this item as claimed (with the thank-you nudge) right after.
+  if (state?.success) return null
 
   if (open) {
     return (
@@ -50,6 +28,9 @@ export default function ClaimButton({ itemId, listIsSurprise: _listIsSurprise, o
           name="name"
           placeholder="Tu nombre"
           required
+          minLength={2}
+          maxLength={60}
+          autoComplete="given-name"
           autoFocus
           style={{ fontSize: 13, padding: '10px 12px' }}
         />

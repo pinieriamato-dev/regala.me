@@ -1,59 +1,99 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect, useTransition } from 'react'
 import type { Item } from 'shared'
 import ClaimButton from './claim-button'
+import { releaseClaim } from './actions'
 
 type Props = {
   items: Item[]
   claimedIds: string[]
   currency: string
-  isOwnerSurpriseView: boolean
-  listIsSurprise: boolean
+  // Owner looking at their own surprise list: the server sends no claim data, so hide claim UI too.
+  ownerSurpriseView: boolean
 }
 
-export default function GifterItems({ items, claimedIds, currency, isOwnerSurpriseView, listIsSurprise }: Props) {
-  const [revealedIds,   setRevealedIds]   = useState<Set<string>>(new Set())
-  const [localClaimed,  setLocalClaimed]  = useState<Set<string>>(() => new Set(claimedIds))
+const tokenKey = (itemId: string) => `regalame:claim:${itemId}`
 
-  const handleClaimed = useCallback((itemId: string) => {
+function readToken(itemId: string): string | null {
+  try { return localStorage.getItem(tokenKey(itemId)) } catch { return null }
+}
+function writeToken(itemId: string, token: string | null) {
+  try {
+    if (token) localStorage.setItem(tokenKey(itemId), token)
+    else localStorage.removeItem(tokenKey(itemId))
+  } catch {}
+}
+
+export default function GifterItems({ items, claimedIds, currency, ownerSurpriseView }: Props) {
+  const [localClaimed, setLocalClaimed] = useState<Set<string>>(() => new Set(claimedIds))
+  // Items this browser claimed → undo token (null when the claim can't be undone).
+  const [mine,         setMine]         = useState<Record<string, string | null>>({})
+  const [justClaimed,  setJustClaimed]  = useState<Set<string>>(new Set())
+  const [undoError,    setUndoError]    = useState<{ id: string; message: string } | null>(null)
+  const [undoPending,  startUndo]       = useTransition()
+
+  useEffect(() => {
+    const found: Record<string, string> = {}
+    for (const id of claimedIds) {
+      const token = readToken(id)
+      if (token) found[id] = token
+    }
+    if (Object.keys(found).length) setMine(prev => ({ ...found, ...prev }))
+  }, [claimedIds])
+
+  const handleClaimed = useCallback((itemId: string, releaseToken: string | null) => {
+    writeToken(itemId, releaseToken)
     setLocalClaimed(prev => new Set([...prev, itemId]))
+    setMine(prev => ({ ...prev, [itemId]: releaseToken }))
+    setJustClaimed(prev => new Set([...prev, itemId]))
   }, [])
+
+  const handleUndo = (itemId: string) => {
+    const token = mine[itemId]
+    if (!token) return
+    setUndoError(null)
+    startUndo(async () => {
+      const res = await releaseClaim(itemId, token)
+      if (res.error) {
+        setUndoError({ id: itemId, message: res.error })
+        return
+      }
+      writeToken(itemId, null)
+      setLocalClaimed(prev => { const next = new Set(prev); next.delete(itemId); return next })
+      setMine(prev => { const next = { ...prev }; delete next[itemId]; return next })
+      setJustClaimed(prev => { const next = new Set(prev); next.delete(itemId); return next })
+    })
+  }
 
   const claimedSet = localClaimed
   const available  = items.length - localClaimed.size
 
-  const toggleReveal = (id: string) => {
-    setRevealedIds(prev => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id); else next.add(id)
-      return next
-    })
-  }
-
   return (
     <div>
-      {/* Stats bar — updates in real time as items are claimed */}
-      <div style={{
-        display: 'flex', gap: 20, padding: '10px 14px', marginBottom: 16,
-        background: 'var(--yellow)', border: '2px solid var(--ink)',
-        boxShadow: 'var(--shadow-sm)',
-      }}>
-        <div>
-          <div className="rg-mono" style={{ fontSize: 9, marginBottom: 1 }}>DISPONIBLES</div>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, lineHeight: 1 }}>{available}</div>
+      {/* Stats bar — updates in real time as items are claimed. Hidden in the owner's surprise view. */}
+      {!ownerSurpriseView && (
+        <div style={{
+          display: 'flex', gap: 20, padding: '10px 14px', marginBottom: 16,
+          background: 'var(--yellow)', border: '2px solid var(--ink)',
+          boxShadow: 'var(--shadow-sm)',
+        }}>
+          <div>
+            <div className="rg-mono" style={{ fontSize: 9, marginBottom: 1 }}>DISPONIBLES</div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, lineHeight: 1 }}>{available}</div>
+          </div>
+          <div style={{ width: 2, background: 'var(--ink)' }} />
+          <div>
+            <div className="rg-mono" style={{ fontSize: 9, marginBottom: 1 }}>RECLAMADOS</div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, lineHeight: 1 }}>{localClaimed.size}</div>
+          </div>
         </div>
-        <div style={{ width: 2, background: 'var(--ink)' }} />
-        <div>
-          <div className="rg-mono" style={{ fontSize: 9, marginBottom: 1 }}>RECLAMADOS</div>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, lineHeight: 1 }}>{localClaimed.size}</div>
-        </div>
-      </div>
+      )}
 
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
       {items.map((item) => {
         const claimed = claimedSet.has(item.id)
-        const blurred = isOwnerSurpriseView && claimed && !revealedIds.has(item.id)
+        const isMine  = item.id in mine
 
         return (
           <article key={item.id} aria-label={`${item.title}${claimed ? ', reclamado' : ', disponible'}`} style={{
@@ -66,34 +106,49 @@ export default function GifterItems({ items, claimedIds, currency, isOwnerSurpri
             {claimed ? (
               <div>
                 <span className="rg-sticker rg-sticker-green" style={{ fontSize: 9, marginBottom: 6, display: 'inline-block' }}>
-                  ✓ RECLAMADO
+                  {isMine ? '✓ LO RECLAMASTE VOS' : '✓ RECLAMADO'}
                 </span>
-                <div style={{
-                  filter: blurred ? 'blur(6px)' : 'none',
-                  userSelect: blurred ? 'none' : 'auto',
-                  transition: 'filter 0.2s',
-                }}>
-                  <p style={{ fontSize: 14, color: 'rgba(15,15,15,0.45)', textDecoration: 'line-through', margin: 0 }}>
-                    {item.title}
+                <p style={{ fontSize: 14, color: 'rgba(15,15,15,0.45)', textDecoration: 'line-through', margin: 0 }}>
+                  {item.title}
+                </p>
+                {item.price && (
+                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'rgba(15,15,15,0.35)', marginTop: 3 }}>
+                    ~{currency} {item.price.toLocaleString('es-AR')}
                   </p>
-                  {item.price && (
-                    <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'rgba(15,15,15,0.35)', marginTop: 3 }}>
-                      ~{currency} {item.price.toLocaleString('es-AR')}
-                    </p>
-                  )}
-                </div>
-                {isOwnerSurpriseView && (
+                )}
+                {isMine && mine[item.id] && (
                   <button
-                    onClick={() => toggleReveal(item.id)}
+                    type="button"
+                    onClick={() => handleUndo(item.id)}
+                    disabled={undoPending}
                     className="rg-mono"
                     style={{
-                      background: 'none', border: 'none', cursor: 'pointer',
-                      fontSize: 9, color: 'rgba(15,15,15,0.45)', marginTop: 6,
-                      padding: 0, textDecoration: 'underline',
+                      background: 'none', border: 'none', cursor: undoPending ? 'default' : 'pointer',
+                      fontSize: 10, color: 'var(--ink)', marginTop: 8,
+                      padding: '6px 0', textDecoration: 'underline', minHeight: 32,
                     }}
                   >
-                    {blurred ? '¿VER DE TODOS MODOS?' : 'OCULTAR'}
+                    {undoPending ? '...' : '¿TE EQUIVOCASTE? DESHACER'}
                   </button>
+                )}
+                {undoError?.id === item.id && (
+                  <p style={{ fontSize: 11, color: 'var(--red)', fontWeight: 700, margin: '4px 0 0' }}>{undoError.message}</p>
+                )}
+                {justClaimed.has(item.id) && (
+                  <a
+                    href="/auth?mode=signup"
+                    style={{
+                      display: 'block', padding: '12px 14px', marginTop: 10,
+                      background: 'var(--yellow)', border: '2px solid var(--ink)', boxShadow: 'var(--shadow-sm)',
+                      fontSize: 11, fontFamily: 'var(--font-display)', textDecoration: 'none', color: 'var(--ink)',
+                      textTransform: 'uppercase', letterSpacing: -0.3,
+                    }}
+                  >
+                    ¡GRACIAS! ¿TENÉS UN CUMPLE PRÓXIMAMENTE?<br />
+                    <span style={{ fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 10 }}>
+                      Armá tu lista en 2 min →
+                    </span>
+                  </a>
                 )}
               </div>
             ) : (
@@ -135,7 +190,7 @@ export default function GifterItems({ items, claimedIds, currency, isOwnerSurpri
                           VER PRODUCTO
                         </a>
                       )}
-                      <ClaimButton itemId={item.id} listIsSurprise={listIsSurprise} onClaimed={handleClaimed} />
+                      {!ownerSurpriseView && <ClaimButton itemId={item.id} onClaimed={handleClaimed} />}
                     </div>
                   </div>
                 </div>

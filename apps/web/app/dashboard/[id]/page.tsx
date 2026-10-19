@@ -10,10 +10,14 @@ import ItemCard from './item-card'
 import PrivacyEditor from './privacy-editor'
 import SurpriseToggle from './surprise-toggle'
 
-type Props = { params: Promise<{ id: string }> }
+type Props = {
+  params: Promise<{ id: string }>
+  searchParams: Promise<{ merged?: string }>
+}
 
-export default async function ListDetailPage({ params }: Props) {
+export default async function ListDetailPage({ params, searchParams }: Props) {
   const { id } = await params
+  const { merged } = await searchParams
   const supabase = await createServerSupabase()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth')
@@ -33,10 +37,11 @@ export default async function ListDetailPage({ params }: Props) {
     .eq('wishlist_id', id)
     .order('sort_order')
 
-  const { data: claims } = await supabase
-    .from('claims')
-    .select('item_id, claimer_name')
-    .in('item_id', (items ?? []).map((i: Item) => i.id))
+  // Surprise mode: don't even fetch claims, so no names or claimed state reach the owner's browser.
+  const itemIds = (items ?? []).map((i: Item) => i.id)
+  const { data: claims } = list.is_surprise || itemIds.length === 0
+    ? { data: [] as { item_id: string; claimer_name: string }[] }
+    : await supabase.from('claims').select('item_id, claimer_name').in('item_id', itemIds)
 
   const claimMap = new Map(
     (claims ?? []).map(c => [c.item_id, c.claimer_name])
@@ -58,6 +63,12 @@ export default async function ListDetailPage({ params }: Props) {
           ← MIS LISTAS
         </Link>
       </div>
+
+      {merged === '1' && (
+        <div className="rg-card-yellow" role="status" style={{ padding: '12px 16px', marginBottom: 20 }}>
+          <span className="rg-mono" style={{ fontSize: 10 }}>✓ LISTAS COMBINADAS — LOS ÍTEMS YA ESTÁN ACÁ</span>
+        </div>
+      )}
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24, gap: 12 }}>
