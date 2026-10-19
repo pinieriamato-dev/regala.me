@@ -45,7 +45,7 @@ Last updated: 2026-10-19 (hygiene H1, H5, H6)
 
 | # | Item | Notes |
 |---|---|---|
-| P1 | Username/display_name not derived from email. Use the signup name; let users pick a username. | DB trigger change (needs G3). Today emails leak into public URLs and the sitemap. |
+| P1 | Username/display_name not derived from email. Use the signup name; let users pick a username. **Status: doing.** SQL in `docs/sql/2026-10-19-profile-name-trigger.sql`, pending Gian's review and manual apply (live SQL access denied, see G3). | DB trigger change (needs G3). Today emails leak into public URLs and the sitemap. |
 | L1 | Mercado Libre affiliate links on "Comprar" | Main monetization. Needs ML Afiliados approval + monotributo. |
 | L2 | Group gift / colecta via Mercado Pago | DB columns already exist. |
 | L3 | Premium per event (wedding / quinceañera / baby shower) | Cover, invitation + QR, RSVP, custom URL. |
