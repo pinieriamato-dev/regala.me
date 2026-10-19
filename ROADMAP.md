@@ -5,7 +5,7 @@
 > **Status:** `todo` · `doing` · `blocked` · `done`
 > Focus: **web (mobile-first)**. Native app is paused.
 
-Last updated: 2026-10-19 (X2b client-side events; X2 server-side analytics; hygiene H1, H5, H6)
+Last updated: 2026-10-19 (hygiene H1, H5, H6)
 
 ---
 
@@ -35,8 +35,7 @@ Last updated: 2026-10-19 (X2b client-side events; X2 server-side analytics; hygi
 | # | Item | Why | Owner | Status |
 |---|---|---|---|---|
 | X1 | **Amigo invisible.** Create a group, invite via link, draw names, each participant gets their own regala.me list. | Proven demand (Elfster). Every participant becomes a list creator, giving a December acquisition spike. | Claude | todo |
-| X2 | **Product analytics** (PostHog). Server-side events: `list_created`, `item_added`, `link_extracted`, `list_viewed`, `item_claimed` (`lib/analytics.ts`, no-op until `POSTHOG_KEY` is set). | Measure the viral loop (gifter → creator). | Claude (Gian: set `POSTHOG_KEY`) | done |
-| X2b | **Client-side analytics events**: `list_shared` (share button) and `signup_from_gifter_footer` (needs the referrer list carried into signup). Sent by a server action on click (`lib/track-actions`), not a browser snippet. | Two of the seven X2 events can't be measured from the server. | Claude | done |
+| X2 | **Product analytics** (PostHog). Events: `list_created`, `item_added`, `link_extracted`, `list_shared`, `list_viewed`, `item_claimed`, `signup_from_gifter_footer`. | Measure the viral loop (gifter → creator). | Claude | todo |
 | X3 | **Branded OG image.** Archivo Black, bigger title, item count, owner name. | It's the WhatsApp card, the main acquisition surface. | Claude | todo |
 | X4 | **Landing page cleanup.** Real testimonials instead of invented ones; remove "CREAR LISTA GRATIS"; per-occasion sections. | Trust, and the "never promise free forever" rule. | Claude + Gian (quotes) | todo |
 | X5 | **Owner notification on claim** (email; respect surprise mode). | Retention + "magic moment". | Claude (after G2) | todo |
@@ -74,7 +73,6 @@ Last updated: 2026-10-19 (X2b client-side events; X2 server-side analytics; hygi
 
 | Date | What | PR |
 |---|---|---|
-| 2026-10-19 | Product analytics: server-side PostHog events (X2) | — |
 | 2026-10-19 | Hygiene: GitHub Actions CI (typecheck + shared tests), shared types fixed (`is_public` removed, Profile `bio`/`birthday`), tsbuildinfo untracked | — |
 | 2026-10-19 | Trust bugs: surprise mode enforced server-side (N1), claim rate limits + name checks (N3), `link_only` label/noindex/random slugs (N4), safe merge with feedback (N5), functions in `gru1` (N6), delete confirmation (N7); claim undo/release (N2, SQL applied by Gian) | #9 |
 | 2026-10-19 | Email signup/login blocked on prod (captcha key missing from build); `+` usernames 404; OG image 500; ML listing links 500; duplicate lists on repeated taps; price rounding on edit; cross-device confirm message; mobile horizontal overflow | #7 |
