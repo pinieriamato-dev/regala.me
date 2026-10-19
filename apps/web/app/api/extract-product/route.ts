@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server'
 import { createServerSupabase } from '@/lib/supabase/server'
 import dns from 'node:dns/promises'
+import { Agent, fetch as undiciFetch } from 'undici'
 import { trackEvent } from '@/lib/analytics'
 
 // Private/loopback/link-local ranges — checked after DNS resolution to defeat DNS-rebinding
@@ -18,16 +19,41 @@ function unmapIPv4(address: string): string {
   return `${high >> 8}.${high & 255}.${low >> 8}.${low & 255}`
 }
 
-async function isPrivateHost(hostname: string): Promise<boolean> {
+function isPrivateAddress(address: string): boolean {
+  // IPv4-mapped IPv6 (::ffff:10.0.0.1 or hex ::ffff:a00:1) must be checked as the IPv4 it wraps
+  const unmapped = unmapIPv4(address)
+  return PRIVATE_IPV4.test(unmapped) || PRIVATE_IPV6.test(unmapped)
+}
+
+// Resolves the hostname once and returns the address to connect to, or null when any
+// resolved address is private (or DNS fails). The fetch is pinned to this address below,
+// so a second DNS answer cannot swap in an internal IP between the check and the connect.
+async function resolvePublicAddress(hostname: string): Promise<string | null> {
   try {
     const records = await dns.lookup(hostname, { all: true })
-    return records.some(r => {
-      // IPv4-mapped IPv6 (::ffff:10.0.0.1 or hex ::ffff:a00:1) must be checked as the IPv4 it wraps
-      const address = unmapIPv4(r.address)
-      return PRIVATE_IPV4.test(address) || PRIVATE_IPV6.test(address)
-    })
+    if (records.length === 0 || records.some(r => isPrivateAddress(r.address))) return null
+    return records[0].address
   } catch {
-    return true // DNS failure → block
+    return null // DNS failure → block
+  }
+}
+
+// Fetch that connects to the pre-validated address instead of letting DNS resolve again.
+// TLS still uses the original hostname (SNI and certificate check), only the IP is pinned.
+async function fetchPinned(url: URL, address: string, init: { headers: Record<string, string>; signal: AbortSignal }) {
+  const family = address.includes(':') ? 6 : 4
+  const dispatcher = new Agent({
+    connect: {
+      lookup: (_hostname, options, callback) => {
+        if (options.all) callback(null, [{ address, family }])
+        else callback(null, address, family)
+      },
+    },
+  })
+  try {
+    return await undiciFetch(url.toString(), { ...init, redirect: 'manual', dispatcher }) as unknown as Response
+  } finally {
+    await dispatcher.close()
   }
 }
 
@@ -255,7 +281,8 @@ export async function GET(request: NextRequest) {
   }
 
   // DNS-resolve before fetching — blocks SSRF even when attacker controls DNS
-  if (await isPrivateHost(targetUrl.hostname)) {
+  const pinnedAddress = await resolvePublicAddress(targetUrl.hostname)
+  if (!pinnedAddress) {
     return Response.json({ error: 'URL inválida' }, { status: 400 })
   }
 
@@ -284,15 +311,15 @@ export async function GET(request: NextRequest) {
     // redirect-chain SSRF (e.g. public host → 302 → 169.254.169.254).
     // Mercado Libre and similar e-commerce sites often require 2+ hops to reach the product page.
     let currentUrl = targetUrl
+    let currentAddress = pinnedAddress
     let html = ''
     const MAX_HOPS = 3
 
     for (let hop = 0; hop <= MAX_HOPS; hop++) {
       const isLastAllowed = hop === MAX_HOPS
-      const res = await fetch(currentUrl.toString(), {
+      const res = await fetchPinned(currentUrl, currentAddress, {
         headers: FETCH_HEADERS,
         signal: AbortSignal.timeout(8000),
-        redirect: 'manual',
       })
 
       if (res.status >= 300 && res.status < 400) {
@@ -307,11 +334,15 @@ export async function GET(request: NextRequest) {
           return Response.json({ error: 'URL inválida' }, { status: 400 })
         }
 
-        if (!['http:', 'https:'].includes(redirectUrl.protocol) || await isPrivateHost(redirectUrl.hostname)) {
+        const redirectAddress = ['http:', 'https:'].includes(redirectUrl.protocol)
+          ? await resolvePublicAddress(redirectUrl.hostname)
+          : null
+        if (!redirectAddress) {
           return Response.json({ error: 'URL inválida' }, { status: 400 })
         }
 
         currentUrl = redirectUrl
+        currentAddress = redirectAddress
         continue
       }
 
