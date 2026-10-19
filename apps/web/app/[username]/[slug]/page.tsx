@@ -4,6 +4,7 @@ import { createServerSupabase } from '@/lib/supabase/server'
 import { occasionEmoji } from 'shared'
 import type { Item, Claim, OccasionId } from 'shared'
 import GifterItems from './gifter-items'
+import ClaimsRealtime from './claims-realtime'
 import Logomark from '@/components/Logomark'
 import { decodeParam } from '@/lib/params'
 
@@ -130,6 +131,14 @@ export default async function GifterPage({ params }: Props) {
           )}
 
         </div>
+
+        {/* Live claimed state. Off for the owner's surprise view, same as the claim data above. */}
+        <ClaimsRealtime
+          enabled={!isOwnerSurpriseView}
+          itemIds={items.map(i => i.id)}
+          supabaseUrl={process.env.SUPABASE_URL!}
+          supabaseKey={process.env.SUPABASE_PUBLISHABLE_KEY!}
+        />
 
         {/* Items. The owner's surprise view gets no claim data at all, not just hidden UI. */}
         <GifterItems
