@@ -8,6 +8,7 @@ import ClaimsRealtime from './claims-realtime'
 import Logomark from '@/components/Logomark'
 import { decodeParam } from '@/lib/params'
 import { trackEvent } from '@/lib/analytics'
+import TrackedLink from '@/components/TrackedLink'
 
 export const revalidate = 0
 
@@ -165,9 +166,15 @@ export default async function GifterPage({ params }: Props) {
             ¿QUERÉS HACER<br />
             <span style={{ color: 'var(--yellow)' }}>TU PROPIA LISTA?</span>
           </div>
-          <a href="/" className="rg-btn rg-btn-yellow" style={{ padding: '12px 22px', fontSize: 13 }}>
+          <TrackedLink
+            href="/"
+            listId={data.list.id}
+            event="signup_from_gifter_footer"
+            className="rg-btn rg-btn-yellow"
+            style={{ padding: '12px 22px', fontSize: 13 }}
+          >
             CREAR LISTA GRATIS →
-          </a>
+          </TrackedLink>
         </div>
       </div>
     </div>
