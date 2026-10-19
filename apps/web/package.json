@@ -17,6 +17,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "shared": "workspace:*",
+    "undici": "^6.25.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
