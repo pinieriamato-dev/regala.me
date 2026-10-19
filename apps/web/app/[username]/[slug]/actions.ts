@@ -2,7 +2,9 @@
 
 import { createHash, randomUUID } from 'node:crypto'
 import { headers } from 'next/headers'
+import { after } from 'next/server'
 import { createServerSupabase } from '@/lib/supabase/server'
+import { notifyOwnerOfClaim } from '@/lib/notify-owner'
 import { z } from 'zod'
 import { trackEvent } from '@/lib/analytics'
 
@@ -75,7 +77,7 @@ export async function claimItem(_prevState: ClaimState, formData: FormData): Pro
 
   const { data: item } = await supabase
     .from('items')
-    .select('id, wishlist_id, wishlists!inner(privacy_level)')
+    .select('id, title, wishlist_id, wishlists!inner(privacy_level)')
     .eq('id', parsed.data.item_id)
     .in('wishlists.privacy_level', ['public', 'link_only'])
     .single()
@@ -115,6 +117,12 @@ export async function claimItem(_prevState: ClaimState, formData: FormData): Pro
 
   // Gifters are anonymous, so events group by list rather than by person.
   trackEvent('item_claimed', `list:${item.wishlist_id}`, { wishlist_id: item.wishlist_id })
+
+  after(() => notifyOwnerOfClaim({
+    listId: item.wishlist_id,
+    itemTitle: item.title,
+    claimerName: parsed.data.name,
+  }))
 
   return { success: true, releaseToken: tokenSaved ? releaseToken : null }
 }
