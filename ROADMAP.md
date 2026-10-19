@@ -39,7 +39,7 @@ Last updated: 2026-10-19 (later items L7, L8 partial, L9; landing X4)
 | X2 | **Product analytics** (PostHog). Events: `list_created`, `item_added`, `link_extracted`, `list_shared`, `list_viewed`, `item_claimed`, `signup_from_gifter_footer`. | Measure the viral loop (gifter → creator). | Claude | todo |
 | X3 | **Branded OG image.** Archivo Black, bigger title, item count, owner name. | It's the WhatsApp card, the main acquisition surface. | Claude | done |
 | X4 | **Landing page cleanup.** Invented testimonials removed (real quotes pending, see G5); "GRATIS" removed from the landing CTAs; each occasion tile has its own line. | Trust, and the "never promise free forever" rule. | Claude + Gian (quotes) | done |
-| X5 | **Owner notification on claim** (email; respect surprise mode). | Retention + "magic moment". | Claude (after G2) | todo |
+| X5 | **Owner notification on claim** (email; respect surprise mode). Code done; live once `RESEND_API_KEY` and `SUPABASE_SERVICE_ROLE_KEY` are set on Vercel. | Retention + "magic moment". | Claude (+ Gian: env vars) | done |
 | X6 | **Realtime claimed state** on the gifter page (Supabase Realtime). | Avoids two people buying the same gift. | Claude | todo |
 
 ## Later
