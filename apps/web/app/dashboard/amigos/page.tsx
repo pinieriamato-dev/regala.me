@@ -87,7 +87,7 @@ export default async function AmigosPage({ searchParams }: { searchParams: Promi
 
       {/* Lists from friends */}
       <section style={section}>
-        <div className="rg-mono" style={{ marginBottom: 12 }}>Listas de tus amigos</div>
+        <h2 className="rg-mono" style={{ margin: '0 0 12px' }}>Listas de tus amigos</h2>
         {friendIds.length === 0 ? (
           <p style={{ fontSize: 14, color: 'rgba(15,15,15,0.65)' }}>
             Cuando tengas amigos, acá vas a ver sus listas públicas sin que te tengan que mandar el link.
@@ -120,7 +120,7 @@ export default async function AmigosPage({ searchParams }: { searchParams: Promi
       {/* Requests waiting for us */}
       {incoming.length > 0 && (
         <section style={section}>
-          <div className="rg-mono" style={{ marginBottom: 12 }}>Solicitudes para vos</div>
+          <h2 className="rg-mono" style={{ margin: '0 0 12px' }}>Solicitudes para vos</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {incoming.map(f => {
               const p = people.get(otherId(f))
@@ -145,7 +145,7 @@ export default async function AmigosPage({ searchParams }: { searchParams: Promi
 
       {/* Search */}
       <section style={section}>
-        <div className="rg-mono" style={{ marginBottom: 12 }}>Buscar gente</div>
+        <h2 className="rg-mono" style={{ margin: '0 0 12px' }}>Buscar gente</h2>
         <form method="get" style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
           <input
             name="q"
@@ -180,7 +180,7 @@ export default async function AmigosPage({ searchParams }: { searchParams: Promi
 
       {/* Friends */}
       <section style={section}>
-        <div className="rg-mono" style={{ marginBottom: 12 }}>Tus amigos ({accepted.length})</div>
+        <h2 className="rg-mono" style={{ margin: '0 0 12px' }}>Tus amigos ({accepted.length})</h2>
         {accepted.length === 0 ? (
           <p style={{ fontSize: 14, color: 'rgba(15,15,15,0.65)' }}>Todavía no agregaste a nadie.</p>
         ) : (
@@ -205,7 +205,7 @@ export default async function AmigosPage({ searchParams }: { searchParams: Promi
 
       {outgoing.length > 0 && (
         <section style={section}>
-          <div className="rg-mono" style={{ marginBottom: 12 }}>Solicitudes enviadas</div>
+          <h2 className="rg-mono" style={{ margin: '0 0 12px' }}>Solicitudes enviadas</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {outgoing.map(f => {
               const p = people.get(otherId(f))

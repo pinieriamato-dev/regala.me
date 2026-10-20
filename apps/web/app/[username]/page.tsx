@@ -4,7 +4,7 @@ import { occasionEmoji } from 'shared'
 import type { OccasionId } from 'shared'
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import Logomark from '@/components/Logomark'
+import TopBar from '@/components/TopBar'
 import { decodeParam } from '@/lib/params'
 
 type Props = { params: Promise<{ username: string }> }
@@ -40,11 +40,8 @@ export default async function UserProfilePage({ params }: Props) {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
-      <div style={{ height: 4, background: 'var(--ink)' }} />
-      <div style={{ padding: '14px 20px', borderBottom: '2px solid var(--ink)', background: 'var(--paper)' }}>
-        <Logomark />
-      </div>
-      <div style={{ maxWidth: 600, margin: '0 auto', padding: '28px 20px' }}>
+      <TopBar band logoSize={18} />
+      <main id="main" style={{ maxWidth: 600, margin: '0 auto', padding: '28px 20px' }}>
         {/* Avatar + identity */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 18, marginBottom: 20 }}>
           <div style={{
@@ -137,7 +134,7 @@ export default async function UserProfilePage({ params }: Props) {
             CREAR LISTA →
           </Link>
         </div>
-      </div>
+      </main>
     </div>
   )
 }

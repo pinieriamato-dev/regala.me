@@ -1,19 +1,18 @@
+import TopBar from '@/components/TopBar'
+
+// Skeleton in the shape of a gifter list: header, then item cards.
 export default function GifterLoading() {
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
-      <div style={{ height: 4, background: 'var(--ink)' }} />
-      <div style={{ padding: '14px 20px', borderBottom: '2px solid var(--ink)', background: 'var(--paper)' }}>
-        <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: -0.5 }}>
-          regala<span style={{ color: 'var(--red)' }}>.</span>me
-        </div>
-      </div>
-      <div style={{ maxWidth: 600, margin: '0 auto', padding: '28px 20px' }}>
-        <div style={{ width: '60%', height: 48, background: 'rgba(15,15,15,0.08)', marginBottom: 16 }} />
-        <div style={{ width: '40%', height: 20, background: 'rgba(15,15,15,0.06)', marginBottom: 32 }} />
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--ink)' }}>
+      <TopBar band />
+      <main id="main" aria-busy="true" style={{ maxWidth: 600, margin: '0 auto', padding: '28px 20px' }}>
+        <p role="status" className="rg-mono" style={{ marginBottom: 20 }}>CARGANDO LA LISTA…</p>
+        <div className="rg-skeleton" style={{ width: '70%', height: 48, marginBottom: 16 }} />
+        <div className="rg-skeleton" style={{ width: '40%', height: 20, marginBottom: 32 }} />
         {[1, 2, 3].map(i => (
-          <div key={i} style={{ height: 80, background: 'var(--paper)', border: '2px solid var(--ink)', marginBottom: 12 }} />
+          <div key={i} className="rg-skeleton" style={{ height: 88, marginBottom: 14 }} />
         ))}
-      </div>
+      </main>
     </div>
   )
 }

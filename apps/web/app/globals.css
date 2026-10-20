@@ -238,6 +238,64 @@ body {
 }
 .marquee-track { animation: marquee 30s linear infinite; }
 
+/* ── Skip link ───────────────────────────────────────── */
+.rg-skip {
+  position: absolute;
+  left: 8px;
+  top: -60px;
+  z-index: 50;
+  padding: 10px 14px;
+  background: var(--yellow);
+  color: var(--ink);
+  border: var(--border);
+  box-shadow: var(--shadow-sm);
+  font-family: var(--font-display);
+  font-size: 12px;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+.rg-skip:focus { top: 8px; }
+
+/* ── Top bar (shared by public and dashboard headers) ── */
+.rg-topbar { background: var(--paper); border-bottom: var(--border); }
+.rg-topbar.is-sticky { position: sticky; top: 0; z-index: 10; }
+.rg-topbar-band { height: 4px; background: var(--ink); }
+.rg-topbar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 auto;
+  padding: 14px 16px;
+}
+
+/* ── Loading skeleton ────────────────────────────────── */
+.rg-skeleton {
+  background: repeating-linear-gradient(135deg, rgba(15,15,15,0.08) 0 8px, transparent 8px 16px), var(--paper);
+  background-size: 22.6px 22.6px;
+  border: var(--border);
+  box-shadow: var(--shadow-sm);
+  animation: rg-stripes 900ms linear infinite;
+}
+@keyframes rg-stripes {
+  to { background-position: 22.6px 0, 0 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rg-skeleton { animation: none; }
+}
+
+/* ── System pages (404, errors) ──────────────────────── */
+.rg-system {
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 48px 16px;
+  text-align: center;
+}
+
 /* ── Scroll hide (scoped — don't hide all scrollbars) ── */
 .rg-marquee-track,
 .rg-hscroll {
