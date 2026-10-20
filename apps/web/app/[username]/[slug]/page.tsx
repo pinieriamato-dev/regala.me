@@ -115,7 +115,7 @@ export default async function GifterPage({ params }: Props) {
         background: 'var(--paper)', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
         <Logomark />
-        <span className="rg-mono" style={{ fontSize: 10, color: 'rgba(15,15,15,0.45)' }}>
+        <span className="rg-mono" style={{ fontSize: 10, color: 'var(--ink-muted)' }}>
           {isOwnerSurpriseView ? 'MODO SORPRESA' : list.privacy_level === 'link_only' ? 'LINK PRIVADO' : list.privacy_level === 'friends' ? 'SOLO AMIGOS' : 'LISTA PÚBLICA'}
         </span>
       </div>
@@ -130,7 +130,7 @@ export default async function GifterPage({ params }: Props) {
                 {list.title}
               </h1>
               {list.occasion_date && (
-                <div className="rg-mono" style={{ marginTop: 4, fontSize: 10, color: 'rgba(15,15,15,0.5)' }}>
+                <div className="rg-mono" style={{ marginTop: 4, fontSize: 10, color: 'var(--ink-muted)' }}>
                   {new Date(list.occasion_date).toLocaleDateString('es-AR',
                     list.occasion === 'birthday'
                       ? { day: 'numeric', month: 'long' }

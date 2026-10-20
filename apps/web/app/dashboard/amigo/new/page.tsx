@@ -11,7 +11,7 @@ export default async function NewAmigoGroupPage() {
   return (
     <div style={{ maxWidth: 560, margin: '0 auto' }}>
       <div style={{ marginBottom: 20 }}>
-        <Link href="/dashboard/amigo" className="rg-mono" style={{ color: 'rgba(15,15,15,0.5)', textDecoration: 'none', fontSize: 10 }}>
+        <Link href="/dashboard/amigo" className="rg-mono" style={{ color: 'var(--ink-muted)', textDecoration: 'none', fontSize: 10 }}>
           ← AMIGO INVISIBLE
         </Link>
       </div>

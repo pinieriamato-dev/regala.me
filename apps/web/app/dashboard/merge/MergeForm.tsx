@@ -46,7 +46,7 @@ export default function MergeForm({ lists }: { lists: ListSummary[] }) {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 32px 1fr', gap: 12, alignItems: 'start' }}>
         {/* Source */}
         <div>
-          <div className="rg-mono" style={{ fontSize: 10, marginBottom: 12, color: 'rgba(15,15,15,0.6)' }}>
+          <div className="rg-mono" style={{ fontSize: 10, marginBottom: 12, color: 'var(--ink-muted)' }}>
             LISTA A — SE DISUELVE
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -57,6 +57,7 @@ export default function MergeForm({ lists }: { lists: ListSummary[] }) {
                 <button
                   key={list.id}
                   type="button"
+                  aria-pressed={isSelected}
                   onClick={() => setSourceId(isSelected ? null : list.id)}
                   disabled={isDisabled}
                   style={{
@@ -88,7 +89,7 @@ export default function MergeForm({ lists }: { lists: ListSummary[] }) {
 
         {/* Target */}
         <div>
-          <div className="rg-mono" style={{ fontSize: 10, marginBottom: 12, color: 'rgba(15,15,15,0.6)' }}>
+          <div className="rg-mono" style={{ fontSize: 10, marginBottom: 12, color: 'var(--ink-muted)' }}>
             LISTA B — SE MANTIENE
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -99,6 +100,7 @@ export default function MergeForm({ lists }: { lists: ListSummary[] }) {
                 <button
                   key={list.id}
                   type="button"
+                  aria-pressed={isSelected}
                   onClick={() => setTargetId(isSelected ? null : list.id)}
                   disabled={isDisabled}
                   style={{
@@ -125,18 +127,18 @@ export default function MergeForm({ lists }: { lists: ListSummary[] }) {
       {/* Result preview */}
       {canMerge && source && target && (
         <div className="rg-card-ink" style={{ padding: '18px 20px' }}>
-          <div className="rg-mono" style={{ fontSize: 9, color: 'rgba(251,248,238,0.5)', marginBottom: 8 }}>RESULTADO</div>
+          <div className="rg-mono" style={{ fontSize: 9, color: 'var(--paper-muted)', marginBottom: 8 }}>RESULTADO</div>
           <div style={{ fontWeight: 800, fontSize: 15, color: 'var(--paper)' }}>
             {occasionEmoji(target.occasion as OccasionId)} {target.title}
           </div>
-          <div className="rg-mono" style={{ fontSize: 10, color: 'rgba(251,248,238,0.5)', marginTop: 4 }}>
+          <div className="rg-mono" style={{ fontSize: 10, color: 'var(--paper-muted)', marginTop: 4 }}>
             {source.items.length + target.items.length} REGALOS EN TOTAL — {source.title.toUpperCase()} DESAPARECE
           </div>
         </div>
       )}
 
       {error && (
-        <p role="alert" style={{ fontSize: 12, color: 'var(--red)', fontWeight: 700, margin: 0 }}>{error}</p>
+        <p role="alert" style={{ fontSize: 12, color: 'var(--red-ink)', fontWeight: 700, margin: 0 }}>{error}</p>
       )}
 
       <button

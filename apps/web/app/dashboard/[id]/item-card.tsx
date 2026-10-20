@@ -1,8 +1,10 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useRef, useState, useTransition } from 'react'
 import { deleteItem, editItem, moveItem, releaseClaim } from '@/app/dashboard/actions'
 import { formatPrice, type Item, type Priority } from 'shared'
+import ConfirmPanel from '@/components/ConfirmPanel'
+import { Field } from '@/components/Field'
 import ItemImageField from './item-image-field'
 
 const PRIORITIES: { value: Priority; label: string }[] = [
@@ -28,6 +30,8 @@ export default function ItemCard({ item, claimer, listId, currency, isSurprise, 
   const [actionError, setActionError] = useState<string | null>(null)
   const [deletePending, startDeleteTransition] = useTransition()
   const [releasePending, startReleaseTransition] = useTransition()
+  const deleteButtonRef = useRef<HTMLButtonElement>(null)
+  const releaseButtonRef = useRef<HTMLButtonElement>(null)
 
   if (hidden) return null
 
@@ -70,156 +74,132 @@ export default function ItemCard({ item, claimer, listId, currency, isSurprise, 
       style={{
         padding: '14px 16px',
         opacity: isClaimed ? 0.7 : 1,
-        display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12,
       }}
     >
-      {/^https?:\/\//i.test(item.image_url ?? '') && (
-        <img
-          src={item.image_url!}
-          alt=""
-          style={{ width: 56, height: 56, objectFit: 'cover', border: '2px solid var(--ink)', flexShrink: 0 }}
-          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-        />
-      )}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, flexWrap: 'wrap' }}>
-          <p style={{
-            fontWeight: 800, fontSize: 14, margin: 0,
-            textDecoration: isClaimed ? 'line-through' : 'none',
-            color: isClaimed ? 'rgba(15,15,15,0.5)' : 'var(--ink)',
-          }}>
-            {item.title}
-          </p>
-          {isClaimed && (
-            <span className="rg-sticker rg-sticker-green" style={{ fontSize: 8 }}>✓ {displayedClaimer}</span>
-          )}
-          {isClaimed && (
-            <button
-              type="button"
-              onClick={() => setConfirming('release')}
-              disabled={releasePending}
-              className="rg-mono"
-              style={{
-                background: 'none', border: 'none', cursor: 'pointer', fontSize: 9,
-                color: 'rgba(15,15,15,0.55)', padding: '4px 2px', textDecoration: 'underline',
-              }}
-            >
-              {releasePending ? '...' : 'LIBERAR'}
-            </button>
-          )}
-          {!isClaimed && item.priority === 3 && (
-            <span className="rg-sticker rg-sticker-red" style={{ fontSize: 8 }}>ESENCIAL</span>
-          )}
-          {!isClaimed && item.priority === 2 && (
-            <span className="rg-sticker" style={{ fontSize: 8 }}>ME GUSTA</span>
-          )}
-        </div>
-        {item.description && (
-          <p style={{ fontSize: 12, color: 'rgba(15,15,15,0.6)', margin: '0 0 6px 0', lineHeight: 1.4 }}>
-            {item.description}
-          </p>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+        {/^https?:\/\//i.test(item.image_url ?? '') && (
+          <img
+            src={item.image_url!}
+            alt=""
+            style={{ width: 56, height: 56, objectFit: 'cover', border: '2px solid var(--ink)', flexShrink: 0 }}
+            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+          />
         )}
-        <div style={{ display: 'flex', gap: 14, alignItems: 'center', flexWrap: 'wrap' }}>
-          {item.price && (
-            <span className="rg-mono" style={{ fontSize: 10 }}>
-              ~{currency} {formatPrice(item.price, currency)}
-            </span>
-          )}
-          {/^https?:\/\//i.test(item.url ?? '') && (
-            <a href={item.url!} target="_blank" rel="noopener noreferrer"
-              className="rg-mono" style={{ fontSize: 10, color: 'var(--red)', textDecoration: 'none' }}>
-              VER PRODUCTO →
-            </a>
-          )}
-        </div>
-        {confirming && (
-          <div
-            role="alertdialog"
-            aria-label={confirming === 'delete' ? 'Confirmar borrado' : 'Confirmar liberar'}
-            style={{
-              marginTop: 10, padding: '10px 12px', background: 'var(--yellow)',
-              border: '2px solid var(--ink)', display: 'flex', flexDirection: 'column', gap: 8,
-            }}
-          >
-            <span className="rg-mono" style={{ fontSize: 9, color: 'var(--ink)' }}>
-              {confirming === 'delete'
-                ? isClaimed
-                  ? `¿BORRAR ESTE REGALO? ${displayedClaimer?.toUpperCase()} YA LO RECLAMÓ.`
-                  : isSurprise
-                    ? '¿BORRAR ESTE REGALO? SI ALGUIEN LO RECLAMÓ, SE PIERDE.'
-                    : '¿BORRAR ESTE REGALO? NO SE PUEDE DESHACER.'
-                : `¿LIBERAR? ${displayedClaimer?.toUpperCase()} YA NO LO VA A TENER RECLAMADO.`}
-            </span>
-            <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, flexWrap: 'wrap' }}>
+            <p style={{
+              fontWeight: 800, fontSize: 14, margin: 0,
+              textDecoration: isClaimed ? 'line-through' : 'none',
+              color: isClaimed ? 'var(--ink-muted)' : 'var(--ink)',
+            }}>
+              {item.title}
+            </p>
+            {isClaimed && (
+              <span className="rg-sticker rg-sticker-green">✓ {displayedClaimer}</span>
+            )}
+            {isClaimed && (
               <button
+                ref={releaseButtonRef}
                 type="button"
-                onClick={confirming === 'delete' ? handleDelete : handleRelease}
-                className="rg-btn rg-btn-primary"
-                style={{ flex: 1, padding: '8px', fontSize: 10, minHeight: 36 }}
-              >
-                {confirming === 'delete' ? 'SÍ, BORRAR' : 'SÍ, LIBERAR'}
-              </button>
-              <button
-                type="button"
-                onClick={() => setConfirming(null)}
-                className="rg-btn rg-btn-ghost"
-                style={{ flex: 1, padding: '8px', fontSize: 10, minHeight: 36 }}
-              >
-                CANCELAR
-              </button>
-            </div>
-          </div>
-        )}
-        {actionError && (
-          <p style={{ fontSize: 11, color: 'var(--red)', fontWeight: 700, margin: '6px 0 0' }}>{actionError}</p>
-        )}
-      </div>
-      <div style={{ display: 'flex', gap: 4, flexShrink: 0, alignItems: 'center' }}>
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          {(['up', 'down'] as const).map((direction) => {
-            const enabled = direction === 'up' ? canMoveUp : canMoveDown
-            return (
-              <button
-                key={direction}
-                type="button"
-                disabled={!enabled}
-                onClick={() => moveItem(item.id, listId, direction)}
-                aria-label={direction === 'up' ? `Subir ${item.title}` : `Bajar ${item.title}`}
+                onClick={() => setConfirming('release')}
+                disabled={releasePending}
                 style={{
-                  background: 'none', border: 'none', padding: '2px 6px',
-                  cursor: enabled ? 'pointer' : 'default',
-                  fontSize: 12, lineHeight: 1,
-                  color: enabled ? 'rgba(15,15,15,0.55)' : 'rgba(15,15,15,0.12)',
+                  background: 'none', border: 'none', cursor: 'pointer', fontSize: 11,
+                  fontFamily: 'var(--font-mono)', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase',
+                  color: 'var(--ink-muted)', minHeight: 44, padding: '0 6px', textDecoration: 'underline',
                 }}
               >
-                {direction === 'up' ? '▲' : '▼'}
+                {releasePending ? '...' : 'LIBERAR'}
               </button>
-            )
-          })}
+            )}
+            {!isClaimed && item.priority === 3 && (
+              <span className="rg-sticker rg-sticker-red">ESENCIAL</span>
+            )}
+            {!isClaimed && item.priority === 2 && (
+              <span className="rg-sticker">ME GUSTA</span>
+            )}
+          </div>
+          {item.description && (
+            <p style={{ fontSize: 12, color: 'var(--ink-muted)', margin: '0 0 6px 0', lineHeight: 1.4 }}>
+              {item.description}
+            </p>
+          )}
+          <div style={{ display: 'flex', gap: 14, alignItems: 'center', flexWrap: 'wrap' }}>
+            {item.price && (
+              <span className="rg-mono" style={{ fontSize: 10 }}>
+                ~{currency} {formatPrice(item.price, currency)}
+              </span>
+            )}
+            {/^https?:\/\//i.test(item.url ?? '') && (
+              <a href={item.url!} target="_blank" rel="noopener noreferrer"
+                className="rg-mono" style={{ fontSize: 10, color: 'var(--red-ink)', textDecoration: 'none' }}>
+                VER PRODUCTO →
+              </a>
+            )}
+          </div>
+          {confirming && (
+            <ConfirmPanel
+              message={
+                confirming === 'delete'
+                  ? isClaimed
+                    ? `¿BORRAR ESTE REGALO? ${displayedClaimer?.toUpperCase()} YA LO RECLAMÓ.`
+                    : isSurprise
+                      ? '¿BORRAR ESTE REGALO? SI ALGUIEN LO RECLAMÓ, SE PIERDE.'
+                      : '¿BORRAR ESTE REGALO? NO SE PUEDE DESHACER.'
+                  : `¿LIBERAR? ${displayedClaimer?.toUpperCase()} YA NO LO VA A TENER RECLAMADO.`
+              }
+              confirmLabel={confirming === 'delete' ? 'SÍ, BORRAR' : 'SÍ, LIBERAR'}
+              onConfirm={confirming === 'delete' ? handleDelete : handleRelease}
+              onCancel={() => setConfirming(null)}
+              returnFocusRef={confirming === 'delete' ? deleteButtonRef : releaseButtonRef}
+            />
+          )}
+          {actionError && (
+            <p role="alert" className="rg-error" style={{ fontSize: 11, margin: '6px 0 0' }}>{actionError}</p>
+          )}
         </div>
+      </div>
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 12, paddingTop: 12, borderTop: '2px dashed var(--ink)' }}>
+        {(['up', 'down'] as const).map((direction) => {
+          const enabled = direction === 'up' ? canMoveUp : canMoveDown
+          return (
+            <button
+              key={direction}
+              type="button"
+              disabled={!enabled}
+              onClick={() => moveItem(item.id, listId, direction)}
+              aria-label={direction === 'up' ? `Subir ${item.title}` : `Bajar ${item.title}`}
+              style={{
+                minWidth: 44, minHeight: 44, display: 'inline-grid', placeItems: 'center',
+                background: 'var(--paper)', border: '2px solid var(--ink)', borderRadius: 4,
+                boxShadow: enabled ? 'var(--shadow-sm)' : 'none',
+                opacity: enabled ? 1 : 0.35,
+                cursor: enabled ? 'pointer' : 'default',
+                fontFamily: 'var(--font-display)', fontSize: 12, lineHeight: 1, color: 'var(--ink)',
+              }}
+            >
+              {direction === 'up' ? '▲' : '▼'}
+            </button>
+          )
+        })}
         <button
+          type="button"
           onClick={() => setEditing(true)}
-          className="rg-mono"
-          style={{
-            background: 'none', border: 'none', cursor: 'pointer', fontSize: 9,
-            color: 'rgba(15,15,15,0.4)', padding: '4px 6px', letterSpacing: 0.5,
-          }}
+          className="rg-btn rg-btn-ghost"
+          style={{ flex: 1, minHeight: 44, padding: '0 12px', fontSize: 11 }}
         >
           EDITAR
         </button>
         <button
+          ref={deleteButtonRef}
+          type="button"
           onClick={() => setConfirming('delete')}
           disabled={deletePending}
           aria-label={`Borrar ${item.title}`}
-          style={{
-            background: 'none', border: 'none',
-            cursor: deletePending ? 'default' : 'pointer',
-            fontFamily: 'var(--font-display)', fontSize: 18,
-            color: deletePending ? 'rgba(15,15,15,0.15)' : 'rgba(15,15,15,0.3)',
-            lineHeight: 1, padding: '4px 6px',
-          }}
+          className="rg-btn rg-btn-ghost"
+          style={{ minHeight: 44, padding: '0 12px', fontSize: 11, opacity: deletePending ? 0.5 : 1 }}
         >
-          ×
+          BORRAR
         </button>
       </div>
     </div>
@@ -240,65 +220,85 @@ function EditForm({
   onSaved: () => void
 }) {
   const [priority, setPriority] = useState(item.priority ?? 1)
+  const [formError, setFormError] = useState('')
   const [pending, startTransition] = useTransition()
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const fd = new FormData(e.currentTarget)
     fd.set('priority', String(priority))
+    setFormError('')
     startTransition(async () => {
-      await editItem(item.id, listId, fd)
+      const res = await editItem(item.id, listId, fd)
+      // Stay in edit mode with the typed values if the save failed.
+      if (res?.error) { setFormError(res.error); return }
       onSaved()
     })
   }
 
   return (
-    <div
-      className="rg-card"
-      style={{ padding: '14px 16px', borderColor: 'var(--yellow)', boxShadow: '3px 3px 0 0 var(--yellow)' }}
-    >
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <div className="rg-mono" style={{ fontSize: 9, marginBottom: 2, color: 'rgba(15,15,15,0.6)' }}>
-          EDITANDO REGALO
-        </div>
-        <input
-          name="title"
-          type="text"
-          defaultValue={item.title}
-          required
-          className="rg-input"
-          style={{ fontSize: 13 }}
-          placeholder="Nombre del regalo *"
-        />
-        <input
-          name="description"
-          type="text"
-          defaultValue={item.description ?? ''}
-          className="rg-input"
-          style={{ fontSize: 13 }}
-          placeholder="Descripción (opcional)"
-        />
-        <input
-          name="price"
-          type="text"
-          inputMode="decimal"
-          // es-AR decimal comma so addItemSchema parses it back unchanged (12345.5 → "12345,5")
-          defaultValue={item.price ? String(item.price).replace('.', ',') : ''}
-          className="rg-input"
-          style={{ fontSize: 13 }}
-          placeholder={`Precio en ${currency} (opcional)`}
-        />
-        <input
-          name="url"
-          type="url"
-          defaultValue={item.url ?? ''}
-          className="rg-input"
-          style={{ fontSize: 13 }}
-          placeholder="Link al producto (opcional)"
-        />
+    <div className="rg-card" style={{ padding: 0, boxShadow: 'var(--shadow)', overflow: 'hidden' }}>
+      <div
+        className="rg-mono"
+        style={{ padding: '6px 16px', background: 'var(--yellow)', borderBottom: '2px solid var(--ink)', color: 'var(--ink)', fontSize: 11 }}
+      >
+        EDITANDO REGALO
+      </div>
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: '14px 16px' }}>
+        <Field label="Nombre del regalo">
+          <input
+            name="title"
+            type="text"
+            defaultValue={item.title}
+            required
+            autoComplete="off"
+            autoCapitalize="sentences"
+            className="rg-input"
+            style={{ fontSize: 13 }}
+            placeholder="Nombre del regalo *"
+          />
+        </Field>
+        <Field label="Descripción">
+          <input
+            name="description"
+            type="text"
+            defaultValue={item.description ?? ''}
+            autoComplete="off"
+            className="rg-input"
+            style={{ fontSize: 13 }}
+            placeholder="Descripción (opcional)"
+          />
+        </Field>
+        <Field label="Precio">
+          <input
+            name="price"
+            type="text"
+            inputMode="decimal"
+            autoComplete="off"
+            // es-AR decimal comma so addItemSchema parses it back unchanged (12345.5 → "12345,5")
+            defaultValue={item.price ? String(item.price).replace('.', ',') : ''}
+            className="rg-input"
+            style={{ fontSize: 13 }}
+            placeholder={`Precio en ${currency} (opcional)`}
+          />
+        </Field>
+        <Field label="Link al producto">
+          <input
+            name="url"
+            type="url"
+            inputMode="url"
+            enterKeyHint="next"
+            autoComplete="off"
+            autoCapitalize="none"
+            defaultValue={item.url ?? ''}
+            className="rg-input"
+            style={{ fontSize: 13 }}
+            placeholder="Link al producto (opcional)"
+          />
+        </Field>
         <ItemImageField defaultValue={item.image_url} />
         <div>
-          <div className="rg-mono" style={{ fontSize: 9, marginBottom: 6, color: 'rgba(15,15,15,0.6)' }}>
+          <div className="rg-mono" style={{ fontSize: 9, marginBottom: 6, color: 'var(--ink-muted)' }}>
             PRIORIDAD
           </div>
           <div style={{ display: 'flex', gap: 6 }}>
@@ -306,6 +306,7 @@ function EditForm({
               <button
                 key={p.value}
                 type="button"
+                aria-pressed={priority === p.value}
                 onClick={() => setPriority(p.value)}
                 className="rg-btn"
                 style={{
@@ -321,6 +322,7 @@ function EditForm({
             ))}
           </div>
         </div>
+        {formError && <p role="alert" className="rg-error" style={{ margin: 0 }}>{formError}</p>}
         <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
           <button
             type="button"
