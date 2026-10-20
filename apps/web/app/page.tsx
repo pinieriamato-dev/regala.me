@@ -154,7 +154,7 @@ export default async function HomePage({ searchParams }: HomeProps) {
                     {item.t}
                   </span>
                   {item.claimed
-                    ? <span className="rg-sticker rg-sticker-green" style={{ fontSize: 8 }}>✓ {item.claimed}</span>
+                    ? <span className="rg-sticker rg-sticker-green">✓ {item.claimed}</span>
                     : <span style={{ fontSize: 9, fontFamily: 'var(--font-display)', border: '1.5px dashed var(--ink)', padding: '2px 6px' }}>LIBRE</span>
                   }
                 </div>
@@ -197,7 +197,7 @@ export default async function HomePage({ searchParams }: HomeProps) {
           <div className="border-2 border-ink shadow-hard">
             <div className="grid grid-cols-2">
               <div className="p-4 md:p-5 border-r-2 border-ink" style={{ background: 'rgba(15,15,15,0.04)' }}>
-                <div className="mb-3" style={{ fontFamily: 'var(--font-display)', fontSize: 11, letterSpacing: 1.2, color: 'rgba(15,15,15,0.5)' }}>
+                <div className="mb-3" style={{ fontFamily: 'var(--font-display)', fontSize: 11, letterSpacing: 1.2, color: 'var(--ink-muted)' }}>
                   SIN REGALA.ME
                 </div>
                 {WITHOUT.map(t => (
@@ -268,7 +268,7 @@ export default async function HomePage({ searchParams }: HomeProps) {
         <h2 className="rg-display text-paper mb-3" style={{ fontSize: 'clamp(2.5rem, 8vw, 8rem)', lineHeight: 0.88 }}>
           DEJÁ DE<br />PELEAR POR<br /><span className="text-yellow">LOS REGALOS.</span>
         </h2>
-        <p className="mb-8 mt-4 text-base" style={{ color: 'rgba(251,248,238,0.6)' }}>
+        <p className="mb-8 mt-4 text-base" style={{ color: 'var(--paper-muted)' }}>
           Sin instalar nada. En dos minutos.
         </p>
         <Link href="/auth?mode=signup" className="rg-btn rg-btn-yellow" style={{ padding: '18px 32px', fontSize: 16 }}>
@@ -279,7 +279,7 @@ export default async function HomePage({ searchParams }: HomeProps) {
       {/* ── FOOTER ───────────────────────────────────────── */}
       <footer className="border-t-2 border-ink px-5 md:px-9 py-6 flex flex-col sm:flex-row items-center gap-4 sm:justify-between">
         <Logomark />
-        <div className="rg-mono text-center" style={{ fontSize: 10, color: 'rgba(15,15,15,0.5)' }}>
+        <div className="rg-mono text-center" style={{ fontSize: 10, color: 'var(--ink-muted)' }}>
           hecho con · café · y · fernet · en BA
         </div>
         <div className="flex gap-5" style={{ fontFamily: 'var(--font-display)', fontSize: 11, letterSpacing: 0.5 }}>

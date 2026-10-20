@@ -87,12 +87,12 @@ export default function ItemCard({ item, claimer, listId, currency, isSurprise, 
           <p style={{
             fontWeight: 800, fontSize: 14, margin: 0,
             textDecoration: isClaimed ? 'line-through' : 'none',
-            color: isClaimed ? 'rgba(15,15,15,0.5)' : 'var(--ink)',
+            color: isClaimed ? 'var(--ink-muted)' : 'var(--ink)',
           }}>
             {item.title}
           </p>
           {isClaimed && (
-            <span className="rg-sticker rg-sticker-green" style={{ fontSize: 8 }}>✓ {displayedClaimer}</span>
+            <span className="rg-sticker rg-sticker-green">✓ {displayedClaimer}</span>
           )}
           {isClaimed && (
             <button
@@ -102,21 +102,21 @@ export default function ItemCard({ item, claimer, listId, currency, isSurprise, 
               className="rg-mono"
               style={{
                 background: 'none', border: 'none', cursor: 'pointer', fontSize: 9,
-                color: 'rgba(15,15,15,0.55)', padding: '4px 2px', textDecoration: 'underline',
+                color: 'var(--ink-muted)', padding: '4px 2px', textDecoration: 'underline',
               }}
             >
               {releasePending ? '...' : 'LIBERAR'}
             </button>
           )}
           {!isClaimed && item.priority === 3 && (
-            <span className="rg-sticker rg-sticker-red" style={{ fontSize: 8 }}>ESENCIAL</span>
+            <span className="rg-sticker rg-sticker-red">ESENCIAL</span>
           )}
           {!isClaimed && item.priority === 2 && (
-            <span className="rg-sticker" style={{ fontSize: 8 }}>ME GUSTA</span>
+            <span className="rg-sticker">ME GUSTA</span>
           )}
         </div>
         {item.description && (
-          <p style={{ fontSize: 12, color: 'rgba(15,15,15,0.6)', margin: '0 0 6px 0', lineHeight: 1.4 }}>
+          <p style={{ fontSize: 12, color: 'var(--ink-muted)', margin: '0 0 6px 0', lineHeight: 1.4 }}>
             {item.description}
           </p>
         )}
@@ -128,7 +128,7 @@ export default function ItemCard({ item, claimer, listId, currency, isSurprise, 
           )}
           {/^https?:\/\//i.test(item.url ?? '') && (
             <a href={item.url!} target="_blank" rel="noopener noreferrer"
-              className="rg-mono" style={{ fontSize: 10, color: 'var(--red)', textDecoration: 'none' }}>
+              className="rg-mono" style={{ fontSize: 10, color: 'var(--red-ink)', textDecoration: 'none' }}>
               VER PRODUCTO →
             </a>
           )}
@@ -172,7 +172,7 @@ export default function ItemCard({ item, claimer, listId, currency, isSurprise, 
           </div>
         )}
         {actionError && (
-          <p style={{ fontSize: 11, color: 'var(--red)', fontWeight: 700, margin: '6px 0 0' }}>{actionError}</p>
+          <p style={{ fontSize: 11, color: 'var(--red-ink)', fontWeight: 700, margin: '6px 0 0' }}>{actionError}</p>
         )}
       </div>
       <div style={{ display: 'flex', gap: 4, flexShrink: 0, alignItems: 'center' }}>
@@ -190,7 +190,7 @@ export default function ItemCard({ item, claimer, listId, currency, isSurprise, 
                   background: 'none', border: 'none', padding: '2px 6px',
                   cursor: enabled ? 'pointer' : 'default',
                   fontSize: 12, lineHeight: 1,
-                  color: enabled ? 'rgba(15,15,15,0.55)' : 'rgba(15,15,15,0.12)',
+                  color: enabled ? 'var(--ink-muted)' : 'rgba(15,15,15,0.12)',
                 }}
               >
                 {direction === 'up' ? '▲' : '▼'}
@@ -203,7 +203,7 @@ export default function ItemCard({ item, claimer, listId, currency, isSurprise, 
           className="rg-mono"
           style={{
             background: 'none', border: 'none', cursor: 'pointer', fontSize: 9,
-            color: 'rgba(15,15,15,0.4)', padding: '4px 6px', letterSpacing: 0.5,
+            color: 'var(--ink-muted)', padding: '4px 6px', letterSpacing: 0.5,
           }}
         >
           EDITAR
@@ -216,7 +216,7 @@ export default function ItemCard({ item, claimer, listId, currency, isSurprise, 
             background: 'none', border: 'none',
             cursor: deletePending ? 'default' : 'pointer',
             fontFamily: 'var(--font-display)', fontSize: 18,
-            color: deletePending ? 'rgba(15,15,15,0.15)' : 'rgba(15,15,15,0.3)',
+            color: deletePending ? 'rgba(15,15,15,0.15)' : 'var(--ink-muted)',
             lineHeight: 1, padding: '4px 6px',
           }}
         >
@@ -263,7 +263,7 @@ function EditForm({
       style={{ padding: '14px 16px', borderColor: 'var(--yellow)', boxShadow: '3px 3px 0 0 var(--yellow)' }}
     >
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <div className="rg-mono" style={{ fontSize: 9, marginBottom: 2, color: 'rgba(15,15,15,0.6)' }}>
+        <div className="rg-mono" style={{ fontSize: 9, marginBottom: 2, color: 'var(--ink-muted)' }}>
           EDITANDO ÍTEM
         </div>
         <Field label="Nombre del regalo">
@@ -319,7 +319,7 @@ function EditForm({
         </Field>
         <ItemImageField defaultValue={item.image_url} />
         <div>
-          <div className="rg-mono" style={{ fontSize: 9, marginBottom: 6, color: 'rgba(15,15,15,0.6)' }}>
+          <div className="rg-mono" style={{ fontSize: 9, marginBottom: 6, color: 'var(--ink-muted)' }}>
             PRIORIDAD
           </div>
           <div style={{ display: 'flex', gap: 6 }}>

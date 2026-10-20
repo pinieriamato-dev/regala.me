@@ -87,7 +87,7 @@ export default function ProfileForm({ profile, email }: { profile: Profile | nul
               type="button"
               onClick={() => setAvatarUrl('')}
               className="rg-mono"
-              style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 9, color: 'rgba(15,15,15,0.4)', padding: 0 }}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 9, color: 'var(--ink-muted)', padding: 0 }}
             >
               ELIMINAR FOTO
             </button>

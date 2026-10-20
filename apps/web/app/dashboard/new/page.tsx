@@ -56,7 +56,7 @@ export default function NewListPage() {
     <div style={{ maxWidth: 560, margin: '0 auto' }}>
       {/* Breadcrumb */}
       <div style={{ marginBottom: 20 }}>
-        <Link href="/dashboard" className="rg-mono" style={{ color: 'rgba(15,15,15,0.5)', textDecoration: 'none', fontSize: 10 }}>
+        <Link href="/dashboard" className="rg-mono" style={{ color: 'var(--ink-muted)', textDecoration: 'none', fontSize: 10 }}>
           ← MIS LISTAS
         </Link>
       </div>
@@ -90,7 +90,7 @@ export default function NewListPage() {
 
           {/* Occasion */}
           <div>
-            <div className="rg-mono" style={{ fontSize: 9, marginBottom: 10, color: 'rgba(15,15,15,0.6)' }}>
+            <div className="rg-mono" style={{ fontSize: 9, marginBottom: 10, color: 'var(--ink-muted)' }}>
               TIPO DE LISTA
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
@@ -143,7 +143,7 @@ export default function NewListPage() {
 
           {/* Currency */}
           <div>
-            <div className="rg-mono" style={{ fontSize: 9, marginBottom: 10, color: 'rgba(15,15,15,0.6)' }}>
+            <div className="rg-mono" style={{ fontSize: 9, marginBottom: 10, color: 'var(--ink-muted)' }}>
               MONEDA
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
@@ -169,7 +169,7 @@ export default function NewListPage() {
 
           {/* Privacy */}
           <div>
-            <div className="rg-mono" style={{ fontSize: 9, marginBottom: 10, color: 'rgba(15,15,15,0.6)' }}>
+            <div className="rg-mono" style={{ fontSize: 9, marginBottom: 10, color: 'var(--ink-muted)' }}>
               PRIVACIDAD
             </div>
             <div role="group" aria-label="Privacidad de la lista" style={{ display: 'flex', gap: 0, border: '2px solid var(--ink)', borderRadius: 4, overflow: 'hidden' }}>
@@ -195,7 +195,7 @@ export default function NewListPage() {
               ))}
             </div>
             {privacy === 'private' && (
-              <div className="rg-mono" style={{ fontSize: 9, marginTop: 8, color: 'rgba(15,15,15,0.5)' }}>
+              <div className="rg-mono" style={{ fontSize: 9, marginTop: 8, color: 'var(--ink-muted)' }}>
                 Solo vos podés verla.
               </div>
             )}
@@ -209,7 +209,7 @@ export default function NewListPage() {
           }}>
             <div>
               <div style={{ fontWeight: 800, fontSize: 13 }}>Lista sorpresa</div>
-              <div style={{ fontSize: 11, color: 'rgba(15,15,15,0.55)', marginTop: 2 }}>
+              <div style={{ fontSize: 11, color: 'var(--ink-muted)', marginTop: 2 }}>
                 Vos no ves qué reclamaron hasta el día del evento
               </div>
             </div>
