@@ -33,7 +33,8 @@ export default function AuthForm({ siteKey }: AuthFormProps) {
 
   const handleGoogleAuth = () => {
     setGooglePending(true)
-    window.location.href = '/auth/google'
+    const next = params.get('next')
+    window.location.href = next ? `/auth/google?next=${encodeURIComponent(next)}` : '/auth/google'
   }
 
   useEffect(() => {
