@@ -1,0 +1,3 @@
+-- Baseline: applied to production before migrations lived in this repo (Supabase MCP apply_migration).
+-- The schema is already in the database, so this file must stay empty of SQL. It exists so the
+-- migration history here matches supabase_migrations.schema_migrations.
