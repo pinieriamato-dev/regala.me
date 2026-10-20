@@ -11,6 +11,7 @@ import PrivacyEditor from './privacy-editor'
 import SurpriseToggle from './surprise-toggle'
 import PremiumPanel from './premium-panel'
 import TrackedLink from '@/components/TrackedLink'
+import { isAmigoListTitle } from '@/lib/amigo'
 
 type Props = {
   params: Promise<{ id: string }>
@@ -152,14 +153,17 @@ export default async function ListDetailPage({ params, searchParams }: Props) {
         <SurpriseToggle listId={id} current={list.is_surprise ?? false} />
       </div>
 
-      <PremiumPanel
-        listId={id}
-        username={username}
-        isPremium={list.is_premium ?? false}
-        coverUrl={list.cover_url ?? null}
-        slug={list.slug}
-        privacyLevel={(list.privacy_level ?? 'public') as 'public' | 'link_only' | 'private'}
-      />
+      {/* The amigo participant's list is created by the draw flow: no premium upsell there. */}
+      {(list.is_premium || !isAmigoListTitle(list.title)) && (
+        <PremiumPanel
+          listId={id}
+          username={username}
+          isPremium={list.is_premium ?? false}
+          coverUrl={list.cover_url ?? null}
+          slug={list.slug}
+          privacyLevel={(list.privacy_level ?? 'public') as 'public' | 'link_only' | 'private'}
+        />
+      )}
 
       {/* Items */}
       <div style={{ marginBottom: 16 }}>
