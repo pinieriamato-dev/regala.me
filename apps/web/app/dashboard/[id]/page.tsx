@@ -61,7 +61,7 @@ export default async function ListDetailPage({ params, searchParams }: Props) {
     <div style={{ maxWidth: 680, margin: '0 auto' }}>
       {/* Breadcrumb */}
       <div style={{ marginBottom: 20 }}>
-        <Link href="/dashboard" className="rg-mono" style={{ color: 'rgba(15,15,15,0.5)', textDecoration: 'none', fontSize: 10 }}>
+        <Link href="/dashboard" className="rg-mono" style={{ color: 'var(--ink-muted)', textDecoration: 'none', fontSize: 10 }}>
           ← MIS LISTAS
         </Link>
       </div>
@@ -79,7 +79,7 @@ export default async function ListDetailPage({ params, searchParams }: Props) {
           <div>
             <h1 className="rg-display" style={{ fontSize: 'clamp(1.8rem, 5vw, 3rem)' }}>{list.title}</h1>
             {list.occasion_date && (
-              <div className="rg-mono" style={{ fontSize: 9, color: 'rgba(15,15,15,0.45)', marginTop: 4 }}>
+              <div className="rg-mono" style={{ fontSize: 9, color: 'var(--ink-muted)', marginTop: 4 }}>
                 {new Date(list.occasion_date).toLocaleDateString('es-AR',
                   list.occasion === 'birthday'
                     ? { day: 'numeric', month: 'long' }
@@ -96,15 +96,15 @@ export default async function ListDetailPage({ params, searchParams }: Props) {
       <div className="rg-card-ink" style={{ padding: '20px 22px', marginBottom: 24 }}>
         {list.privacy_level === 'private' ? (
           <>
-            <div className="rg-mono" style={{ fontSize: 9, color: 'rgba(251,248,238,0.5)', marginBottom: 6 }}>🔒 LISTA PRIVADA</div>
+            <div className="rg-mono" style={{ fontSize: 9, color: 'var(--paper-muted)', marginBottom: 6 }}>🔒 LISTA PRIVADA</div>
             <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, wordBreak: 'break-all', marginBottom: 16, opacity: 0.8 }}>{shareUrl}</p>
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'rgba(251,248,238,0.45)', margin: 0 }}>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--paper-muted)', margin: 0 }}>
               SOLO VOS PODÉS VER ESTA LISTA. CAMBIÁ LA PRIVACIDAD PARA COMPARTIRLA.
             </p>
           </>
         ) : (
           <>
-            <div className="rg-mono" style={{ fontSize: 9, color: 'rgba(251,248,238,0.5)', marginBottom: 6 }}>
+            <div className="rg-mono" style={{ fontSize: 9, color: 'var(--paper-muted)', marginBottom: 6 }}>
               {list.privacy_level === 'link_only' ? '🔗 LINK PRIVADO — SOLO QUIEN TENGA EL LINK PUEDE VERLA' : list.privacy_level === 'friends' ? '👥 SOLO AMIGOS — LA VEN TUS AMIGOS EN LA APP' : 'LINK PÚBLICO DE TU LISTA'}
             </div>
             <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, wordBreak: 'break-all', marginBottom: 16, opacity: 0.8 }}>{shareUrl}</p>

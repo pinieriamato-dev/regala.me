@@ -39,7 +39,7 @@ export default async function AmigoGroupPage({ params }: Props) {
   return (
     <div style={{ maxWidth: 680, margin: '0 auto' }}>
       <div style={{ marginBottom: 20 }}>
-        <Link href="/dashboard/amigo" className="rg-mono" style={{ color: 'rgba(15,15,15,0.5)', textDecoration: 'none', fontSize: 10 }}>
+        <Link href="/dashboard/amigo" className="rg-mono" style={{ color: 'var(--ink-muted)', textDecoration: 'none', fontSize: 10 }}>
           ← AMIGO INVISIBLE
         </Link>
       </div>
@@ -79,7 +79,7 @@ export default async function AmigoGroupPage({ params }: Props) {
       {/* Invite */}
       {!group.drawn && (
         <div className="rg-card" style={{ padding: 20, marginBottom: 24 }}>
-          <div className="rg-mono" style={{ fontSize: 9, marginBottom: 8, color: 'rgba(15,15,15,0.6)' }}>LINK DE INVITACIÓN</div>
+          <div className="rg-mono" style={{ fontSize: 9, marginBottom: 8, color: 'var(--ink-muted)' }}>LINK DE INVITACIÓN</div>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, wordBreak: 'break-all', marginBottom: 14 }}>{inviteUrl}</div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <a
@@ -101,7 +101,7 @@ export default async function AmigoGroupPage({ params }: Props) {
 
       {/* Participants */}
       <div className="rg-card" style={{ padding: 20, marginBottom: 24 }}>
-        <div className="rg-mono" style={{ fontSize: 9, marginBottom: 12, color: 'rgba(15,15,15,0.6)' }}>
+        <div className="rg-mono" style={{ fontSize: 9, marginBottom: 12, color: 'var(--ink-muted)' }}>
           PARTICIPANTES ({count})
         </div>
         {count === 0 ? (
@@ -111,7 +111,7 @@ export default async function AmigoGroupPage({ params }: Props) {
             {group.members.map((m, i) => (
               <li key={i} style={{ display: 'flex', justifyContent: 'space-between', gap: 8, fontSize: 14, fontWeight: 700 }}>
                 <span>{m.display_name}</span>
-                {!m.has_list && <span className="rg-mono" style={{ fontSize: 9, color: 'rgba(15,15,15,0.5)' }}>SIN LISTA</span>}
+                {!m.has_list && <span className="rg-mono" style={{ fontSize: 9, color: 'var(--ink-muted)' }}>SIN LISTA</span>}
               </li>
             ))}
           </ul>
@@ -121,7 +121,7 @@ export default async function AmigoGroupPage({ params }: Props) {
       {/* Draw: organizer only, before the draw */}
       {group.is_owner && !group.drawn && (
         <div className="rg-card" style={{ padding: 20 }}>
-          <div className="rg-mono" style={{ fontSize: 9, marginBottom: 12, color: 'rgba(15,15,15,0.6)' }}>
+          <div className="rg-mono" style={{ fontSize: 9, marginBottom: 12, color: 'var(--ink-muted)' }}>
             SORTEO · NO SE PUEDE DESHACER
           </div>
           <DrawButton groupId={group.id} canDraw={count >= 3} />

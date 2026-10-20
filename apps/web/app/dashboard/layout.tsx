@@ -33,7 +33,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
             </Link>
             {/* On phones the logo links home and the dashboard has its own + NUEVA LISTA */}
             <span className="hidden sm:inline-block" style={{ width: 1, height: 14, background: 'rgba(15,15,15,0.15)' }} />
-            <span className="hidden sm:inline" style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'rgba(15,15,15,0.5)' }}>
+            <span className="hidden sm:inline" style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-muted)' }}>
               {displayName.toUpperCase()}
             </span>
             <form action={signOut}>

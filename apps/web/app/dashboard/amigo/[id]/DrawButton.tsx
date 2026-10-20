@@ -11,7 +11,7 @@ export default function DrawButton({ groupId, canDraw }: { groupId: string; canD
     <form action={action} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
       <input type="hidden" name="group_id" value={groupId} />
       {state && 'error' in state && (
-        <p style={{ color: 'var(--red)', fontWeight: 700, fontSize: 13, margin: 0 }}>{state.error}</p>
+        <p style={{ color: 'var(--red-ink)', fontWeight: 700, fontSize: 13, margin: 0 }}>{state.error}</p>
       )}
       <button
         type="submit"
@@ -22,7 +22,7 @@ export default function DrawButton({ groupId, canDraw }: { groupId: string; canD
         {pending ? 'SORTEANDO...' : 'SORTEAR AHORA →'}
       </button>
       {!canDraw && (
-        <p className="rg-mono" style={{ fontSize: 9, margin: 0, color: 'rgba(15,15,15,0.5)' }}>
+        <p className="rg-mono" style={{ fontSize: 9, margin: 0, color: 'var(--ink-muted)' }}>
           HACEN FALTA AL MENOS 3 PARTICIPANTES
         </p>
       )}
