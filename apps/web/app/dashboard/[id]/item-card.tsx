@@ -4,6 +4,7 @@ import { useRef, useState, useTransition } from 'react'
 import { deleteItem, editItem, moveItem, releaseClaim } from '@/app/dashboard/actions'
 import { formatPrice, type Item, type Priority } from 'shared'
 import ConfirmPanel from '@/components/ConfirmPanel'
+import { Field } from '@/components/Field'
 import ItemImageField from './item-image-field'
 
 const PRIORITIES: { value: Priority; label: string }[] = [
@@ -89,12 +90,12 @@ export default function ItemCard({ item, claimer, listId, currency, isSurprise, 
             <p style={{
               fontWeight: 800, fontSize: 14, margin: 0,
               textDecoration: isClaimed ? 'line-through' : 'none',
-              color: isClaimed ? 'rgba(15,15,15,0.5)' : 'var(--ink)',
+              color: isClaimed ? 'var(--ink-muted)' : 'var(--ink)',
             }}>
               {item.title}
             </p>
             {isClaimed && (
-              <span className="rg-sticker rg-sticker-green" style={{ fontSize: 8 }}>✓ {displayedClaimer}</span>
+              <span className="rg-sticker rg-sticker-green">✓ {displayedClaimer}</span>
             )}
             {isClaimed && (
               <button
@@ -105,21 +106,21 @@ export default function ItemCard({ item, claimer, listId, currency, isSurprise, 
                 style={{
                   background: 'none', border: 'none', cursor: 'pointer', fontSize: 11,
                   fontFamily: 'var(--font-mono)', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase',
-                  color: 'rgba(15,15,15,0.55)', minHeight: 44, padding: '0 6px', textDecoration: 'underline',
+                  color: 'var(--ink-muted)', minHeight: 44, padding: '0 6px', textDecoration: 'underline',
                 }}
               >
                 {releasePending ? '...' : 'LIBERAR'}
               </button>
             )}
             {!isClaimed && item.priority === 3 && (
-              <span className="rg-sticker rg-sticker-red" style={{ fontSize: 8 }}>ESENCIAL</span>
+              <span className="rg-sticker rg-sticker-red">ESENCIAL</span>
             )}
             {!isClaimed && item.priority === 2 && (
-              <span className="rg-sticker" style={{ fontSize: 8 }}>ME GUSTA</span>
+              <span className="rg-sticker">ME GUSTA</span>
             )}
           </div>
           {item.description && (
-            <p style={{ fontSize: 12, color: 'rgba(15,15,15,0.6)', margin: '0 0 6px 0', lineHeight: 1.4 }}>
+            <p style={{ fontSize: 12, color: 'var(--ink-muted)', margin: '0 0 6px 0', lineHeight: 1.4 }}>
               {item.description}
             </p>
           )}
@@ -131,7 +132,7 @@ export default function ItemCard({ item, claimer, listId, currency, isSurprise, 
             )}
             {/^https?:\/\//i.test(item.url ?? '') && (
               <a href={item.url!} target="_blank" rel="noopener noreferrer"
-                className="rg-mono" style={{ fontSize: 10, color: 'var(--red)', textDecoration: 'none' }}>
+                className="rg-mono" style={{ fontSize: 10, color: 'var(--red-ink)', textDecoration: 'none' }}>
                 VER PRODUCTO →
               </a>
             )}
@@ -154,7 +155,7 @@ export default function ItemCard({ item, claimer, listId, currency, isSurprise, 
             />
           )}
           {actionError && (
-            <p style={{ fontSize: 11, color: 'var(--red)', fontWeight: 700, margin: '6px 0 0' }}>{actionError}</p>
+            <p role="alert" className="rg-error" style={{ fontSize: 11, margin: '6px 0 0' }}>{actionError}</p>
           )}
         </div>
       </div>
@@ -219,14 +220,18 @@ function EditForm({
   onSaved: () => void
 }) {
   const [priority, setPriority] = useState(item.priority ?? 1)
+  const [formError, setFormError] = useState('')
   const [pending, startTransition] = useTransition()
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const fd = new FormData(e.currentTarget)
     fd.set('priority', String(priority))
+    setFormError('')
     startTransition(async () => {
-      await editItem(item.id, listId, fd)
+      const res = await editItem(item.id, listId, fd)
+      // Stay in edit mode with the typed values if the save failed.
+      if (res?.error) { setFormError(res.error); return }
       onSaved()
     })
   }
@@ -240,44 +245,60 @@ function EditForm({
         EDITANDO ÍTEM
       </div>
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: '14px 16px' }}>
-        <input
-          name="title"
-          type="text"
-          defaultValue={item.title}
-          required
-          className="rg-input"
-          style={{ fontSize: 13 }}
-          placeholder="Nombre del regalo *"
-        />
-        <input
-          name="description"
-          type="text"
-          defaultValue={item.description ?? ''}
-          className="rg-input"
-          style={{ fontSize: 13 }}
-          placeholder="Descripción (opcional)"
-        />
-        <input
-          name="price"
-          type="text"
-          inputMode="decimal"
-          // es-AR decimal comma so addItemSchema parses it back unchanged (12345.5 → "12345,5")
-          defaultValue={item.price ? String(item.price).replace('.', ',') : ''}
-          className="rg-input"
-          style={{ fontSize: 13 }}
-          placeholder={`Precio en ${currency} (opcional)`}
-        />
-        <input
-          name="url"
-          type="url"
-          defaultValue={item.url ?? ''}
-          className="rg-input"
-          style={{ fontSize: 13 }}
-          placeholder="Link al producto (opcional)"
-        />
+        <Field label="Nombre del regalo">
+          <input
+            name="title"
+            type="text"
+            defaultValue={item.title}
+            required
+            autoComplete="off"
+            autoCapitalize="sentences"
+            className="rg-input"
+            style={{ fontSize: 13 }}
+            placeholder="Nombre del regalo *"
+          />
+        </Field>
+        <Field label="Descripción">
+          <input
+            name="description"
+            type="text"
+            defaultValue={item.description ?? ''}
+            autoComplete="off"
+            className="rg-input"
+            style={{ fontSize: 13 }}
+            placeholder="Descripción (opcional)"
+          />
+        </Field>
+        <Field label="Precio">
+          <input
+            name="price"
+            type="text"
+            inputMode="decimal"
+            autoComplete="off"
+            // es-AR decimal comma so addItemSchema parses it back unchanged (12345.5 → "12345,5")
+            defaultValue={item.price ? String(item.price).replace('.', ',') : ''}
+            className="rg-input"
+            style={{ fontSize: 13 }}
+            placeholder={`Precio en ${currency} (opcional)`}
+          />
+        </Field>
+        <Field label="Link al producto">
+          <input
+            name="url"
+            type="url"
+            inputMode="url"
+            enterKeyHint="next"
+            autoComplete="off"
+            autoCapitalize="none"
+            defaultValue={item.url ?? ''}
+            className="rg-input"
+            style={{ fontSize: 13 }}
+            placeholder="Link al producto (opcional)"
+          />
+        </Field>
         <ItemImageField defaultValue={item.image_url} />
         <div>
-          <div className="rg-mono" style={{ fontSize: 9, marginBottom: 6, color: 'rgba(15,15,15,0.6)' }}>
+          <div className="rg-mono" style={{ fontSize: 9, marginBottom: 6, color: 'var(--ink-muted)' }}>
             PRIORIDAD
           </div>
           <div style={{ display: 'flex', gap: 6 }}>
@@ -301,6 +322,7 @@ function EditForm({
             ))}
           </div>
         </div>
+        {formError && <p role="alert" className="rg-error" style={{ margin: 0 }}>{formError}</p>}
         <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
           <button
             type="button"

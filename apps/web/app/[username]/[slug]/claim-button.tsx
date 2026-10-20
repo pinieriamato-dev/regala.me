@@ -35,7 +35,7 @@ export default function ClaimButton({ itemId, onClaimed }: Props) {
           style={{ fontSize: 13, padding: '10px 12px' }}
         />
         {state?.error && (
-          <p style={{ fontSize: 11, color: 'var(--red)', fontWeight: 700, margin: 0 }}>{state.error}</p>
+          <p style={{ fontSize: 11, color: 'var(--red-ink)', fontWeight: 700, margin: 0 }}>{state.error}</p>
         )}
         <div style={{ display: 'flex', gap: 8 }}>
           <button
@@ -52,14 +52,14 @@ export default function ClaimButton({ itemId, onClaimed }: Props) {
             onClick={() => setOpen(false)}
             style={{
               background: 'none', border: '2px solid var(--ink)', cursor: 'pointer',
-              fontSize: 16, color: 'rgba(15,15,15,0.55)',
+              fontSize: 16, color: 'var(--ink-muted)',
               padding: '8px 12px', minWidth: 44, borderRadius: 4,
             }}
           >
             ✕
           </button>
         </div>
-        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'rgba(15,15,15,0.45)', textAlign: 'center', margin: 0 }}>
+        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--ink-muted)', textAlign: 'center', margin: 0 }}>
           NO HACE FALTA CREAR CUENTA
         </p>
       </form>

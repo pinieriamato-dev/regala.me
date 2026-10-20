@@ -7,6 +7,7 @@ import type { CreateWishlistResult } from '@/app/dashboard/actions'
 import { OCCASIONS, CURRENCIES } from 'shared'
 import type { OccasionId, Currency } from 'shared'
 import Link from 'next/link'
+import { Field } from '@/components/Field'
 
 const PERSONAL = { id: 'personal' as const, label: 'Lista personal', emoji: '✨' }
 
@@ -56,7 +57,7 @@ export default function NewListPage() {
     <div style={{ maxWidth: 560, margin: '0 auto' }}>
       {/* Breadcrumb */}
       <div style={{ marginBottom: 20 }}>
-        <Link href="/dashboard" className="rg-mono" style={{ color: 'rgba(15,15,15,0.5)', textDecoration: 'none', fontSize: 10 }}>
+        <Link href="/dashboard" className="rg-mono" style={{ color: 'var(--ink-muted)', textDecoration: 'none', fontSize: 10 }}>
           ← MIS LISTAS
         </Link>
       </div>
@@ -67,30 +68,30 @@ export default function NewListPage() {
 
       <div className="rg-card" style={{ padding: 28 }}>
         {state && 'error' in state && (
-          <p style={{ color: 'var(--red)', fontWeight: 700, fontSize: 13, marginBottom: 16, padding: '10px 14px', border: '2px solid var(--red)' }}>
+          <p role="alert" style={{ color: 'var(--red-ink)', fontWeight: 700, fontSize: 13, marginBottom: 16, padding: '10px 14px', border: '2px solid var(--red)' }}>
             {state.error}
           </p>
         )}
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
 
           {/* Title */}
-          <div>
-            <div className="rg-mono" style={{ fontSize: 9, marginBottom: 8, color: 'rgba(15,15,15,0.6)' }}>
-              NOMBRE DE LA LISTA *
-            </div>
+          <Field label="Nombre de la lista">
             <input
               name="title"
               type="text"
               required
+              autoComplete="off"
+              autoCapitalize="sentences"
+              enterKeyHint="next"
               placeholder={occasion === 'personal' ? 'Ej: Mi lista de deseos' : 'Ej: Mi cumple 30'}
               className="rg-input"
               style={{ fontSize: 14 }}
             />
-          </div>
+          </Field>
 
           {/* Occasion */}
           <div>
-            <div className="rg-mono" style={{ fontSize: 9, marginBottom: 10, color: 'rgba(15,15,15,0.6)' }}>
+            <div className="rg-mono" style={{ fontSize: 9, marginBottom: 10, color: 'var(--ink-muted)' }}>
               TIPO DE LISTA
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
@@ -132,22 +133,20 @@ export default function NewListPage() {
 
           {/* Date — only for events */}
           {occasion !== 'personal' && (
-            <div>
-              <div className="rg-mono" style={{ fontSize: 9, marginBottom: 8, color: 'rgba(15,15,15,0.6)' }}>
-                FECHA DEL EVENTO
-              </div>
+            <Field label="Fecha del evento">
               <input
                 name="occasion_date"
                 type="date"
+                autoComplete="off"
                 className="rg-input"
                 style={{ fontSize: 14 }}
               />
-            </div>
+            </Field>
           )}
 
           {/* Currency */}
           <div>
-            <div className="rg-mono" style={{ fontSize: 9, marginBottom: 10, color: 'rgba(15,15,15,0.6)' }}>
+            <div className="rg-mono" style={{ fontSize: 9, marginBottom: 10, color: 'var(--ink-muted)' }}>
               MONEDA
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
@@ -174,7 +173,7 @@ export default function NewListPage() {
 
           {/* Privacy */}
           <div>
-            <div className="rg-mono" style={{ fontSize: 9, marginBottom: 10, color: 'rgba(15,15,15,0.6)' }}>
+            <div className="rg-mono" style={{ fontSize: 9, marginBottom: 10, color: 'var(--ink-muted)' }}>
               PRIVACIDAD
             </div>
             {/* 2×2 on phones so each label fits on one line; one row from 640px up */}
@@ -206,7 +205,7 @@ export default function NewListPage() {
               ))}
             </div>
             {activePrivacy?.note && (
-              <div id="privacy-note" className="rg-mono" style={{ fontSize: 10, marginTop: 8, color: 'rgba(15,15,15,0.6)' }}>
+              <div id="privacy-note" className="rg-mono" style={{ fontSize: 10, marginTop: 8, color: 'var(--ink-muted)' }}>
                 {activePrivacy.note}
               </div>
             )}
@@ -220,7 +219,7 @@ export default function NewListPage() {
           }}>
             <div>
               <div id="surprise-label" style={{ fontWeight: 800, fontSize: 13 }}>Lista sorpresa</div>
-              <div id="surprise-hint" style={{ fontSize: 11, color: 'rgba(15,15,15,0.55)', marginTop: 2 }}>
+              <div id="surprise-hint" style={{ fontSize: 11, color: 'var(--ink-muted)', marginTop: 2 }}>
                 Vos no ves qué reclamaron hasta el día del evento
               </div>
             </div>

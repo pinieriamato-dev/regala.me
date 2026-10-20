@@ -77,7 +77,7 @@ export default async function JoinAmigoPage({ params }: Props) {
       <h1 className="rg-display" style={{ fontSize: 'clamp(2.5rem, 8vw, 4rem)', marginBottom: 12 }}>
         {preview.name.toUpperCase()}
       </h1>
-      <p className="rg-mono" style={{ fontSize: 10, marginBottom: 24, color: 'rgba(15,15,15,0.55)' }}>
+      <p className="rg-mono" style={{ fontSize: 10, marginBottom: 24, color: 'var(--ink-muted)' }}>
         {preview.member_count} {preview.member_count === 1 ? 'PARTICIPANTE' : 'PARTICIPANTES'} HASTA AHORA
       </p>
       <JoinForm code={code} defaultName={defaultName} />

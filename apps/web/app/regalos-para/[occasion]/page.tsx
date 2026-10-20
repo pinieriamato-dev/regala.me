@@ -49,7 +49,7 @@ export default async function OccasionPage({ params }: Props) {
         <ol style={{ listStyle: 'none', padding: 0, margin: '0 0 40px', display: 'grid', gap: 14 }}>
           {page.tips.map((tip, i) => (
             <li key={tip} className="rg-card" style={{ padding: '16px 18px', display: 'flex', gap: 14, alignItems: 'flex-start' }}>
-              <span className="rg-mono" style={{ fontSize: 12, color: 'var(--red)' }}>0{i + 1}</span>
+              <span className="rg-mono" style={{ fontSize: 12, color: 'var(--red-ink)' }}>0{i + 1}</span>
               <span style={{ fontSize: 16, lineHeight: 1.45 }}>{tip}</span>
             </li>
           ))}
