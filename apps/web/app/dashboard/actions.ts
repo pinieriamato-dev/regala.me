@@ -14,7 +14,7 @@ const createWishlistSchema = z.object({
   occasion_date: z.string().max(20).optional().transform(v => v || null),
   currency:      z.enum(['ARS','BRL','MXN','CLP','COP','UYU','PEN','USD']).default('ARS'),
   is_surprise:   z.boolean().default(false),
-  privacy_level: z.enum(['public','link_only','private']).default('public'),
+  privacy_level: z.enum(['public','link_only','private','friends']).default('public'),
 })
 
 const addItemSchema = z.object({
@@ -192,7 +192,7 @@ export async function updateSurprise(listId: string, isSurprise: boolean) {
   revalidatePath(`/dashboard/${listId}`)
 }
 
-export async function updatePrivacy(listId: string, privacyLevel: 'public' | 'link_only' | 'private') {
+export async function updatePrivacy(listId: string, privacyLevel: 'public' | 'link_only' | 'private' | 'friends') {
   const supabase = await createServerSupabase()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth')
