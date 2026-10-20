@@ -10,7 +10,7 @@ export default async function ProfilePage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('username, display_name, bio, birthday, avatar_url')
+    .select('username, display_name, bio, birthday, avatar_url, instagram, phone')
     .eq('id', user.id)
     .single()
 
@@ -24,7 +24,7 @@ export default async function ProfilePage() {
       <h1 className="rg-display" style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', marginBottom: 28 }}>
         MI <span className="rg-em">PERFIL.</span>
       </h1>
-      <ProfileForm profile={profile} />
+      <ProfileForm profile={profile} email={user.email ?? ''} />
     </div>
   )
 }
