@@ -133,6 +133,39 @@ body {
   outline-offset: 2px;
 }
 
+/* Header nav buttons: small bordered chips that lift on hover and press in on click */
+.rg-nav {
+  padding: 6px 10px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--ink);
+  background: var(--paper);
+  border: var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: transform 0.08s ease, box-shadow 0.08s ease, background-color 0.08s ease;
+}
+.rg-nav:hover {
+  background: var(--yellow);
+  transform: translate(-1px, -1px);
+  box-shadow: var(--shadow);
+}
+.rg-nav:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+.rg-nav:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .rg-nav { transition: none; }
+}
+
 /* ── Inputs ──────────────────────────────────────────── */
 .rg-input {
   width: 100%;

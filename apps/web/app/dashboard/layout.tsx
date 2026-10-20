@@ -19,16 +19,16 @@ export default async function DashboardLayout({ children }: { children: React.Re
           display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
           <Logomark size={20} href="/dashboard" />
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, whiteSpace: 'nowrap' }}>
-            <Link href="/dashboard" className="rg-mono hidden sm:inline" style={{ fontSize: 10, color: 'rgba(15,15,15,0.55)', textDecoration: 'none' }}>
+            <Link href="/dashboard" className="rg-nav hidden sm:inline-flex">
               MIS LISTAS
             </Link>
-            <Link href="/dashboard/new" className="rg-mono hidden sm:inline" style={{ fontSize: 10, color: 'rgba(15,15,15,0.55)', textDecoration: 'none' }}>
+            <Link href="/dashboard/new" className="rg-nav hidden sm:inline-flex">
               + NUEVA
             </Link>
-            <Link href="/dashboard/amigos" className="rg-mono" style={{ fontSize: 10, color: 'rgba(15,15,15,0.55)', textDecoration: 'none' }}>
+            <Link href="/dashboard/amigos" className="rg-nav">
               AMIGOS
             </Link>
-            <Link href="/dashboard/profile" className="rg-mono" style={{ fontSize: 10, color: 'rgba(15,15,15,0.55)', textDecoration: 'none' }}>
+            <Link href="/dashboard/profile" className="rg-nav">
               MI PERFIL
             </Link>
             {/* On phones the logo links home and the dashboard has its own + NUEVA LISTA */}
@@ -37,11 +37,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
               {displayName.toUpperCase()}
             </span>
             <form action={signOut}>
-              <button type="submit" style={{
-                background: 'none', border: 'none', cursor: 'pointer', padding: 0,
-                fontFamily: 'var(--font-display)', fontSize: 11, letterSpacing: 0.5,
-                color: 'rgba(15,15,15,0.5)',
-              }}>
+              <button type="submit" className="rg-nav">
                 SALIR
               </button>
             </form>
