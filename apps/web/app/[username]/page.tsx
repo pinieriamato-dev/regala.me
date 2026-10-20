@@ -64,7 +64,7 @@ export default async function UserProfilePage({ params }: Props) {
             <h1 className="rg-display" style={{ fontSize: 'clamp(1.8rem, 6vw, 3rem)', lineHeight: 1 }}>
               {(profile.display_name ?? username).toUpperCase()}
             </h1>
-            <div className="rg-mono" style={{ fontSize: 10, marginTop: 4, color: 'rgba(15,15,15,0.5)' }}>
+            <div className="rg-mono" style={{ fontSize: 10, marginTop: 4, color: 'var(--ink-muted)' }}>
               @{username}
             </div>
             {profile.instagram && (
@@ -90,7 +90,7 @@ export default async function UserProfilePage({ params }: Props) {
               </p>
             )}
             {profile.birthday && (
-              <div className="rg-mono" style={{ fontSize: 10, color: 'rgba(15,15,15,0.5)' }}>
+              <div className="rg-mono" style={{ fontSize: 10, color: 'var(--ink-muted)' }}>
                 🎂 {new Date(profile.birthday).toLocaleDateString('es-AR', { day: 'numeric', month: 'long' })}
               </div>
             )}
@@ -101,24 +101,24 @@ export default async function UserProfilePage({ params }: Props) {
         {(lists ?? []).length === 0 ? (
           <div className="rg-empty">
             <div className="rg-display" style={{ fontSize: 28, marginBottom: 10 }}>NADA POR ACÁ <span className="rg-em">TODAVÍA.</span></div>
-            <p style={{ fontSize: 14, color: 'rgba(15,15,15,0.65)', margin: 0 }}>
+            <p style={{ fontSize: 14, color: 'var(--ink-muted)', margin: 0 }}>
               Cuando {profile.display_name ?? username} publique una lista, la vas a ver acá.
             </p>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {(lists ?? []).map((list) => (
+            {(lists ?? []).map((list, index) => (
               <Link
                 key={list.id}
                 href={`/${username}/${list.slug}`}
-                className="rg-card"
-                style={{ padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 16, textDecoration: 'none', color: 'var(--ink)' }}
+                className="rg-card rg-rise"
+                style={{ padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 16, textDecoration: 'none', color: 'var(--ink)', '--i': Math.min(index, 8) } as React.CSSProperties}
               >
                 <span aria-hidden="true" style={{ fontSize: 32 }}>{occasionEmoji(list.occasion as OccasionId)}</span>
                 <div>
                   <div style={{ fontWeight: 800, fontSize: 15 }}>{list.title}</div>
                   {list.occasion_date && (
-                    <div className="rg-mono" style={{ fontSize: 9, marginTop: 3, color: 'rgba(15,15,15,0.5)' }}>
+                    <div className="rg-mono" style={{ fontSize: 9, marginTop: 3, color: 'var(--ink-muted)' }}>
                       {new Date(list.occasion_date).toLocaleDateString('es-AR',
                         list.occasion === 'birthday'
                           ? { day: 'numeric', month: 'long' }
@@ -136,7 +136,7 @@ export default async function UserProfilePage({ params }: Props) {
           <div className="rg-display" style={{ fontSize: 24, marginBottom: 10 }}>
             ¿QUERÉS TU PROPIA LISTA?
           </div>
-          <Link href="/" className="rg-btn rg-btn-yellow" style={{ padding: '12px 22px', fontSize: 13 }}>
+          <Link href="/auth?mode=signup" className="rg-btn rg-btn-yellow" style={{ padding: '12px 22px', fontSize: 13 }}>
             CREAR LISTA →
           </Link>
         </div>

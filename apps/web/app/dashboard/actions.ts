@@ -163,19 +163,19 @@ export async function updateProfile(_prevState: ProfileState, formData: FormData
   if (phoneError) return { error: 'No se pudo guardar el teléfono.' }
 
   // Supabase Auth sends a confirmation link to the new address; the old one stays active until it is clicked.
-  let notice: string | undefined
+  let notice = 'Perfil guardado.'
   if (emailChanged) {
     const { error: emailError } = await supabase.auth.updateUser({ email: email.value })
     if (emailError) {
       return { error: 'El perfil se guardó, pero no se pudo cambiar el mail. Revisá que no esté en uso por otra cuenta.' }
     }
-    notice = 'Te mandamos un mail a la dirección nueva. Confirmala para que el cambio quede activo.'
+    notice += ' Te mandamos un mail a la dirección nueva. Confirmala para que el cambio quede activo.'
   }
 
   revalidatePath('/dashboard')
   revalidatePath('/dashboard/profile')
   if (username) revalidatePath(`/${username}`)
-  return notice ? { notice } : null
+  return { notice }
 }
 
 export async function updateSurprise(listId: string, isSurprise: boolean) {
@@ -268,14 +268,14 @@ export async function deleteWishlist(id: string) {
   redirect('/dashboard')
 }
 
-export async function addItem(listId: string, formData: FormData) {
+export async function addItem(listId: string, formData: FormData): Promise<{ error?: string } | undefined> {
   const supabase = await createServerSupabase()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth')
 
   const { data: ownedList } = await supabase
     .from('wishlists').select('id').eq('id', listId).eq('owner_id', user.id).single()
-  if (!ownedList) return
+  if (!ownedList) return { error: 'No se pudo agregar el ítem. Recargá la página e intentá de nuevo.' }
 
   const parsed = addItemSchema.safeParse({
     title:       formData.get('title'),
@@ -285,7 +285,7 @@ export async function addItem(listId: string, formData: FormData) {
     image_url:   formData.get('image_url'),
     priority:    formData.get('priority'),
   })
-  if (!parsed.success) return
+  if (!parsed.success) return { error: 'Revisá los datos del ítem e intentá de nuevo.' }
 
   const { data: topItem } = await supabase
     .from('items')
@@ -301,25 +301,25 @@ export async function addItem(listId: string, formData: FormData) {
     sort_order: (topItem?.sort_order ?? -1) + 1,
   })
 
-  if (!insertError) {
-    trackEvent('item_added', user.id, {
-      priority: parsed.data.priority,
-      has_price: parsed.data.price !== null,
-      has_url: parsed.data.url !== null,
-    })
-  }
+  if (insertError) return { error: 'No se pudo agregar el ítem. Intentá de nuevo.' }
+
+  trackEvent('item_added', user.id, {
+    priority: parsed.data.priority,
+    has_price: parsed.data.price !== null,
+    has_url: parsed.data.url !== null,
+  })
 
   revalidatePath(`/dashboard/${listId}`)
 }
 
-export async function editItem(itemId: string, listId: string, formData: FormData) {
+export async function editItem(itemId: string, listId: string, formData: FormData): Promise<{ error?: string } | undefined> {
   const supabase = await createServerSupabase()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth')
 
   const { data: ownedList } = await supabase
     .from('wishlists').select('id').eq('id', listId).eq('owner_id', user.id).single()
-  if (!ownedList) return
+  if (!ownedList) return { error: 'No se pudo guardar el ítem. Recargá la página e intentá de nuevo.' }
 
   const parsed = addItemSchema.safeParse({
     title:       formData.get('title'),
@@ -329,9 +329,9 @@ export async function editItem(itemId: string, listId: string, formData: FormDat
     image_url:   formData.get('image_url'),
     priority:    formData.get('priority'),
   })
-  if (!parsed.success) return
+  if (!parsed.success) return { error: 'Revisá los datos del ítem e intentá de nuevo.' }
 
-  await supabase.from('items').update({
+  const { error: updateError } = await supabase.from('items').update({
     title:       parsed.data.title,
     description: parsed.data.description,
     price:       parsed.data.price,
@@ -339,6 +339,7 @@ export async function editItem(itemId: string, listId: string, formData: FormDat
     image_url:   parsed.data.image_url,
     priority:    parsed.data.priority,
   }).eq('id', itemId).eq('wishlist_id', listId)
+  if (updateError) return { error: 'No se pudo guardar el ítem. Intentá de nuevo.' }
 
   revalidatePath(`/dashboard/${listId}`)
 }

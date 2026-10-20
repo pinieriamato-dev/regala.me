@@ -88,13 +88,13 @@ export default async function DashboardPage() {
             TU PRIMERA <span className="rg-em">LISTA.</span>
           </h2>
           <p style={{ fontSize: 14, color: 'rgba(15,15,15,0.65)', marginBottom: 24, maxWidth: 320, margin: '0 auto 24px' }}>
-            Agrega los regalos que querés y compartí el link con quien quieras.
+            Agregá los regalos que querés y compartí el link con quien quieras.
           </p>
           <Link href="/dashboard/new" className="rg-btn rg-btn-primary">CREAR LISTA →</Link>
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>
-          {(lists ?? []).map((list) => {
+          {(lists ?? []).map((list, index) => {
             const listItems = (list.items ?? []) as { id: string }[]
             const claimed   = listItems.filter(i => claimedSet.has(i.id)).length
             const total     = listItems.length
@@ -105,13 +105,13 @@ export default async function DashboardPage() {
               : null
 
             return (
-              <div key={list.id} className="rg-card rg-card-link" style={{ padding: 20 }}>
+              <div key={list.id} className="rg-card rg-card-link rg-rise" style={{ padding: 20, '--i': Math.min(index, 8) } as React.CSSProperties}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                     <span aria-hidden="true" style={{ fontFamily: 'var(--font-display)', fontSize: 32 }}>{emoji}</span>
                     <div>
                       <h2 style={{ fontWeight: 800, fontSize: 15, lineHeight: 1.2, margin: 0 }}>{list.title}</h2>
-                      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'rgba(15,15,15,0.5)', marginTop: 3 }}>
+                      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--ink-muted)', marginTop: 3 }}>
                         {list.occasion_date
                           ? new Date(list.occasion_date).toLocaleDateString('es-AR', { day: 'numeric', month: 'long' })
                           : 'SIN FECHA'}
@@ -120,30 +120,30 @@ export default async function DashboardPage() {
                   </div>
                   <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
                     {list.is_default && (
-                      <span className="rg-sticker" style={{ fontSize: 8 }}>PRINCIPAL</span>
+                      <span className="rg-sticker">PRINCIPAL</span>
                     )}
                     {list.is_surprise && (
-                      <span className="rg-sticker rg-sticker-ink" style={{ fontSize: 8 }}>SORPRESA</span>
+                      <span className="rg-sticker rg-sticker-ink">SORPRESA</span>
                     )}
                     {list.privacy_level === 'link_only' && (
-                      <span className="rg-sticker rg-sticker-paper" style={{ fontSize: 8 }}><span aria-hidden="true">🔗 </span>LINK</span>
+                      <span className="rg-sticker rg-sticker-paper"><span aria-hidden="true">🔗 </span>LINK</span>
                     )}
                     {list.privacy_level === 'private' && (
-                      <span className="rg-sticker rg-sticker-ink" style={{ fontSize: 8 }}><span aria-hidden="true">🔒 </span>PRIVADA</span>
+                      <span className="rg-sticker rg-sticker-ink"><span aria-hidden="true">🔒 </span>PRIVADA</span>
                     )}
                   </div>
                 </div>
 
                 {total > 0 && list.is_surprise && (
-                  <div className="rg-mono" style={{ fontSize: 9, marginBottom: 14, color: 'rgba(15,15,15,0.5)' }}>
-                    {total} ÍTEMS · LO RECLAMADO ES SORPRESA
+                  <div className="rg-mono" style={{ fontSize: 9, marginBottom: 14, color: 'var(--ink-muted)' }}>
+                    {total} REGALOS · LO RECLAMADO ES SORPRESA
                   </div>
                 )}
 
                 {total > 0 && !list.is_surprise && (
                   <div style={{ marginBottom: 14 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'var(--font-mono)', fontSize: 9, marginBottom: 5, color: 'rgba(15,15,15,0.5)' }}>
-                      <span>{claimed} RECLAMADOS</span><span>{total} ÍTEMS</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'var(--font-mono)', fontSize: 9, marginBottom: 5, color: 'var(--ink-muted)' }}>
+                      <span>{claimed} RECLAMADOS</span><span>{total} REGALOS</span>
                     </div>
                     <div style={{ height: 6, background: 'rgba(15,15,15,0.12)', border: '1px solid var(--ink)', borderRadius: 2 }}>
                       <div style={{ height: '100%', background: 'var(--green)', width: `${progress}%`, transition: 'width 0.3s' }} />
@@ -176,7 +176,7 @@ export default async function DashboardPage() {
       {profile?.username && (
         <div className="rg-card-ink" style={{ padding: '16px 20px', marginTop: 32, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
           <div style={{ minWidth: 0 }}>
-            <div className="rg-mono" style={{ fontSize: 9, color: 'rgba(251,248,238,0.5)', marginBottom: 4 }}>TU PERFIL PÚBLICO</div>
+            <div className="rg-mono" style={{ fontSize: 9, color: 'var(--paper-muted)', marginBottom: 4 }}>TU PERFIL PÚBLICO</div>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--paper)', wordBreak: 'break-all' }}>
               {process.env.NEXT_PUBLIC_SITE_URL ?? 'https://regala.me'}/{profile.username}
             </div>

@@ -110,7 +110,7 @@ export default async function AmigosPage({ searchParams }: { searchParams: Promi
                   className="rg-card"
                   style={{ padding: 18, textDecoration: 'none', color: 'inherit' }}
                 >
-                  <div className="rg-mono" style={{ fontSize: 9, marginBottom: 8, color: 'rgba(15,15,15,0.5)' }}>
+                  <div className="rg-mono" style={{ fontSize: 9, marginBottom: 8, color: 'var(--ink-muted)' }}>
                     {occasionEmoji(list.occasion ?? 'other')} DE {nameOf({ username, display_name: list.owner?.display_name ?? null }).toUpperCase()}
                   </div>
                   <div style={{ fontWeight: 800, fontSize: 16, lineHeight: 1.2 }}>{list.title}</div>
@@ -131,7 +131,7 @@ export default async function AmigosPage({ searchParams }: { searchParams: Promi
               if (!p) return null
               return (
                 <div key={f.id} className="rg-card" style={{ padding: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-                  <div style={{ fontWeight: 700 }}>{nameOf(p)} <span className="rg-mono" style={{ fontSize: 10, color: 'rgba(15,15,15,0.5)' }}>@{p.username}</span></div>
+                  <div style={{ fontWeight: 700 }}>{nameOf(p)} <span className="rg-mono" style={{ fontSize: 10, color: 'var(--ink-muted)' }}>@{p.username}</span></div>
                   <div style={{ display: 'flex', gap: 8 }}>
                     <form action={acceptFriendRequest.bind(null, f.id)}>
                       <button type="submit" className="rg-btn rg-btn-primary" style={btn}>ACEPTAR</button>
@@ -169,7 +169,7 @@ export default async function AmigosPage({ searchParams }: { searchParams: Promi
             const pending = outgoing.some(f => otherId(f) === p.id)
             return (
               <div key={p.id} className="rg-card" style={{ padding: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-                <div style={{ fontWeight: 700 }}>{nameOf(p)} <span className="rg-mono" style={{ fontSize: 10, color: 'rgba(15,15,15,0.5)' }}>@{p.username}</span></div>
+                <div style={{ fontWeight: 700 }}>{nameOf(p)} <span className="rg-mono" style={{ fontSize: 10, color: 'var(--ink-muted)' }}>@{p.username}</span></div>
                 {pending ? (
                   <span className="rg-mono" style={{ fontSize: 10 }}>SOLICITUD ENVIADA</span>
                 ) : (
@@ -198,7 +198,7 @@ export default async function AmigosPage({ searchParams }: { searchParams: Promi
               return (
                 <div key={f.id} className="rg-card" style={{ padding: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
                   <Link href={`/${p.username}`} style={{ fontWeight: 700, color: 'inherit', textDecoration: 'none' }}>
-                    {nameOf(p)} <span className="rg-mono" style={{ fontSize: 10, color: 'rgba(15,15,15,0.5)' }}>@{p.username}</span>
+                    {nameOf(p)} <span className="rg-mono" style={{ fontSize: 10, color: 'var(--ink-muted)' }}>@{p.username}</span>
                   </Link>
                   <form action={removeFriendship.bind(null, f.id)}>
                     <button type="submit" className="rg-btn rg-btn-ghost" style={btn}>QUITAR</button>
@@ -219,7 +219,7 @@ export default async function AmigosPage({ searchParams }: { searchParams: Promi
               if (!p) return null
               return (
                 <div key={f.id} className="rg-card" style={{ padding: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-                  <div style={{ fontWeight: 700 }}>{nameOf(p)} <span className="rg-mono" style={{ fontSize: 10, color: 'rgba(15,15,15,0.5)' }}>@{p.username}</span></div>
+                  <div style={{ fontWeight: 700 }}>{nameOf(p)} <span className="rg-mono" style={{ fontSize: 10, color: 'var(--ink-muted)' }}>@{p.username}</span></div>
                   <form action={removeFriendship.bind(null, f.id)}>
                     <button type="submit" className="rg-btn rg-btn-ghost" style={btn}>CANCELAR</button>
                   </form>

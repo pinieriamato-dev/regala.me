@@ -7,7 +7,7 @@ export default function GifterError() {
         regala<span style={{ color: 'var(--red)' }}>.</span>me
       </div>
       <h1 className="rg-display" style={{ fontSize: 48, marginBottom: 12 }}>ALGO SALIÓ MAL.</h1>
-      <p style={{ fontSize: 14, color: 'rgba(15,15,15,0.6)', marginBottom: 24 }}>No pudimos cargar esta lista. Intentá de nuevo.</p>
+      <p style={{ fontSize: 14, color: 'var(--ink-muted)', marginBottom: 24 }}>No pudimos cargar esta lista. Intentá de nuevo.</p>
       <a href="/" className="rg-btn rg-btn-primary" style={{ padding: '12px 24px', fontSize: 13 }}>
         IR AL INICIO →
       </a>
