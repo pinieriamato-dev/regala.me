@@ -13,8 +13,8 @@ type Profile = {
   phone: string | null
 }
 
-const labelStyle = { fontSize: 9, marginBottom: 6, color: 'rgba(15,15,15,0.6)' }
-const hintStyle = { fontSize: 8, marginTop: 4, color: 'rgba(15,15,15,0.4)' }
+const labelStyle = { fontSize: 9, marginBottom: 6, color: 'var(--ink-muted)' }
+const hintStyle = { fontSize: 8, marginTop: 4, color: 'var(--ink-muted)' }
 
 export default function ProfileForm({ profile, email }: { profile: Profile | null; email: string }) {
   const [state, action, pending]  = useActionState(updateProfile, null)
@@ -89,7 +89,7 @@ export default function ProfileForm({ profile, email }: { profile: Profile | nul
               type="button"
               onClick={() => setAvatarUrl('')}
               className="rg-mono"
-              style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 9, color: 'rgba(15,15,15,0.4)', padding: 0 }}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 9, color: 'var(--ink-muted)', padding: 0 }}
             >
               ELIMINAR FOTO
             </button>
@@ -105,7 +105,7 @@ export default function ProfileForm({ profile, email }: { profile: Profile | nul
       </div>
 
       {uploadErr && (
-        <p style={{ fontSize: 12, color: 'var(--red)', fontWeight: 700, margin: '-12px 0 0' }}>{uploadErr}</p>
+        <p style={{ fontSize: 12, color: 'var(--red-ink)', fontWeight: 700, margin: '-12px 0 0' }}>{uploadErr}</p>
       )}
 
       <div className="rg-divider" />
@@ -201,7 +201,7 @@ export default function ProfileForm({ profile, email }: { profile: Profile | nul
       </div>
 
       <div>
-        <div className="rg-mono" style={{ fontSize: 9, marginBottom: 6, color: 'rgba(15,15,15,0.6)' }}>BIO</div>
+        <div className="rg-mono" style={{ fontSize: 9, marginBottom: 6, color: 'var(--ink-muted)' }}>BIO</div>
         <textarea
           name="bio"
           maxLength={160}
@@ -213,7 +213,7 @@ export default function ProfileForm({ profile, email }: { profile: Profile | nul
       </div>
 
       <div>
-        <div className="rg-mono" style={{ fontSize: 9, marginBottom: 6, color: 'rgba(15,15,15,0.6)' }}>CUMPLEAÑOS</div>
+        <div className="rg-mono" style={{ fontSize: 9, marginBottom: 6, color: 'var(--ink-muted)' }}>CUMPLEAÑOS</div>
         <input
           name="birthday"
           type="date"
@@ -221,7 +221,7 @@ export default function ProfileForm({ profile, email }: { profile: Profile | nul
           className="rg-input"
           style={{ fontSize: 13 }}
         />
-        <div className="rg-mono" style={{ fontSize: 8, marginTop: 4, color: 'rgba(15,15,15,0.4)' }}>
+        <div className="rg-mono" style={{ fontSize: 8, marginTop: 4, color: 'var(--ink-muted)' }}>
           Solo se muestra el día y mes en tu perfil público. El año queda privado.
         </div>
       </div>

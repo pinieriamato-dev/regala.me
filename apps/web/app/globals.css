@@ -13,6 +13,9 @@
   --paper:  #FBF8EE;
   --yellow: #F5E13E;
   --red:    #E63322;
+  --red-ink:   #B8261A; /* texto y errores: 5.5:1 sobre crema */
+  --ink-muted:   rgba(15,15,15,0.65);   /* texto secundario: 5.7:1 sobre crema */
+  --paper-muted: rgba(251,248,238,0.62); /* texto secundario sobre tinta: 7.2:1 */
   --green:  #2EC25E;
   --border: 2px solid #0F0F0F;
   --shadow: 5px 5px 0 0 #0F0F0F;
@@ -58,7 +61,7 @@ body {
   font-size: 11px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(15, 15, 15, 0.55);
+  color: var(--ink-muted);
 }
 
 /* ── Cards ──────────────────────────────────────────── */
@@ -180,7 +183,7 @@ body {
   color: var(--ink);
   outline: none;
 }
-.rg-input::placeholder { color: rgba(15,15,15,0.38); }
+.rg-input::placeholder { color: var(--ink-muted); }
 .rg-input:focus { box-shadow: var(--shadow); }
 .rg-input:focus-visible {
   outline: 3px solid var(--ink);
@@ -193,9 +196,9 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 3px 8px;
+  padding: 4px 8px;
   font-family: var(--font-display);
-  font-size: 9px;
+  font-size: 10px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   border: 1.5px solid var(--ink);
@@ -204,10 +207,34 @@ body {
   background: var(--yellow);
   color: var(--ink);
 }
-.rg-sticker-red   { background: var(--red);   color: #fff; }
+.rg-sticker-red   { background: var(--red-ink); color: #fff; }
 .rg-sticker-green { background: var(--green);  color: var(--ink); }
 .rg-sticker-ink   { background: var(--ink);   color: var(--paper); }
 .rg-sticker-paper { background: var(--paper); color: var(--ink); }
+
+/* ── Segmented control (dark surface, yellow = active) ── */
+.rg-seg {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  border: 1.5px solid var(--paper-muted);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.rg-seg button {
+  min-height: 44px;
+  padding: 8px 4px;
+  background: transparent;
+  color: var(--paper);
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  border: 0;
+  border-right: 1.5px solid var(--paper-muted);
+  cursor: pointer;
+}
+.rg-seg button:last-child { border-right: 0; }
+.rg-seg button[aria-pressed="true"] { background: var(--yellow); color: var(--ink); }
+.rg-seg button:disabled { cursor: default; }
 
 /* ── Divider ─────────────────────────────────────────── */
 .rg-divider { height: 2px; background: var(--ink); }
@@ -226,7 +253,7 @@ body {
   justify-content: center;
   font-family: var(--font-mono);
   font-size: 9px;
-  color: rgba(15,15,15,0.5);
+  color: var(--ink-muted);
   text-align: center;
   padding: 6px;
 }

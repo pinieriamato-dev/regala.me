@@ -119,7 +119,7 @@ export default function AddItemForm({ listId, currency }: { listId: string; curr
           </button>
         </div>
         {extractError && (
-          <p style={{ fontSize: 11, color: 'var(--red)', fontWeight: 700, marginTop: 8, margin: '8px 0 0' }}>
+          <p style={{ fontSize: 11, color: 'var(--red-ink)', fontWeight: 700, marginTop: 8, margin: '8px 0 0' }}>
             {extractError}
           </p>
         )}
@@ -175,7 +175,7 @@ export default function AddItemForm({ listId, currency }: { listId: string; curr
         <ItemImageField />
 
         <div>
-          <div className="rg-mono" style={{ fontSize: 9, marginBottom: 8, color: 'rgba(15,15,15,0.6)' }}>PRIORIDAD</div>
+          <div className="rg-mono" style={{ fontSize: 9, marginBottom: 8, color: 'var(--ink-muted)' }}>PRIORIDAD</div>
           <div style={{ display: 'flex', gap: 8 }}>
             {PRIORITIES.map((p) => (
               <button

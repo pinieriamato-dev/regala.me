@@ -52,7 +52,7 @@ export default function ResetPasswordForm() {
                 <div style={{
                   padding: '10px 14px', background: 'rgba(230,51,34,0.08)',
                   border: '2px solid var(--red)', borderRadius: '4px',
-                  fontSize: 12, color: 'var(--red)', fontWeight: 700,
+                  fontSize: 12, color: 'var(--red-ink)', fontWeight: 700,
                 }}>
                   {state.error}
                 </div>

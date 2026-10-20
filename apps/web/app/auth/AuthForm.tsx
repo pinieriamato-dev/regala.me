@@ -230,7 +230,7 @@ export default function AuthForm({ siteKey }: AuthFormProps) {
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '16px 0 0' }}>
                   <div style={{ flex: 1, height: 2, background: 'var(--ink)', opacity: 0.15 }} />
-                  <span className="rg-mono" style={{ fontSize: 9, color: 'rgba(15,15,15,0.5)' }}>O TAMBIÉN</span>
+                  <span className="rg-mono" style={{ fontSize: 9, color: 'var(--ink-muted)' }}>O TAMBIÉN</span>
                   <div style={{ flex: 1, height: 2, background: 'var(--ink)', opacity: 0.15 }} />
                 </div>
 
@@ -283,7 +283,7 @@ export default function AuthForm({ siteKey }: AuthFormProps) {
 
 const linkStyle: React.CSSProperties = {
   background: 'none', border: 'none', cursor: 'pointer', padding: 0,
-  fontWeight: 800, color: 'var(--red)', textDecoration: 'underline',
+  fontWeight: 800, color: 'var(--red-ink)', textDecoration: 'underline',
 }
 
 function ErrorBox({ children }: { children: React.ReactNode }) {
@@ -291,7 +291,7 @@ function ErrorBox({ children }: { children: React.ReactNode }) {
     <div style={{
       padding: '10px 14px', background: 'rgba(230,51,34,0.08)',
       border: '2px solid var(--red)', borderRadius: '4px',
-      fontSize: 12, color: 'var(--red)', fontWeight: 700,
+      fontSize: 12, color: 'var(--red-ink)', fontWeight: 700,
     }}>
       {children}
     </div>
