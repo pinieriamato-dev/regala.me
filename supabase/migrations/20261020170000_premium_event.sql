@@ -1,6 +1,6 @@
 -- ROADMAP L3: premium per event (cover image + custom list URL + invitation with QR).
--- Run once in the Supabase SQL editor (project esyybmnwalscpnzfeowh). Safe to re-run.
--- The app selects is_premium and cover_url, so run this BEFORE the code that reads them is deployed.
+-- Applied by the Supabase GitHub integration from supabase/migrations/ on deploy.
+-- The app selects is_premium and cover_url, so this must be applied before the code that reads them.
 
 alter table public.wishlists
   add column if not exists is_premium boolean not null default false,
@@ -26,5 +26,5 @@ create trigger guard_wishlist_premium
   before update on public.wishlists
   for each row execute function public.guard_wishlist_premium();
 
--- Activating premium is manual until payments (ROADMAP L2) exist:
+-- Activating premium is manual until payments (ROADMAP L2) exist. Run in the SQL editor:
 -- update public.wishlists set is_premium = true where id = '<list id>';
