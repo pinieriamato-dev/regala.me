@@ -3,6 +3,7 @@ import { decodeParam } from '@/lib/params'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import DrawButton from './DrawButton'
+import RevealAssignment from './RevealAssignment'
 import ShareActions from '@/components/ShareActions'
 
 type Member = { display_name: string; has_list: boolean }
@@ -51,24 +52,11 @@ export default async function AmigoGroupPage({ params }: Props) {
 
       {/* Result for the caller: who they gift to */}
       {group.drawn && assignment && (
-        <div className="rg-card-yellow" style={{ padding: 24, marginBottom: 24 }}>
-          <div className="rg-mono" style={{ fontSize: 9, marginBottom: 8 }}>LE REGALÁS A</div>
-          <div className="rg-display" style={{ fontSize: 40, lineHeight: 1, marginBottom: 16 }}>
-            {assignment.display_name.toUpperCase()}
-          </div>
-          {assignment.username && assignment.slug && (
-            <Link
-              href={`/${encodeURIComponent(assignment.username)}/${assignment.slug}`}
-              className="rg-btn rg-btn-primary"
-              style={{ padding: '12px 16px', fontSize: 12 }}
-            >
-              VER SU LISTA →
-            </Link>
-          )}
-          <p style={{ fontSize: 12, margin: '14px 0 0' }}>
-            Esto solo lo ves vos. No se lo digas a nadie.
-          </p>
-        </div>
+        <RevealAssignment
+          name={assignment.display_name}
+          username={assignment.username}
+          slug={assignment.slug}
+        />
       )}
 
       {group.drawn && !group.is_member && !group.is_owner && (

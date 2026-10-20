@@ -2,6 +2,7 @@ import { createServerSupabase } from '@/lib/supabase/server'
 import { occasionEmoji } from 'shared'
 import type { OccasionId } from 'shared'
 import Link from 'next/link'
+import SharedElement from '@/components/SharedElement'
 import { redirect } from 'next/navigation'
 import ShareActions from '@/components/ShareActions'
 
@@ -109,9 +110,9 @@ export default async function DashboardPage() {
               <div key={list.id} className="rg-card rg-card-link rg-rise" style={{ padding: 20, '--i': Math.min(index, 8) } as React.CSSProperties}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <span aria-hidden="true" style={{ fontFamily: 'var(--font-display)', fontSize: 32 }}>{emoji}</span>
+                    <SharedElement name={`list-emoji-${list.id}`}><span aria-hidden="true" style={{ fontFamily: 'var(--font-display)', fontSize: 32 }}>{emoji}</span></SharedElement>
                     <div>
-                      <h2 style={{ fontWeight: 800, fontSize: 15, lineHeight: 1.2, margin: 0 }}>{list.title}</h2>
+                      <SharedElement name={`list-title-${list.id}`}><h2 style={{ fontWeight: 800, fontSize: 15, lineHeight: 1.2, margin: 0 }}>{list.title}</h2></SharedElement>
                       <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--ink-muted)', marginTop: 3 }}>
                         {list.occasion_date
                           ? new Date(list.occasion_date).toLocaleDateString('es-AR', { day: 'numeric', month: 'long' })

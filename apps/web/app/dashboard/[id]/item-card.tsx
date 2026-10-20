@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState, useTransition } from 'react'
-import { deleteItem, editItem, moveItem, releaseClaim } from '@/app/dashboard/actions'
+import { deleteItem, editItem, releaseClaim } from '@/app/dashboard/actions'
 import { formatPrice, type Item, type Priority } from 'shared'
 import ConfirmPanel from '@/components/ConfirmPanel'
 import { Field } from '@/components/Field'
@@ -21,9 +21,10 @@ type Props = {
   isSurprise: boolean
   canMoveUp: boolean
   canMoveDown: boolean
+  onMove: (direction: 'up' | 'down') => void
 }
 
-export default function ItemCard({ item, claimer, listId, currency, isSurprise, canMoveUp, canMoveDown }: Props) {
+export default function ItemCard({ item, claimer, listId, currency, isSurprise, canMoveUp, canMoveDown, onMove }: Props) {
   const [hidden,  setHidden]  = useState(false)
   const [editing, setEditing] = useState(false)
   const [confirming, setConfirming] = useState<'delete' | 'release' | null>(null)
@@ -167,7 +168,7 @@ export default function ItemCard({ item, claimer, listId, currency, isSurprise, 
               key={direction}
               type="button"
               disabled={!enabled}
-              onClick={() => moveItem(item.id, listId, direction)}
+              onClick={() => onMove(direction)}
               aria-label={direction === 'up' ? `Subir ${item.title}` : `Bajar ${item.title}`}
               style={{
                 minWidth: 44, minHeight: 44, display: 'inline-grid', placeItems: 'center',

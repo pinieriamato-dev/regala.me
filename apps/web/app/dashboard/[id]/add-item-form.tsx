@@ -50,7 +50,12 @@ export default function AddItemForm({ listId, currency }: { listId: string; curr
         const form = formRef.current
         const set = (name: string, value: string) => {
           const el = form.elements.namedItem(name) as HTMLInputElement | null
-          if (el) el.value = value
+          if (!el) return
+          el.value = value
+          // Restart the yellow flash so a second extraction is visible too.
+          el.classList.remove('is-filled')
+          void el.offsetWidth
+          el.classList.add('is-filled')
         }
         if (data.title)       set('title', data.title)
         if (data.description) set('description', data.description.slice(0, 200))
@@ -127,7 +132,7 @@ export default function AddItemForm({ listId, currency }: { listId: string; curr
             className="rg-btn rg-btn-primary"
             style={{ padding: '8px 14px', fontSize: 11, whiteSpace: 'nowrap', opacity: (extracting || !extractUrl.trim()) ? 0.4 : 1 }}
           >
-            {extracting ? '...' : 'EXTRAER'}
+            {extracting ? 'LEYENDO…' : 'EXTRAER'}
           </button>
         </div>
         {extractError && (

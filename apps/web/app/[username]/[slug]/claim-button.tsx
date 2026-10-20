@@ -51,7 +51,8 @@ export default function ClaimButton({ itemId, onClaimed }: Props) {
           style={{ fontSize: 13, padding: '10px 12px' }}
         />
         {state?.error && (
-          <p id={`${uid}-err`} role="alert" style={{ fontSize: 11, color: 'var(--red-ink)', fontWeight: 700, margin: 0 }}>{state.error}</p>
+          // Shakes when it appears: the server said someone else got there first.
+          <p id={`${uid}-err`} role="alert" className="rg-shake" style={{ fontSize: 11, color: 'var(--red-ink)', fontWeight: 700, margin: 0 }}>{state.error}</p>
         )}
         <div style={{ display: 'flex', gap: 8 }}>
           <button
@@ -60,7 +61,7 @@ export default function ClaimButton({ itemId, onClaimed }: Props) {
             className="rg-btn rg-btn-primary"
             style={{ flex: 1, padding: '12px 16px', fontSize: 12, minHeight: 44, opacity: pending ? 0.6 : 1 }}
           >
-            {pending ? '...' : 'ME ENCARGO →'}
+            {pending ? 'RECLAMANDO…' : 'ME ENCARGO →'}
           </button>
           <button
             type="button"

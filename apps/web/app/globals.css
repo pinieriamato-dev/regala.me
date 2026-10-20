@@ -510,6 +510,69 @@ body {
   .hero-content { order: 0; }
 }
 
+/* ── Motion ──────────────────────────────────────────── */
+/* Physical, print-like motion: stamps, paper drops, collapsing shadows. Transform and opacity only, no blur. */
+/* Motion tokens (:root) and the shared keyframes (rg-flash, rg-shake, …) are defined above. */
+@keyframes rg-reveal-stamp {
+  from { transform: scale(1.4); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+@keyframes rg-nudge {
+  from { transform: translateY(-8px); }
+  to   { transform: translateY(0); }
+}
+@keyframes rg-sticker-wobble {
+  0%, 100% { transform: rotate(-3deg); }
+  30%      { transform: rotate(-7deg); }
+  60%      { transform: rotate(0deg); }
+}
+@keyframes rg-cover-out {
+  to { transform: translateY(100%); opacity: 0; }
+}
+
+.rg-stamp-in   { animation: rg-reveal-stamp var(--dur-slow) var(--ease-stamp) both; }
+.rg-nudge      { animation: rg-nudge 160ms var(--ease-out); }
+.rg-wobble     { animation: rg-sticker-wobble 600ms var(--ease-out); }
+.rg-reveal-cover { animation: rg-cover-out var(--dur-slow) var(--ease-out) forwards; }
+.rg-input.is-filled { animation: rg-flash 700ms var(--ease-out); }
+
+/* Landing ticker: ink band, yellow Archivo Black. Pauses on hover or focus within. */
+.rg-ticker {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  background: var(--ink);
+  color: var(--yellow);
+  border-block: 2px solid var(--ink);
+}
+.rg-ticker-track {
+  display: flex;
+  width: max-content;
+  font-family: var(--font-display);
+  font-size: 15px;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  animation: marquee 30s linear infinite;
+}
+.rg-ticker:hover .rg-ticker-track,
+.rg-ticker:focus-within .rg-ticker-track { animation-play-state: paused; }
+.rg-ticker-item { padding-right: 32px; }
+
+/* View Transitions (experimental, see next.config.ts). Duration and easing follow the tokens. */
+::view-transition-group(*) { animation-duration: var(--dur-slow); animation-timing-function: var(--ease-out); }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .rg-btn, .rg-nav { transition: none !important; }
+  .rg-stamp-in, .rg-shake, .rg-nudge, .rg-wobble, .rg-input.is-filled { animation: none !important; }
+  .rg-reveal-cover { animation: none !important; display: none; }
+  .rg-ticker-track { animation: none; }
+  .rg-ticker-copy[aria-hidden="true"] { display: none; }
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+}
+
 /* ── Dashboard & empty states (pulido del dashboard) ── */
 .rg-page-actions { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; }
 .rg-page-actions > .rg-page-primary { order: -1; flex: 1 1 100%; justify-content: center; }

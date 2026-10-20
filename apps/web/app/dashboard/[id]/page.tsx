@@ -6,10 +6,11 @@ import Link from 'next/link'
 import { deleteWishlist, addItem } from '@/app/dashboard/actions'
 import AddItemForm from './add-item-form'
 import DeleteWishlistButton from './delete-wishlist-button'
-import ItemCard from './item-card'
+import ItemList from './item-list'
 import PrivacyEditor from './privacy-editor'
 import SurpriseToggle from './surprise-toggle'
 import TrackedLink from '@/components/TrackedLink'
+import SharedElement from '@/components/SharedElement'
 import ShareActions from '@/components/ShareActions'
 
 type Props = {
@@ -76,9 +77,9 @@ export default async function ListDetailPage({ params, searchParams }: Props) {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24, gap: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <span style={{ fontFamily: 'var(--font-display)', fontSize: 40 }}>{emoji}</span>
+          <SharedElement name={`list-emoji-${list.id}`}><span style={{ fontFamily: 'var(--font-display)', fontSize: 40 }}>{emoji}</span></SharedElement>
           <div>
-            <h1 className="rg-display" style={{ fontSize: 'clamp(1.8rem, 5vw, 3rem)' }}>{list.title}</h1>
+            <SharedElement name={`list-title-${list.id}`}><h1 className="rg-display" style={{ fontSize: 'clamp(1.8rem, 5vw, 3rem)' }}>{list.title}</h1></SharedElement>
             {list.occasion_date && (
               <div className="rg-mono" style={{ fontSize: 9, color: 'var(--ink-muted)', marginTop: 4 }}>
                 {new Date(list.occasion_date).toLocaleDateString('es-AR',
@@ -148,20 +149,13 @@ export default async function ListDetailPage({ params, searchParams }: Props) {
         <div className="rg-mono" style={{ fontSize: 10, marginBottom: 14 }}>
           REGALOS ({(items ?? []).length})
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {(items ?? []).map((item: Item, index: number) => (
-            <ItemCard
-              key={item.id}
-              item={item}
-              claimer={claimMap.get(item.id) ?? null}
-              listId={id}
-              currency={list.currency}
-              isSurprise={list.is_surprise ?? false}
-              canMoveUp={index > 0}
-              canMoveDown={index < (items ?? []).length - 1}
-            />
-          ))}
-        </div>
+        <ItemList
+          items={(items ?? []) as Item[]}
+          claims={Object.fromEntries(claimMap)}
+          listId={id}
+          currency={list.currency}
+          isSurprise={list.is_surprise ?? false}
+        />
       </div>
 
       {/* Add item form */}
