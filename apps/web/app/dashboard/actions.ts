@@ -6,6 +6,7 @@ import { revalidatePath } from 'next/cache'
 import { createSlug } from 'shared'
 import { z } from 'zod'
 import { trackEvent } from '@/lib/analytics'
+import { parseEmail, parseInstagram, parsePhone, parseUsername } from '@/lib/profile-fields'
 
 const createWishlistSchema = z.object({
   title:         z.string().min(1, 'El nombre es obligatorio').max(120),
@@ -92,7 +93,9 @@ export async function createWishlist(_prevState: CreateWishlistResult, formData:
   return { redirectTo: `/dashboard/${list.id}` }
 }
 
-export async function updateProfile(_prevState: { error?: string } | null, formData: FormData): Promise<{ error?: string } | null> {
+type ProfileState = { error?: string; notice?: string } | null
+
+export async function updateProfile(_prevState: ProfileState, formData: FormData): Promise<ProfileState> {
   const supabase = await createServerSupabase()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth')
@@ -104,16 +107,75 @@ export async function updateProfile(_prevState: { error?: string } | null, formD
 
   const birthday = birthdayRaw && /^\d{4}-\d{2}-\d{2}$/.test(birthdayRaw) ? birthdayRaw : null
 
+  const { data: current } = await supabase
+    .from('profiles')
+    .select('username')
+    .eq('id', user.id)
+    .single()
+
+  const rawUsername = (formData.get('username') as string | null)?.trim() ?? ''
+  const usernameChanged = rawUsername !== (current?.username ?? '')
+  let username: string | undefined
+  if (usernameChanged) {
+    const parsed = parseUsername(rawUsername)
+    if (!parsed.ok) return { error: parsed.error }
+    const { data: taken } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('username', parsed.value)
+      .neq('id', user.id)
+      .maybeSingle()
+    if (taken) return { error: 'Ese nombre de usuario ya está en uso.' }
+    username = parsed.value
+  }
+
+  const instagram = parseInstagram((formData.get('instagram') as string | null) ?? '')
+  if (!instagram.ok) return { error: instagram.error }
+  const phone = parsePhone((formData.get('phone') as string | null) ?? '')
+  if (!phone.ok) return { error: phone.error }
+
+  const rawEmail = (formData.get('email') as string | null) ?? ''
+  const email = parseEmail(rawEmail)
+  if (!email.ok) return { error: email.error }
+  const emailChanged = email.value !== (user.email ?? '').toLowerCase()
+
   const { error } = await supabase
     .from('profiles')
-    .update({ display_name: displayName, bio, birthday, avatar_url: avatarUrl || undefined })
+    .update({
+      ...(username ? { username } : {}),
+      display_name: displayName,
+      bio,
+      birthday,
+      avatar_url: avatarUrl || undefined,
+      instagram: instagram.value,
+    })
     .eq('id', user.id)
 
-  if (error) return { error: 'No se pudo guardar el perfil.' }
+  // 23505 = unique_violation: someone claimed the username between our check and this write.
+  if (error) {
+    return { error: error.code === '23505' ? 'Ese nombre de usuario ya está en uso.' : 'No se pudo guardar el perfil.' }
+  }
+
+  // Phone is private: stored in profile_contacts (owner-only RLS), never in the public profiles row.
+  const { error: phoneError } = await supabase
+    .from('profile_contacts')
+    .upsert({ id: user.id, phone: phone.value }, { onConflict: 'id' })
+  if (phoneError) return { error: 'No se pudo guardar el teléfono.' }
+
+  // Supabase Auth sends a confirmation link to the new address; the old one stays active until it is clicked.
+  let notice: string | undefined
+  if (emailChanged) {
+    const { error: emailError } = await supabase.auth.updateUser({ email: email.value })
+    if (emailError) {
+      return { error: 'El perfil se guardó, pero no se pudo cambiar el mail. Revisá que no esté en uso por otra cuenta.' }
+    }
+    notice = 'Te mandamos un mail a la dirección nueva. Confirmala para que el cambio quede activo.'
+  }
 
   revalidatePath('/dashboard')
   revalidatePath('/dashboard/profile')
-  return null
+  if (username) revalidatePath(`/${username}`)
+  return notice ? { notice } : null
 }
 
 export async function updateSurprise(listId: string, isSurprise: boolean) {

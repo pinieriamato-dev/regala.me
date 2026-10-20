@@ -9,9 +9,14 @@ type Profile = {
   bio: string | null
   birthday: string | null
   avatar_url: string | null
+  instagram: string | null
+  phone: string | null
 }
 
-export default function ProfileForm({ profile }: { profile: Profile | null }) {
+const labelStyle = { fontSize: 9, marginBottom: 6, color: 'rgba(15,15,15,0.6)' }
+const hintStyle = { fontSize: 8, marginTop: 4, color: 'rgba(15,15,15,0.4)' }
+
+export default function ProfileForm({ profile, email }: { profile: Profile | null; email: string }) {
   const [state, action, pending]  = useActionState(updateProfile, null)
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url ?? '')
   const [uploading, setUploading] = useState(false)
@@ -105,8 +110,14 @@ export default function ProfileForm({ profile }: { profile: Profile | null }) {
 
       <div className="rg-divider" />
 
+      {state?.notice && (
+        <p style={{ fontSize: 12, color: 'var(--ink)', background: 'var(--green)', border: '2px solid var(--ink)', padding: '10px 12px', fontWeight: 700, margin: 0 }}>
+          {state.notice}
+        </p>
+      )}
+
       <div>
-        <div className="rg-mono" style={{ fontSize: 9, marginBottom: 6, color: 'rgba(15,15,15,0.6)' }}>NOMBRE</div>
+        <div className="rg-mono" style={labelStyle}>NOMBRE</div>
         <input
           name="display_name"
           type="text"
@@ -116,6 +127,83 @@ export default function ProfileForm({ profile }: { profile: Profile | null }) {
           className="rg-input"
           style={{ fontSize: 14, fontWeight: 700 }}
         />
+      </div>
+
+      <div>
+        <div className="rg-mono" style={labelStyle}>NOMBRE DE USUARIO</div>
+        <div style={{ display: 'flex', alignItems: 'stretch' }}>
+          <span className="rg-mono" style={{
+            display: 'flex', alignItems: 'center', padding: '0 10px', fontSize: 11,
+            border: '2px solid var(--ink)', borderRight: 'none', background: 'var(--bg)', whiteSpace: 'nowrap',
+          }}>
+            regala.me/
+          </span>
+          <input
+            name="username"
+            type="text"
+            maxLength={30}
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            defaultValue={profile?.username ?? ''}
+            placeholder="tu-usuario"
+            className="rg-input"
+            style={{ fontSize: 14, fontWeight: 700, flex: 1, minWidth: 0 }}
+          />
+        </div>
+        <div className="rg-mono" style={hintStyle}>
+          Es la dirección de tu perfil. Si la cambiás, los links viejos a tus listas dejan de funcionar.
+        </div>
+      </div>
+
+      <div>
+        <div className="rg-mono" style={labelStyle}>MAIL</div>
+        <input
+          name="email"
+          type="email"
+          required
+          maxLength={254}
+          autoComplete="email"
+          defaultValue={email}
+          className="rg-input"
+          style={{ fontSize: 13 }}
+        />
+        <div className="rg-mono" style={hintStyle}>
+          Si lo cambiás, te mandamos un mail para confirmar la dirección nueva.
+        </div>
+      </div>
+
+      <div>
+        <div className="rg-mono" style={labelStyle}>INSTAGRAM</div>
+        <input
+          name="instagram"
+          type="text"
+          maxLength={100}
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          defaultValue={profile?.instagram ? `@${profile.instagram}` : ''}
+          placeholder="@tuusuario"
+          className="rg-input"
+          style={{ fontSize: 13 }}
+        />
+      </div>
+
+      <div>
+        <div className="rg-mono" style={labelStyle}>TELÉFONO</div>
+        <input
+          name="phone"
+          type="tel"
+          maxLength={25}
+          autoComplete="tel"
+          defaultValue={profile?.phone ?? ''}
+          placeholder="+54 11 1234 5678"
+          className="rg-input"
+          style={{ fontSize: 13 }}
+        />
+        <div className="rg-mono" style={hintStyle}>
+          No se muestra en tu perfil público.
+        </div>
       </div>
 
       <div>
