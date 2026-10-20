@@ -58,7 +58,7 @@ export default function ItemImageField({ defaultValue }: { defaultValue?: string
       >
         {uploading ? 'SUBIENDO...' : 'SUBIR FOTO DESDE EL CELULAR'}
       </button>
-      {error && <p style={{ fontSize: 11, color: 'var(--red)', fontWeight: 700, margin: 0 }}>{error}</p>}
+      {error && <p style={{ fontSize: 11, color: 'var(--red-ink)', fontWeight: 700, margin: 0 }}>{error}</p>}
     </div>
   )
 }
