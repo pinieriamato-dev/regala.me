@@ -276,3 +276,32 @@ body {
   }
   .hero-content { order: 0; }
 }
+
+/* ── Dashboard & empty states (pulido del dashboard) ── */
+.rg-page-actions { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; }
+.rg-page-actions > .rg-page-primary { order: -1; flex: 1 1 100%; justify-content: center; }
+.rg-page-actions > .rg-page-secondary { flex: 1 1 0; justify-content: center; padding: 9px 14px; font-size: 11px; }
+@media (min-width: 640px) {
+  .rg-page-actions { width: auto; }
+  .rg-page-actions > .rg-page-primary { order: 0; flex: none; }
+  .rg-page-actions > .rg-page-secondary { flex: none; }
+}
+
+/* Whole card is clickable: the stretched link covers the card, other controls sit above it. */
+.rg-card-link { position: relative; }
+.rg-stretch::after { content: ""; position: absolute; inset: 0; }
+.rg-card-link .rg-raise { position: relative; z-index: 1; }
+
+.rg-empty {
+  padding: 40px 24px;
+  text-align: center;
+  border: 2px dashed var(--ink);
+  background: var(--paper);
+}
+
+.rg-merge-grid { display: grid; grid-template-columns: 1fr 32px 1fr; gap: 12px; align-items: start; }
+.rg-merge-arrow { font-family: var(--font-display); font-size: 22px; text-align: center; padding-top: 44px; }
+@media (max-width: 559px) {
+  .rg-merge-grid { grid-template-columns: 1fr; }
+  .rg-merge-arrow { padding-top: 0; transform: rotate(90deg); line-height: 1; }
+}

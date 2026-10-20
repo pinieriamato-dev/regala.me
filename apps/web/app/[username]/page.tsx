@@ -99,8 +99,11 @@ export default async function UserProfilePage({ params }: Props) {
         {!profile.bio && !profile.birthday && <div style={{ marginBottom: 28 }} />}
 
         {(lists ?? []).length === 0 ? (
-          <div style={{ padding: '40px 24px', textAlign: 'center', border: '2px dashed var(--ink)' }}>
-            <p style={{ fontSize: 14, color: 'rgba(15,15,15,0.55)' }}>No hay listas públicas todavía.</p>
+          <div className="rg-empty">
+            <div className="rg-display" style={{ fontSize: 28, marginBottom: 10 }}>NADA POR ACÁ <span className="rg-em">TODAVÍA.</span></div>
+            <p style={{ fontSize: 14, color: 'rgba(15,15,15,0.65)', margin: 0 }}>
+              Cuando {profile.display_name ?? username} publique una lista, la vas a ver acá.
+            </p>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -111,7 +114,7 @@ export default async function UserProfilePage({ params }: Props) {
                 className="rg-card"
                 style={{ padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 16, textDecoration: 'none', color: 'var(--ink)' }}
               >
-                <span style={{ fontSize: 32 }}>{occasionEmoji(list.occasion as OccasionId)}</span>
+                <span aria-hidden="true" style={{ fontSize: 32 }}>{occasionEmoji(list.occasion as OccasionId)}</span>
                 <div>
                   <div style={{ fontWeight: 800, fontSize: 15 }}>{list.title}</div>
                   {list.occasion_date && (

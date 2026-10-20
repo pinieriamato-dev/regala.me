@@ -33,6 +33,9 @@ export default async function DashboardPage() {
     (claims ?? []).filter((c: { is_group_gift: boolean | null }) => !c.is_group_gift).map((c: { item_id: string }) => c.item_id)
   )
 
+  // The onboarding tip only matters until the user adds something to a list.
+  const hasItems = (lists ?? []).some(l => (l.items ?? []).length > 0)
+
   return (
     <div>
       {/* Header */}
@@ -43,24 +46,135 @@ export default async function DashboardPage() {
             TUS <span className="rg-em">LISTAS.</span>
           </h1>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div className="rg-page-actions">
+          <Link href="/dashboard/new" className="rg-btn rg-btn-primary rg-page-primary">
+            + NUEVA LISTA
+          </Link>
           {(lists ?? []).length >= 2 && (
-            <Link href="/dashboard/merge" className="rg-btn rg-btn-ghost" style={{ padding: '9px 14px', fontSize: 11 }}>
+            <Link href="/dashboard/merge" className="rg-btn rg-btn-ghost rg-page-secondary">
               COMBINAR
             </Link>
           )}
-          <Link href="/dashboard/amigo" className="rg-btn rg-btn-ghost" style={{ padding: '9px 14px', fontSize: 11 }}>
+          <Link href="/dashboard/amigo" className="rg-btn rg-btn-ghost rg-page-secondary">
             AMIGO INVISIBLE
-          </Link>
-          <Link href="/dashboard/new" className="rg-btn rg-btn-primary">
-            + NUEVO EVENTO
           </Link>
         </div>
       </div>
 
-      {/* Profile link */}
+      {/* URL extraction tip: shown until the user has added at least one item */}
+      {!hasItems && (
+        <div style={{
+          marginBottom: 28, padding: '14px 18px',
+          background: 'var(--yellow)', border: '2px solid var(--ink)', boxShadow: 'var(--shadow-sm)',
+          display: 'flex', alignItems: 'center', gap: 14, fontSize: 13, fontWeight: 700,
+        }}>
+          <span aria-hidden="true" style={{ fontFamily: 'var(--font-display)', fontSize: 24 }}>🔗</span>
+          <div>
+            <div>PEGÁS EL LINK → NOSOTROS LLENAMOS TODO.</div>
+            <div style={{ fontWeight: 400, fontSize: 12, marginTop: 2 }}>
+              Mercado Libre, Amazon, Tiendanube — copiás el link del producto y extraemos nombre, precio e imagen automáticamente.
+            </div>
+          </div>
+        </div>
+      )}
+
+      {(lists ?? []).length === 0 ? (
+        <div style={{
+          padding: '60px 32px', textAlign: 'center',
+          border: '2px dashed var(--ink)', background: 'var(--paper)',
+        }}>
+          <div aria-hidden="true" className="rg-display" style={{ fontSize: 80, lineHeight: 1, marginBottom: 14 }}>🎁</div>
+          <h2 className="rg-display" style={{ fontSize: 36, marginBottom: 8 }}>
+            TU PRIMERA <span className="rg-em">LISTA.</span>
+          </h2>
+          <p style={{ fontSize: 14, color: 'rgba(15,15,15,0.65)', marginBottom: 24, maxWidth: 320, margin: '0 auto 24px' }}>
+            Agrega los regalos que querés y compartí el link con quien quieras.
+          </p>
+          <Link href="/dashboard/new" className="rg-btn rg-btn-primary">CREAR LISTA →</Link>
+        </div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>
+          {(lists ?? []).map((list) => {
+            const listItems = (list.items ?? []) as { id: string }[]
+            const claimed   = listItems.filter(i => claimedSet.has(i.id)).length
+            const total     = listItems.length
+            const progress  = total > 0 ? Math.round((claimed / total) * 100) : 0
+            const emoji     = list.occasion ? occasionEmoji(list.occasion as OccasionId) : '●'
+            const shareUrl  = profile?.username
+              ? `${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://regala.me'}/${profile.username}/${list.slug}`
+              : null
+
+            return (
+              <div key={list.id} className="rg-card rg-card-link" style={{ padding: 20 }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <span aria-hidden="true" style={{ fontFamily: 'var(--font-display)', fontSize: 32 }}>{emoji}</span>
+                    <div>
+                      <h2 style={{ fontWeight: 800, fontSize: 15, lineHeight: 1.2, margin: 0 }}>{list.title}</h2>
+                      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'rgba(15,15,15,0.5)', marginTop: 3 }}>
+                        {list.occasion_date
+                          ? new Date(list.occasion_date).toLocaleDateString('es-AR', { day: 'numeric', month: 'long' })
+                          : 'SIN FECHA'}
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
+                    {list.is_default && (
+                      <span className="rg-sticker" style={{ fontSize: 8 }}>PRINCIPAL</span>
+                    )}
+                    {list.is_surprise && (
+                      <span className="rg-sticker rg-sticker-ink" style={{ fontSize: 8 }}>SORPRESA</span>
+                    )}
+                    {list.privacy_level === 'link_only' && (
+                      <span className="rg-sticker rg-sticker-paper" style={{ fontSize: 8 }}><span aria-hidden="true">🔗 </span>LINK</span>
+                    )}
+                    {list.privacy_level === 'private' && (
+                      <span className="rg-sticker rg-sticker-ink" style={{ fontSize: 8 }}><span aria-hidden="true">🔒 </span>PRIVADA</span>
+                    )}
+                  </div>
+                </div>
+
+                {total > 0 && list.is_surprise && (
+                  <div className="rg-mono" style={{ fontSize: 9, marginBottom: 14, color: 'rgba(15,15,15,0.5)' }}>
+                    {total} ÍTEMS · LO RECLAMADO ES SORPRESA
+                  </div>
+                )}
+
+                {total > 0 && !list.is_surprise && (
+                  <div style={{ marginBottom: 14 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'var(--font-mono)', fontSize: 9, marginBottom: 5, color: 'rgba(15,15,15,0.5)' }}>
+                      <span>{claimed} RECLAMADOS</span><span>{total} ÍTEMS</span>
+                    </div>
+                    <div style={{ height: 6, background: 'rgba(15,15,15,0.12)', border: '1px solid var(--ink)', borderRadius: 2 }}>
+                      <div style={{ height: '100%', background: 'var(--green)', width: `${progress}%`, transition: 'width 0.3s' }} />
+                    </div>
+                  </div>
+                )}
+
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <Link href={`/dashboard/${list.id}`} className="rg-btn rg-btn-ghost rg-stretch" style={{ flex: 1, padding: '10px', fontSize: 11, justifyContent: 'center' }}>
+                    GESTIONAR
+                  </Link>
+                  {shareUrl && list.privacy_level !== 'private' && (
+                    <a
+                      href={`https://wa.me/?text=${encodeURIComponent(`¡Hola! Esta es mi lista: ${shareUrl}`)}`}
+                      target="_blank" rel="noopener noreferrer"
+                      className="rg-btn rg-raise"
+                      style={{ flex: 1, padding: '10px', fontSize: 11, justifyContent: 'center',
+                               background: '#25D366', color: '#0F0F0F', border: '2px solid var(--ink)', boxShadow: 'var(--shadow-sm)' }}>
+                      COMPARTIR
+                    </a>
+                  )}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {/* Profile link: below the lists, so they come first */}
       {profile?.username && (
-        <div className="rg-card-ink" style={{ padding: '16px 20px', marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+        <div className="rg-card-ink" style={{ padding: '16px 20px', marginTop: 32, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
           <div style={{ minWidth: 0 }}>
             <div className="rg-mono" style={{ fontSize: 9, color: 'rgba(251,248,238,0.5)', marginBottom: 4 }}>TU PERFIL PÚBLICO</div>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--paper)', wordBreak: 'break-all' }}>
@@ -86,115 +200,6 @@ export default async function DashboardPage() {
               COMPARTIR
             </a>
           </div>
-        </div>
-      )}
-
-      {/* URL extraction tip */}
-      <div style={{
-        marginBottom: 28, padding: '14px 18px',
-        background: 'var(--yellow)', border: '2px solid var(--ink)', boxShadow: 'var(--shadow-sm)',
-        display: 'flex', alignItems: 'center', gap: 14, fontSize: 13, fontWeight: 700,
-      }}>
-        <span style={{ fontFamily: 'var(--font-display)', fontSize: 24 }}>🔗</span>
-        <div>
-          <div>PEGÁS EL LINK → NOSOTROS LLENAMOS TODO.</div>
-          <div style={{ fontWeight: 400, fontSize: 12, marginTop: 2 }}>
-            Mercado Libre, Amazon, Tiendanube — copiás el link del producto y extraemos nombre, precio e imagen automáticamente.
-          </div>
-        </div>
-      </div>
-
-      {(lists ?? []).length === 0 ? (
-        <div style={{
-          padding: '60px 32px', textAlign: 'center',
-          border: '2px dashed var(--ink)', background: 'var(--paper)',
-        }}>
-          <div className="rg-display" style={{ fontSize: 80, lineHeight: 1, marginBottom: 14 }}>🎁</div>
-          <h2 className="rg-display" style={{ fontSize: 36, marginBottom: 8 }}>
-            TU PRIMERA <span className="rg-em">LISTA.</span>
-          </h2>
-          <p style={{ fontSize: 14, color: 'rgba(15,15,15,0.65)', marginBottom: 24, maxWidth: 320, margin: '0 auto 24px' }}>
-            Agrega los regalos que querés y compartí el link con quien quieras.
-          </p>
-          <Link href="/dashboard/new" className="rg-btn rg-btn-primary">CREAR LISTA →</Link>
-        </div>
-      ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>
-          {(lists ?? []).map((list) => {
-            const listItems = (list.items ?? []) as { id: string }[]
-            const claimed   = listItems.filter(i => claimedSet.has(i.id)).length
-            const total     = listItems.length
-            const progress  = total > 0 ? Math.round((claimed / total) * 100) : 0
-            const emoji     = list.occasion ? occasionEmoji(list.occasion as OccasionId) : '●'
-            const shareUrl  = profile?.username
-              ? `${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://regala.me'}/${profile.username}/${list.slug}`
-              : null
-
-            return (
-              <div key={list.id} className="rg-card" style={{ padding: 20 }}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <span style={{ fontFamily: 'var(--font-display)', fontSize: 32 }}>{emoji}</span>
-                    <div>
-                      <div style={{ fontWeight: 800, fontSize: 15, lineHeight: 1.2 }}>{list.title}</div>
-                      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'rgba(15,15,15,0.5)', marginTop: 3 }}>
-                        {list.occasion_date
-                          ? new Date(list.occasion_date).toLocaleDateString('es-AR', { day: 'numeric', month: 'long' })
-                          : 'SIN FECHA'}
-                      </div>
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
-                    {list.is_default && (
-                      <span className="rg-sticker" style={{ fontSize: 8 }}>PRINCIPAL</span>
-                    )}
-                    {list.is_surprise && (
-                      <span className="rg-sticker rg-sticker-ink" style={{ fontSize: 8 }}>SORPRESA</span>
-                    )}
-                    {list.privacy_level === 'link_only' && (
-                      <span className="rg-sticker rg-sticker-paper" style={{ fontSize: 8 }}>🔗 LINK</span>
-                    )}
-                    {list.privacy_level === 'private' && (
-                      <span className="rg-sticker rg-sticker-ink" style={{ fontSize: 8 }}>🔒 PRIVADA</span>
-                    )}
-                  </div>
-                </div>
-
-                {total > 0 && list.is_surprise && (
-                  <div className="rg-mono" style={{ fontSize: 9, marginBottom: 14, color: 'rgba(15,15,15,0.5)' }}>
-                    {total} ÍTEMS · LO RECLAMADO ES SORPRESA
-                  </div>
-                )}
-
-                {total > 0 && !list.is_surprise && (
-                  <div style={{ marginBottom: 14 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'var(--font-mono)', fontSize: 9, marginBottom: 5, color: 'rgba(15,15,15,0.5)' }}>
-                      <span>{claimed} RECLAMADOS</span><span>{total} ÍTEMS</span>
-                    </div>
-                    <div style={{ height: 6, background: 'rgba(15,15,15,0.12)', border: '1px solid var(--ink)', borderRadius: 2 }}>
-                      <div style={{ height: '100%', background: 'var(--green)', width: `${progress}%`, transition: 'width 0.3s' }} />
-                    </div>
-                  </div>
-                )}
-
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <Link href={`/dashboard/${list.id}`} className="rg-btn rg-btn-ghost" style={{ flex: 1, padding: '10px', fontSize: 11, justifyContent: 'center' }}>
-                    GESTIONAR
-                  </Link>
-                  {shareUrl && list.privacy_level !== 'private' && (
-                    <a
-                      href={`https://wa.me/?text=${encodeURIComponent(`¡Hola! Esta es mi lista: ${shareUrl}`)}`}
-                      target="_blank" rel="noopener noreferrer"
-                      className="rg-btn"
-                      style={{ flex: 1, padding: '10px', fontSize: 11, justifyContent: 'center',
-                               background: '#25D366', color: '#0F0F0F', border: '2px solid var(--ink)', boxShadow: 'var(--shadow-sm)' }}>
-                      COMPARTIR
-                    </a>
-                  )}
-                </div>
-              </div>
-            )
-          })}
         </div>
       )}
     </div>

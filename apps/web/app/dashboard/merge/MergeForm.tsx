@@ -43,11 +43,11 @@ export default function MergeForm({ lists }: { lists: ListSummary[] }) {
       </div>
 
       {/* Two-column selector */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 32px 1fr', gap: 12, alignItems: 'start' }}>
+      <div className="rg-merge-grid">
         {/* Source */}
         <div>
           <div className="rg-mono" style={{ fontSize: 10, marginBottom: 12, color: 'rgba(15,15,15,0.6)' }}>
-            LISTA A — SE DISUELVE
+            1. ELEGÍ LA LISTA QUE SE DISUELVE
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {lists.map(list => {
@@ -80,16 +80,14 @@ export default function MergeForm({ lists }: { lists: ListSummary[] }) {
         </div>
 
         {/* Arrow */}
-        <div style={{
-          fontFamily: 'var(--font-display)', fontSize: 22,
-          color: canMerge ? 'var(--ink)' : 'rgba(15,15,15,0.2)',
-          paddingTop: 44, textAlign: 'center', transition: 'color 0.15s',
+        <div aria-hidden="true" className="rg-merge-arrow" style={{
+          color: canMerge ? 'var(--ink)' : 'rgba(15,15,15,0.2)', transition: 'color 0.15s',
         }}>→</div>
 
         {/* Target */}
         <div>
           <div className="rg-mono" style={{ fontSize: 10, marginBottom: 12, color: 'rgba(15,15,15,0.6)' }}>
-            LISTA B — SE MANTIENE
+            2. ¿A CUÁL VAN LOS ÍTEMS?
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {lists.map(list => {
