@@ -39,7 +39,7 @@ export default function AddItemForm({ listId, currency }: { listId: string; curr
       if (!res.ok) { setExtractError(data.error ?? 'Error al extraer'); return }
       const anyData = data.title || data.description || data.price || data.image_url
       if (!anyData) {
-        setExtractError('No se pudieron extraer datos. Completá el formulario manualmente.')
+        setExtractError('No pudimos leer ese link. Completalo a mano, es un toque.')
         return
       }
       setExtracted(data)
@@ -84,14 +84,14 @@ export default function AddItemForm({ listId, currency }: { listId: string; curr
         className="rg-btn rg-btn-ghost"
         style={{ width: '100%', padding: '16px', fontSize: 12, border: '2px dashed var(--ink)' }}
       >
-        + AGREGAR ÍTEM
+        + AGREGAR REGALO
       </button>
     )
   }
 
   return (
     <div className="rg-card" style={{ padding: 22 }}>
-      <div className="rg-mono" style={{ fontSize: 10, marginBottom: 18 }}>NUEVO ÍTEM</div>
+      <div className="rg-mono" style={{ fontSize: 10, marginBottom: 18 }}>NUEVO REGALO</div>
 
       {/* URL extractor */}
       <div className="rg-card-yellow" style={{ padding: 16, marginBottom: 20 }}>
@@ -212,7 +212,7 @@ export default function AddItemForm({ listId, currency }: { listId: string; curr
             className="rg-btn rg-btn-primary"
             style={{ flex: 1, padding: '12px', fontSize: 12, opacity: pending ? 0.6 : 1 }}
           >
-            {pending ? '...' : 'AGREGAR ÍTEM'}
+            {pending ? '...' : 'AGREGAR REGALO'}
           </button>
         </div>
       </form>

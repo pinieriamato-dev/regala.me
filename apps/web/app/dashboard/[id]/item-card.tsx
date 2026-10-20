@@ -144,10 +144,10 @@ export default function ItemCard({ item, claimer, listId, currency, isSurprise, 
             <span className="rg-mono" style={{ fontSize: 9, color: 'var(--ink)' }}>
               {confirming === 'delete'
                 ? isClaimed
-                  ? `¿BORRAR ESTE ÍTEM? ${displayedClaimer?.toUpperCase()} YA LO RECLAMÓ.`
+                  ? `¿BORRAR ESTE REGALO? ${displayedClaimer?.toUpperCase()} YA LO RECLAMÓ.`
                   : isSurprise
-                    ? '¿BORRAR ESTE ÍTEM? SI ALGUIEN LO RECLAMÓ, SE PIERDE.'
-                    : '¿BORRAR ESTE ÍTEM? NO SE PUEDE DESHACER.'
+                    ? '¿BORRAR ESTE REGALO? SI ALGUIEN LO RECLAMÓ, SE PIERDE.'
+                    : '¿BORRAR ESTE REGALO? NO SE PUEDE DESHACER.'
                 : `¿LIBERAR? ${displayedClaimer?.toUpperCase()} YA NO LO VA A TENER RECLAMADO.`}
             </span>
             <div style={{ display: 'flex', gap: 8 }}>
@@ -259,7 +259,7 @@ function EditForm({
     >
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         <div className="rg-mono" style={{ fontSize: 9, marginBottom: 2, color: 'rgba(15,15,15,0.6)' }}>
-          EDITANDO ÍTEM
+          EDITANDO REGALO
         </div>
         <input
           name="title"

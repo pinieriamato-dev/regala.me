@@ -163,7 +163,7 @@ export default function GifterItems({ items, claimedIds, currency, ownerSurprise
                       textTransform: 'uppercase', letterSpacing: -0.3,
                     }}
                   >
-                    ¡GRACIAS! ¿TENÉS UN CUMPLE PRÓXIMAMENTE?<br />
+                    ¡GRACIAS! ¿SE VIENE TU CUMPLE?<br />
                     <span style={{ fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 10 }}>
                       Armá tu lista en 2 min →
                     </span>

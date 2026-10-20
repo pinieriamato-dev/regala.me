@@ -180,13 +180,13 @@ export default async function GifterPage({ params }: Props) {
             <span style={{ color: 'var(--yellow)' }}>TU PROPIA LISTA?</span>
           </div>
           <TrackedLink
-            href="/"
+            href="/auth?mode=signup"
             listId={data.list.id}
             event="signup_from_gifter_footer"
             className="rg-btn rg-btn-yellow"
             style={{ padding: '12px 22px', fontSize: 13 }}
           >
-            CREAR LISTA GRATIS →
+            ARMÁ LA TUYA →
           </TrackedLink>
         </div>
       </div>

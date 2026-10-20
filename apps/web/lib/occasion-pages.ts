@@ -23,7 +23,7 @@ export const OCCASION_PAGES = {
     title: 'Lista de regalos para casamiento',
     intro: 'Que los invitados elijan algo para la casa nueva sin que dos personas compren lo mismo.',
     tips: [
-      'Armá la lista con cosas para la casa de a poco. Podés agregar, editar o sacar ítems cuando quieras.',
+      'Armá la lista con cosas para la casa de a poco. Podés agregar, editar o sacar regalos cuando quieras.',
       'Compartí el link en la invitación o en el grupo de la familia.',
       'Mirá quién reclamó qué desde tu panel, o activá el modo sorpresa si no querés ver los nombres.',
     ],
