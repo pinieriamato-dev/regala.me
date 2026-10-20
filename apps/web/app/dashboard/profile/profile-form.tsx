@@ -110,12 +110,6 @@ export default function ProfileForm({ profile, email }: { profile: Profile | nul
 
       <div className="rg-divider" />
 
-      {state?.notice && (
-        <p style={{ fontSize: 12, color: 'var(--ink)', background: 'var(--green)', border: '2px solid var(--ink)', padding: '10px 12px', fontWeight: 700, margin: 0 }}>
-          {state.notice}
-        </p>
-      )}
-
       <div>
         <div className="rg-mono" style={labelStyle}>NOMBRE</div>
         <input
@@ -232,8 +226,16 @@ export default function ProfileForm({ profile, email }: { profile: Profile | nul
         </div>
       </div>
 
+      {/* Save result, right above the submit button so it shows without scrolling. */}
       {state?.error && (
-        <p style={{ fontSize: 12, color: 'var(--red)', fontWeight: 700, margin: 0 }}>{state.error}</p>
+        <p role="alert" style={{ fontSize: 12, color: 'var(--paper)', background: 'var(--red)', border: '2px solid var(--ink)', boxShadow: 'var(--shadow-sm)', padding: '12px 14px', fontWeight: 700, margin: 0 }}>
+          ! {state.error}
+        </p>
+      )}
+      {state?.notice && (
+        <p role="status" style={{ fontSize: 12, color: 'var(--ink)', background: 'var(--green)', border: '2px solid var(--ink)', boxShadow: 'var(--shadow-sm)', padding: '12px 14px', fontWeight: 700, margin: 0 }}>
+          ✓ {state.notice}
+        </p>
       )}
 
       <button
@@ -242,7 +244,7 @@ export default function ProfileForm({ profile, email }: { profile: Profile | nul
         className="rg-btn rg-btn-primary"
         style={{ padding: '14px', fontSize: 13, opacity: (pending || uploading) ? 0.6 : 1 }}
       >
-        {pending ? '...' : 'GUARDAR CAMBIOS'}
+        {pending ? 'GUARDANDO...' : 'GUARDAR CAMBIOS'}
       </button>
     </form>
   )
