@@ -3,6 +3,7 @@ import { occasionEmoji } from 'shared'
 import type { OccasionId } from 'shared'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import ShareActions from '@/components/ShareActions'
 
 export default async function DashboardPage() {
   const supabase = await createServerSupabase()
@@ -85,6 +86,9 @@ export default async function DashboardPage() {
             >
               COMPARTIR
             </a>
+          </div>
+          <div style={{ width: '100%' }}>
+            <ShareActions compact url={`${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://regala.me'}/${profile.username}`} title="Mis listas de regalos en regala.me" />
           </div>
         </div>
       )}
@@ -192,6 +196,11 @@ export default async function DashboardPage() {
                     </a>
                   )}
                 </div>
+                {shareUrl && list.privacy_level !== 'private' && (
+                  <div style={{ marginTop: 8 }}>
+                    <ShareActions compact url={shareUrl} title={list.title} />
+                  </div>
+                )}
               </div>
             )
           })}

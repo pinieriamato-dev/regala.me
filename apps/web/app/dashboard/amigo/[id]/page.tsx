@@ -3,6 +3,7 @@ import { decodeParam } from '@/lib/params'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import DrawButton from './DrawButton'
+import ShareActions from '@/components/ShareActions'
 
 type Member = { display_name: string; has_list: boolean }
 type Assignment = { display_name: string; username: string | null; slug: string | null } | null
@@ -80,7 +81,9 @@ export default async function AmigoGroupPage({ params }: Props) {
       {!group.drawn && (
         <div className="rg-card" style={{ padding: 20, marginBottom: 24 }}>
           <div className="rg-mono" style={{ fontSize: 9, marginBottom: 8, color: 'rgba(15,15,15,0.6)' }}>LINK DE INVITACIÓN</div>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, wordBreak: 'break-all', marginBottom: 14 }}>{inviteUrl}</div>
+          <div style={{ marginBottom: 14 }}>
+            <ShareActions url={inviteUrl} title={`Amigo invisible: ${group.name}`} />
+          </div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <a
               href={`https://wa.me/?text=${encodeURIComponent(`¡Armemos el amigo invisible! Entrá acá y creá tu lista: ${inviteUrl}`)}`}

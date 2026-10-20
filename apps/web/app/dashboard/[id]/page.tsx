@@ -10,6 +10,7 @@ import ItemCard from './item-card'
 import PrivacyEditor from './privacy-editor'
 import SurpriseToggle from './surprise-toggle'
 import TrackedLink from '@/components/TrackedLink'
+import ShareActions from '@/components/ShareActions'
 
 type Props = {
   params: Promise<{ id: string }>
@@ -107,7 +108,9 @@ export default async function ListDetailPage({ params, searchParams }: Props) {
             <div className="rg-mono" style={{ fontSize: 9, color: 'rgba(251,248,238,0.5)', marginBottom: 6 }}>
               {list.privacy_level === 'link_only' ? '🔗 LINK PRIVADO — SOLO QUIEN TENGA EL LINK PUEDE VERLA' : list.privacy_level === 'friends' ? '👥 SOLO AMIGOS — LA VEN TUS AMIGOS EN LA APP' : 'LINK PÚBLICO DE TU LISTA'}
             </div>
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, wordBreak: 'break-all', marginBottom: 16, opacity: 0.8 }}>{shareUrl}</p>
+            <div style={{ marginBottom: 16 }}>
+              <ShareActions url={shareUrl} title={list.title} />
+            </div>
             <div style={{ display: 'flex', gap: 10 }}>
               <TrackedLink
                 href={whatsappUrl}
