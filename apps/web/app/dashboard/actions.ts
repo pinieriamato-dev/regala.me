@@ -148,7 +148,6 @@ export async function updateProfile(_prevState: ProfileState, formData: FormData
       birthday,
       avatar_url: avatarUrl || undefined,
       instagram: instagram.value,
-      phone: phone.value,
     })
     .eq('id', user.id)
 
@@ -156,6 +155,12 @@ export async function updateProfile(_prevState: ProfileState, formData: FormData
   if (error) {
     return { error: error.code === '23505' ? 'Ese nombre de usuario ya está en uso.' : 'No se pudo guardar el perfil.' }
   }
+
+  // Phone is private: stored in profile_contacts (owner-only RLS), never in the public profiles row.
+  const { error: phoneError } = await supabase
+    .from('profile_contacts')
+    .upsert({ id: user.id, phone: phone.value }, { onConflict: 'id' })
+  if (phoneError) return { error: 'No se pudo guardar el teléfono.' }
 
   // Supabase Auth sends a confirmation link to the new address; the old one stays active until it is clicked.
   let notice: string | undefined
