@@ -7,6 +7,7 @@ import type { CreateWishlistResult } from '@/app/dashboard/actions'
 import { OCCASIONS, CURRENCIES } from 'shared'
 import type { OccasionId, Currency } from 'shared'
 import Link from 'next/link'
+import { Field } from '@/components/Field'
 
 const PERSONAL = { id: 'personal' as const, label: 'Lista personal', emoji: '✨' }
 
@@ -30,6 +31,7 @@ export default function NewListPage() {
   // button re-enables between the action resolving and the redirect landing.
   const submitted = useRef(false)
   const busy = pending || (!!state && 'redirectTo' in state)
+  const activePrivacy = PRIVACY_OPTIONS.find((opt) => opt.value === privacy)
 
   useEffect(() => {
     if (state && 'redirectTo' in state) {
@@ -55,7 +57,7 @@ export default function NewListPage() {
     <div style={{ maxWidth: 560, margin: '0 auto' }}>
       {/* Breadcrumb */}
       <div style={{ marginBottom: 20 }}>
-        <Link href="/dashboard" className="rg-mono" style={{ color: 'rgba(15,15,15,0.5)', textDecoration: 'none', fontSize: 10 }}>
+        <Link href="/dashboard" className="rg-mono" style={{ color: 'var(--ink-muted)', textDecoration: 'none', fontSize: 10 }}>
           ← MIS LISTAS
         </Link>
       </div>
@@ -66,35 +68,36 @@ export default function NewListPage() {
 
       <div className="rg-card" style={{ padding: 28 }}>
         {state && 'error' in state && (
-          <p style={{ color: 'var(--red)', fontWeight: 700, fontSize: 13, marginBottom: 16, padding: '10px 14px', border: '2px solid var(--red)' }}>
+          <p role="alert" style={{ color: 'var(--red-ink)', fontWeight: 700, fontSize: 13, marginBottom: 16, padding: '10px 14px', border: '2px solid var(--red)' }}>
             {state.error}
           </p>
         )}
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
 
           {/* Title */}
-          <div>
-            <div className="rg-mono" style={{ fontSize: 9, marginBottom: 8, color: 'rgba(15,15,15,0.6)' }}>
-              NOMBRE DE LA LISTA *
-            </div>
+          <Field label="Nombre de la lista">
             <input
               name="title"
               type="text"
               required
+              autoComplete="off"
+              autoCapitalize="sentences"
+              enterKeyHint="next"
               placeholder={occasion === 'personal' ? 'Ej: Mi lista de deseos' : 'Ej: Mi cumple 30'}
               className="rg-input"
               style={{ fontSize: 14 }}
             />
-          </div>
+          </Field>
 
           {/* Occasion */}
           <div>
-            <div className="rg-mono" style={{ fontSize: 9, marginBottom: 10, color: 'rgba(15,15,15,0.6)' }}>
+            <div className="rg-mono" style={{ fontSize: 9, marginBottom: 10, color: 'var(--ink-muted)' }}>
               TIPO DE LISTA
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
               <button
                 type="button"
+                aria-pressed={occasion === 'personal'}
                 onClick={() => setOccasion(occasion === 'personal' ? '' : 'personal')}
                 className="rg-btn"
                 style={{
@@ -111,6 +114,7 @@ export default function NewListPage() {
                 <button
                   key={o.id}
                   type="button"
+                  aria-pressed={occasion === o.id}
                   onClick={() => setOccasion(occasion === o.id ? '' : o.id as OccasionId)}
                   className="rg-btn"
                   style={{
@@ -129,22 +133,20 @@ export default function NewListPage() {
 
           {/* Date — only for events */}
           {occasion !== 'personal' && (
-            <div>
-              <div className="rg-mono" style={{ fontSize: 9, marginBottom: 8, color: 'rgba(15,15,15,0.6)' }}>
-                FECHA DEL EVENTO
-              </div>
+            <Field label="Fecha del evento">
               <input
                 name="occasion_date"
                 type="date"
+                autoComplete="off"
                 className="rg-input"
                 style={{ fontSize: 14 }}
               />
-            </div>
+            </Field>
           )}
 
           {/* Currency */}
           <div>
-            <div className="rg-mono" style={{ fontSize: 9, marginBottom: 10, color: 'rgba(15,15,15,0.6)' }}>
+            <div className="rg-mono" style={{ fontSize: 9, marginBottom: 10, color: 'var(--ink-muted)' }}>
               MONEDA
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
@@ -152,6 +154,7 @@ export default function NewListPage() {
                 <button
                   key={c}
                   type="button"
+                  aria-pressed={currency === c}
                   onClick={() => setCurrency(c as Currency)}
                   className="rg-btn"
                   style={{
@@ -170,11 +173,18 @@ export default function NewListPage() {
 
           {/* Privacy */}
           <div>
-            <div className="rg-mono" style={{ fontSize: 9, marginBottom: 10, color: 'rgba(15,15,15,0.6)' }}>
+            <div className="rg-mono" style={{ fontSize: 9, marginBottom: 10, color: 'var(--ink-muted)' }}>
               PRIVACIDAD
             </div>
-            <div role="group" aria-label="Privacidad de la lista" style={{ display: 'flex', gap: 0, border: '2px solid var(--ink)', borderRadius: 4, overflow: 'hidden' }}>
-              {PRIVACY_OPTIONS.map((opt, i) => (
+            {/* 2×2 on phones so each label fits on one line; one row from 640px up */}
+            <div
+              role="group"
+              aria-label="Privacidad de la lista"
+              aria-describedby={activePrivacy?.note ? 'privacy-note' : undefined}
+              className="grid grid-cols-2 sm:grid-cols-4"
+              style={{ gap: 2, background: 'var(--ink)', border: '2px solid var(--ink)', borderRadius: 4, overflow: 'hidden' }}
+            >
+              {PRIVACY_OPTIONS.map((opt) => (
                 <button
                   key={opt.value}
                   type="button"
@@ -182,12 +192,11 @@ export default function NewListPage() {
                   onClick={() => setPrivacy(opt.value)}
                   className="rg-btn"
                   style={{
-                    flex: 1, padding: '10px 8px', fontSize: 10,
+                    padding: '10px 8px', fontSize: 10, minHeight: 44,
                     borderRadius: 0,
                     background: privacy === opt.value ? 'var(--ink)' : 'var(--paper)',
                     color: privacy === opt.value ? 'var(--paper)' : 'var(--ink)',
                     border: 'none',
-                    borderRight: i < PRIVACY_OPTIONS.length - 1 ? '2px solid var(--ink)' : 'none',
                     boxShadow: 'none',
                   }}
                 >
@@ -195,9 +204,9 @@ export default function NewListPage() {
                 </button>
               ))}
             </div>
-            {privacy === 'private' && (
-              <div className="rg-mono" style={{ fontSize: 9, marginTop: 8, color: 'rgba(15,15,15,0.5)' }}>
-                Solo vos podés verla.
+            {activePrivacy?.note && (
+              <div id="privacy-note" className="rg-mono" style={{ fontSize: 10, marginTop: 8, color: 'var(--ink-muted)' }}>
+                {activePrivacy.note}
               </div>
             )}
           </div>
@@ -209,29 +218,33 @@ export default function NewListPage() {
             border: '2px solid var(--ink)', borderRadius: 4,
           }}>
             <div>
-              <div style={{ fontWeight: 800, fontSize: 13 }}>Lista sorpresa</div>
-              <div style={{ fontSize: 11, color: 'rgba(15,15,15,0.55)', marginTop: 2 }}>
+              <div id="surprise-label" style={{ fontWeight: 800, fontSize: 13 }}>Lista sorpresa</div>
+              <div id="surprise-hint" style={{ fontSize: 11, color: 'var(--ink-muted)', marginTop: 2 }}>
                 Vos no ves qué reclamaron hasta el día del evento
               </div>
             </div>
             <button
               type="button"
+              role="switch"
+              aria-checked={surprise}
+              aria-labelledby="surprise-label"
+              aria-describedby="surprise-hint"
               onClick={() => setSurprise(!surprise)}
               style={{
-                width: 48, height: 26, borderRadius: 13,
-                background: surprise ? 'var(--ink)' : 'rgba(15,15,15,0.15)',
+                width: 52, height: 28, borderRadius: 4,
+                background: surprise ? 'var(--yellow)' : 'var(--paper)',
                 border: '2px solid var(--ink)',
+                boxShadow: 'var(--shadow-sm)',
                 position: 'relative', cursor: 'pointer', flexShrink: 0,
-                transition: 'background 0.15s',
+                padding: 0,
               }}
             >
               <span style={{
-                position: 'absolute', top: 2,
-                left: surprise ? 22 : 2,
+                position: 'absolute', top: 3,
+                left: surprise ? 27 : 3,
                 width: 18, height: 18,
-                background: surprise ? 'var(--yellow)' : 'var(--paper)',
-                border: '1.5px solid var(--ink)',
-                borderRadius: '50%',
+                background: 'var(--ink)',
+                borderRadius: 2,
                 transition: 'left 0.15s',
               }} />
             </button>

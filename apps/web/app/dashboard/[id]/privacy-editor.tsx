@@ -26,34 +26,22 @@ export default function PrivacyEditor({ listId, current }: { listId: string; cur
 
   return (
     <div style={{ marginTop: 16 }}>
-      <div className="rg-mono" style={{ fontSize: 9, color: 'rgba(251,248,238,0.5)', marginBottom: 8 }}>
+      <div className="rg-mono" style={{ fontSize: 9, color: 'var(--paper-muted)', marginBottom: 8 }}>
         PRIVACIDAD
       </div>
       <div
         role="group"
         aria-label="Privacidad de la lista"
-        style={{
-          display: 'flex', border: '1.5px solid rgba(251,248,238,0.3)',
-          borderRadius: 4, overflow: 'hidden', opacity: pending ? 0.6 : 1,
-          transition: 'opacity 0.15s',
-        }}
+        className="rg-seg"
+        style={{ opacity: pending ? 0.6 : 1, transition: 'opacity 0.15s' }}
       >
-        {OPTIONS.map((opt, i) => (
+        {OPTIONS.map(opt => (
           <button
             key={opt.value}
             type="button"
             aria-pressed={value === opt.value}
             onClick={() => handleChange(opt.value)}
             disabled={pending}
-            style={{
-              flex: 1, padding: '8px 4px', fontSize: 10, cursor: pending ? 'default' : 'pointer',
-              background: value === opt.value ? 'rgba(251,248,238,0.15)' : 'transparent',
-              color: 'var(--paper)',
-              border: 'none',
-              borderRight: i < OPTIONS.length - 1 ? '1.5px solid rgba(251,248,238,0.3)' : 'none',
-              fontFamily: 'var(--font-display)', letterSpacing: 0.5,
-              fontWeight: value === opt.value ? 800 : 400,
-            }}
           >
             {opt.emoji} {opt.label}
           </button>

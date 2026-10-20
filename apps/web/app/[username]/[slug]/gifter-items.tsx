@@ -144,7 +144,7 @@ export default function GifterItems({ items, claimedIds, currency, ownerSurprise
       )}
 
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-      {items.map((item) => {
+      {items.map((item, index) => {
         const claimed     = claimedSet.has(item.id)
         const isMine      = item.id in mine
         const isJust      = justClaimed.has(item.id)
@@ -155,14 +155,15 @@ export default function GifterItems({ items, claimedIds, currency, ownerSurprise
 
         return (
           <article key={item.id} aria-label={`${item.title}${claimed ? ', reclamado' : ', disponible'}`}
-            className={isJust ? 'rg-thud' : undefined}
+            className={isJust ? 'rg-thud' : 'rg-rise'}
             style={{
               padding: 16,
               background: claimed ? 'rgba(15,15,15,0.04)' : 'var(--paper)',
               border: `2px solid ${claimed ? 'rgba(15,15,15,0.25)' : 'var(--ink)'}`,
               boxShadow: claimed ? 'none' : 'var(--shadow-sm)',
               position: 'relative',
-            }}>
+              '--i': Math.min(index, 8),
+            } as CSSProperties}>
             {claimed ? (
               <div
                 ref={(el) => { claimedRefs.current[item.id] = el }}
@@ -170,14 +171,14 @@ export default function GifterItems({ items, claimedIds, currency, ownerSurprise
                 tabIndex={isJust ? -1 : undefined}
               >
                 {isJust && <Confetti />}
-                <span className={`rg-sticker rg-sticker-green${isJust ? ' is-stamped' : ''}`} style={{ fontSize: 9, marginBottom: 6, display: 'inline-block' }}>
+                <span className={`rg-sticker rg-sticker-green${isJust ? ' is-stamped' : ''}`} style={{ marginBottom: 6, display: 'inline-block' }}>
                   {isJust ? '✓ TE ENCARGÁS VOS' : isMine ? '✓ LO RECLAMASTE VOS' : '✓ RECLAMADO'}
                 </span>
-                <p style={{ fontSize: 14, color: 'rgba(15,15,15,0.45)', margin: 0, textDecoration: strikeLive ? 'none' : 'line-through' }}>
+                <p style={{ fontSize: 14, color: 'var(--ink-muted)', margin: 0, textDecoration: strikeLive ? 'none' : 'line-through' }}>
                   <span className={strikeLive ? 'rg-strike' : undefined}>{item.title}</span>
                 </p>
                 {item.price && (
-                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'rgba(15,15,15,0.35)', marginTop: 3 }}>
+                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--ink-muted)', marginTop: 3 }}>
                     ~{currency} {formatPrice(item.price, currency)}
                   </p>
                 )}
@@ -197,7 +198,7 @@ export default function GifterItems({ items, claimedIds, currency, ownerSurprise
                   </button>
                 )}
                 {undoError?.id === item.id && (
-                  <p style={{ fontSize: 11, color: 'var(--red)', fontWeight: 700, margin: '4px 0 0' }}>{undoError.message}</p>
+                  <p style={{ fontSize: 11, color: 'var(--red-ink)', fontWeight: 700, margin: '4px 0 0' }}>{undoError.message}</p>
                 )}
                 {isJust && (
                   <a
@@ -241,10 +242,10 @@ export default function GifterItems({ items, claimedIds, currency, ownerSurprise
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, marginBottom: 6 }}>
                     <p style={{ fontWeight: 800, fontSize: 15, margin: 0, lineHeight: 1.3 }}>{item.title}</p>
                     {item.priority === 3 && (
-                      <span className="rg-sticker rg-sticker-red" style={{ fontSize: 8, flexShrink: 0 }}>ESENCIAL</span>
+                      <span className="rg-sticker rg-sticker-red" style={{ flexShrink: 0 }}>ESENCIAL</span>
                     )}
                     {item.priority === 2 && (
-                      <span className="rg-sticker" style={{ fontSize: 8, flexShrink: 0 }}>ME GUSTA</span>
+                      <span className="rg-sticker" style={{ flexShrink: 0 }}>ME GUSTA</span>
                     )}
                   </div>
                   {item.description && (
@@ -310,7 +311,7 @@ export default function GifterItems({ items, claimedIds, currency, ownerSurprise
                         </button>
                       )}
                       {undoError?.id === item.id && (
-                        <p style={{ fontSize: 11, color: 'var(--red)', fontWeight: 700, margin: '4px 0 0' }}>{undoError.message}</p>
+                        <p style={{ fontSize: 11, color: 'var(--red-ink)', fontWeight: 700, margin: '4px 0 0' }}>{undoError.message}</p>
                       )}
                     </div>
                   )}
