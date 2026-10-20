@@ -9,6 +9,7 @@ export type ListSummary = {
   id: string
   title: string
   occasion: string | null
+  is_default: boolean
   items: { id: string }[]
 }
 
@@ -51,7 +52,7 @@ export default function MergeForm({ lists }: { lists: ListSummary[] }) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {lists.map(list => {
               const isSelected  = sourceId === list.id
-              const isDisabled  = targetId === list.id
+              const isDisabled  = targetId === list.id || list.is_default
               return (
                 <button
                   key={list.id}

@@ -10,7 +10,7 @@ export default async function MergePage() {
 
   const { data: lists } = await supabase
     .from('wishlists')
-    .select('id, title, occasion, items(id)')
+    .select('id, title, occasion, is_default, items(id)')
     .eq('owner_id', user.id)
     .order('created_at', { ascending: false })
 

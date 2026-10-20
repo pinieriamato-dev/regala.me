@@ -33,6 +33,7 @@ export interface Wishlist {
   privacy_level: 'public' | 'link_only' | 'private'
   is_premium: boolean
   cover_url: string | null
+  is_default: boolean
   created_at: string
 }
 
