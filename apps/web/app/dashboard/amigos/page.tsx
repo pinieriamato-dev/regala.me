@@ -89,9 +89,13 @@ export default async function AmigosPage({ searchParams }: { searchParams: Promi
       <section style={section}>
         <div className="rg-mono" style={{ marginBottom: 12 }}>Listas de tus amigos</div>
         {friendIds.length === 0 ? (
-          <p style={{ fontSize: 14, color: 'rgba(15,15,15,0.65)' }}>
-            Cuando tengas amigos, acá vas a ver sus listas públicas sin que te tengan que mandar el link.
-          </p>
+          <div className="rg-empty">
+            <div className="rg-display" style={{ fontSize: 28, marginBottom: 10 }}>SUMÁ A <span className="rg-em">TU GENTE.</span></div>
+            <p style={{ fontSize: 14, color: 'rgba(15,15,15,0.65)', margin: '0 auto 20px', maxWidth: 360 }}>
+              Buscalos por nombre o usuario y ves sus listas sin pedir el link.
+            </p>
+            <a href="#buscar-gente" className="rg-btn rg-btn-primary" style={btn}>BUSCAR GENTE ↓</a>
+          </div>
         ) : feed.length === 0 ? (
           <p style={{ fontSize: 14, color: 'rgba(15,15,15,0.65)' }}>Tus amigos todavía no tienen listas públicas.</p>
         ) : (
@@ -144,10 +148,11 @@ export default async function AmigosPage({ searchParams }: { searchParams: Promi
       )}
 
       {/* Search */}
-      <section style={section}>
+      <section style={section} id="buscar-gente">
         <div className="rg-mono" style={{ marginBottom: 12 }}>Buscar gente</div>
         <form method="get" style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
           <input
+            id="buscar-gente-input"
             name="q"
             defaultValue={q}
             placeholder="Nombre o usuario"
@@ -182,7 +187,9 @@ export default async function AmigosPage({ searchParams }: { searchParams: Promi
       <section style={section}>
         <div className="rg-mono" style={{ marginBottom: 12 }}>Tus amigos ({accepted.length})</div>
         {accepted.length === 0 ? (
-          <p style={{ fontSize: 14, color: 'rgba(15,15,15,0.65)' }}>Todavía no agregaste a nadie.</p>
+          <div className="rg-empty" style={{ padding: '24px' }}>
+            <p style={{ fontSize: 14, color: 'rgba(15,15,15,0.65)', margin: 0 }}>Todavía no agregaste a nadie.</p>
+          </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {accepted.map(f => {
