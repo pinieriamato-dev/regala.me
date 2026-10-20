@@ -325,6 +325,42 @@ body {
 }
 .marquee-track { animation: marquee 30s linear infinite; }
 
+/* ── Gifter claim celebration ───────────────────────── */
+.rg-sticker.is-stamped {
+  animation: rg-stamp 260ms var(--ease-stamp, cubic-bezier(0.2, 1.4, 0.4, 1)) both;
+}
+.rg-thud {
+  animation: rg-thud 160ms ease-out both;
+}
+.rg-confetti {
+  position: absolute;
+  left: 24px;
+  top: 18px;
+  pointer-events: none;
+}
+.rg-confetti i {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: var(--c);
+  border: 1.5px solid var(--ink);
+  animation: rg-confetti var(--dur-celebrate, 900ms) var(--ease-out, cubic-bezier(0.2, 0.8, 0.2, 1)) both;
+}
+.rg-strike {
+  background: linear-gradient(var(--ink), var(--ink)) no-repeat 0 55% / 0% 2px;
+  animation: rg-strike 320ms var(--ease-out, cubic-bezier(0.2, 0.8, 0.2, 1)) forwards;
+}
+@keyframes rg-thud {
+  50% { transform: translate(3px, 3px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rg-sticker.is-stamped,
+  .rg-thud,
+  .rg-strike { animation: none; }
+  .rg-strike { background-size: 100% 2px; }
+  .rg-confetti { display: none; }
+}
+
 /* ── Scroll hide (scoped — don't hide all scrollbars) ── */
 .rg-marquee-track,
 .rg-hscroll {

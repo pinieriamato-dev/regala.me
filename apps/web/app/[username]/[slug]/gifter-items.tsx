@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect, useTransition } from 'react'
+import { useState, useCallback, useEffect, useRef, useTransition, type CSSProperties } from 'react'
 import { formatPrice, type Item } from 'shared'
 import ClaimButton from './claim-button'
 import PledgeButton from './pledge-button'
@@ -30,17 +30,45 @@ function writeToken(itemId: string, token: string | null) {
   } catch {}
 }
 
+// Paper squares that burst out of the stamp when this browser claims a gift. Pure CSS, invisible to assistive tech.
+function Confetti() {
+  return (
+    <span className="rg-confetti" aria-hidden="true">
+      {Array.from({ length: 14 }, (_, i) => (
+        <i key={i} style={{
+          '--a': `${(i / 14) * 360}deg`,
+          '--d': `${48 + (i % 3) * 18}px`,
+          '--c': ['var(--yellow)', 'var(--red)', 'var(--green)', 'var(--paper)'][i % 4],
+        } as CSSProperties} />
+      ))}
+    </span>
+  )
+}
+
 export default function GifterItems({ items, claimedIds, currency, ownerSurpriseView, raised, sharesOpen }: Props) {
   const [localClaimed, setLocalClaimed] = useState<Set<string>>(() => new Set(claimedIds))
   // Items this browser claimed → undo token (null when the claim can't be undone).
   const [mine,         setMine]         = useState<Record<string, string | null>>({})
   const [justClaimed,  setJustClaimed]  = useState<Set<string>>(new Set())
+  // Items another gifter claimed while the page was open: their title gets the live strike-through.
+  const [liveFresh,    setLiveFresh]    = useState<Set<string>>(new Set())
+  const [lastClaimed,  setLastClaimed]  = useState<string | null>(null)
+  const [brokenImages, setBrokenImages] = useState<Set<string>>(new Set())
+  // Bumped on undo so the claim and pledge buttons remount with fresh action state.
+  const [cycles,       setCycles]       = useState<Record<string, number>>({})
   const [undoError,    setUndoError]    = useState<{ id: string; message: string } | null>(null)
   const [undoPending,  startUndo]       = useTransition()
+  const prevClaimed = useRef<Set<string> | null>(null)
+  const claimedRefs = useRef<Record<string, HTMLDivElement | null>>({})
 
   // Server refreshes (live claims) carry the authoritative set; follow them.
   useEffect(() => {
+    const prev = prevClaimed.current
+    prevClaimed.current = new Set(claimedIds)
     setLocalClaimed(new Set(claimedIds))
+    if (!prev) return
+    const added = claimedIds.filter(id => !prev.has(id))
+    if (added.length) setLiveFresh(new Set(added))
   }, [claimedIds])
 
   // Tokens for whole claims and for pledges, which don't mark the item as claimed.
@@ -53,11 +81,17 @@ export default function GifterItems({ items, claimedIds, currency, ownerSurprise
     if (Object.keys(found).length) setMine(prev => ({ ...found, ...prev }))
   }, [items])
 
+  // The claim button unmounts on success, so focus moves to the thank-you card instead of falling to <body>.
+  useEffect(() => {
+    if (lastClaimed) claimedRefs.current[lastClaimed]?.focus()
+  }, [lastClaimed])
+
   const handleClaimed = useCallback((itemId: string, releaseToken: string | null) => {
     writeToken(itemId, releaseToken)
     setLocalClaimed(prev => new Set([...prev, itemId]))
     setMine(prev => ({ ...prev, [itemId]: releaseToken }))
     setJustClaimed(prev => new Set([...prev, itemId]))
+    setLastClaimed(itemId)
   }, [])
 
   // A pledge keeps the item open for others: only the undo token is kept, not a claimed state.
@@ -80,6 +114,8 @@ export default function GifterItems({ items, claimedIds, currency, ownerSurprise
       setLocalClaimed(prev => { const next = new Set(prev); next.delete(itemId); return next })
       setMine(prev => { const next = { ...prev }; delete next[itemId]; return next })
       setJustClaimed(prev => { const next = new Set(prev); next.delete(itemId); return next })
+      setLastClaimed(null)
+      setCycles(prev => ({ ...prev, [itemId]: (prev[itemId] ?? 0) + 1 }))
     })
   }
 
@@ -90,7 +126,7 @@ export default function GifterItems({ items, claimedIds, currency, ownerSurprise
     <div>
       {/* Stats bar — updates in real time as items are claimed. Hidden in the owner's surprise view. */}
       {!ownerSurpriseView && (
-        <div style={{
+        <div role="status" aria-live="polite" style={{
           display: 'flex', gap: 20, padding: '10px 14px', marginBottom: 16,
           background: 'var(--yellow)', border: '2px solid var(--ink)',
           boxShadow: 'var(--shadow-sm)',
@@ -109,27 +145,37 @@ export default function GifterItems({ items, claimedIds, currency, ownerSurprise
 
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
       {items.map((item, index) => {
-        const claimed = claimedSet.has(item.id)
-        const isMine  = item.id in mine
+        const claimed     = claimedSet.has(item.id)
+        const isMine      = item.id in mine
+        const isJust      = justClaimed.has(item.id)
+        const strikeLive  = liveFresh.has(item.id) && !isJust
+        const showImage   = /^https?:\/\//i.test(item.image_url ?? '') && !brokenImages.has(item.id)
         const raisedSoFar = raised[item.id] ?? 0
         const remaining   = item.price ? Math.ceil(item.price - raisedSoFar) : 0
 
         return (
-          <article key={item.id} className="rg-rise" aria-label={`${item.title}${claimed ? ', reclamado' : ', disponible'}`} style={{
-            padding: 16,
-            background: claimed ? 'rgba(15,15,15,0.04)' : 'var(--paper)',
-            border: `2px solid ${claimed ? 'rgba(15,15,15,0.25)' : 'var(--ink)'}`,
-            boxShadow: claimed ? 'none' : 'var(--shadow-sm)',
-            position: 'relative',
-            '--i': Math.min(index, 8),
-          } as React.CSSProperties}>
+          <article key={item.id} aria-label={`${item.title}${claimed ? ', reclamado' : ', disponible'}`}
+            className={isJust ? 'rg-thud' : 'rg-rise'}
+            style={{
+              padding: 16,
+              background: claimed ? 'rgba(15,15,15,0.04)' : 'var(--paper)',
+              border: `2px solid ${claimed ? 'rgba(15,15,15,0.25)' : 'var(--ink)'}`,
+              boxShadow: claimed ? 'none' : 'var(--shadow-sm)',
+              position: 'relative',
+              '--i': Math.min(index, 8),
+            } as CSSProperties}>
             {claimed ? (
-              <div>
-                <span className="rg-sticker rg-sticker-green" style={{ marginBottom: 6, display: 'inline-block' }}>
-                  {isMine ? '✓ LO RECLAMASTE VOS' : '✓ RECLAMADO'}
+              <div
+                ref={(el) => { claimedRefs.current[item.id] = el }}
+                role={isJust ? 'status' : undefined}
+                tabIndex={isJust ? -1 : undefined}
+              >
+                {isJust && <Confetti />}
+                <span className={`rg-sticker rg-sticker-green${isJust ? ' is-stamped' : ''}`} style={{ marginBottom: 6, display: 'inline-block' }}>
+                  {isJust ? '✓ TE ENCARGÁS VOS' : isMine ? '✓ LO RECLAMASTE VOS' : '✓ RECLAMADO'}
                 </span>
-                <p style={{ fontSize: 14, color: 'var(--ink-muted)', textDecoration: 'line-through', margin: 0 }}>
-                  {item.title}
+                <p style={{ fontSize: 14, color: 'var(--ink-muted)', margin: 0, textDecoration: strikeLive ? 'none' : 'line-through' }}>
+                  <span className={strikeLive ? 'rg-strike' : undefined}>{item.title}</span>
                 </p>
                 {item.price && (
                   <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--ink-muted)', marginTop: 3 }}>
@@ -154,7 +200,7 @@ export default function GifterItems({ items, claimedIds, currency, ownerSurprise
                 {undoError?.id === item.id && (
                   <p style={{ fontSize: 11, color: 'var(--red-ink)', fontWeight: 700, margin: '4px 0 0' }}>{undoError.message}</p>
                 )}
-                {justClaimed.has(item.id) && (
+                {isJust && (
                   <a
                     href="/auth?mode=signup"
                     style={{
@@ -173,13 +219,24 @@ export default function GifterItems({ items, claimedIds, currency, ownerSurprise
               </div>
             ) : (
               <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                {/^https?:\/\//i.test(item.image_url ?? '') && (
+                {showImage ? (
                   <img
                     src={item.image_url!}
                     alt=""
+                    width={80}
+                    height={80}
+                    loading="lazy"
+                    decoding="async"
                     style={{ width: 80, height: 80, objectFit: 'cover', border: '2px solid var(--ink)', flexShrink: 0 }}
-                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                    onError={() => setBrokenImages(prev => new Set([...prev, item.id]))}
                   />
+                ) : (
+                  <div className="rg-img-ph" aria-hidden="true" style={{
+                    width: 80, height: 80, flexShrink: 0,
+                    fontFamily: 'var(--font-display)', fontSize: 28, color: 'var(--ink)',
+                  }}>
+                    {item.title.charAt(0).toUpperCase()}
+                  </div>
                 )}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, marginBottom: 6 }}>
@@ -210,40 +267,54 @@ export default function GifterItems({ items, claimedIds, currency, ownerSurprise
                           VER PRODUCTO
                         </a>
                       )}
-                      {!ownerSurpriseView && <ClaimButton itemId={item.id} onClaimed={handleClaimed} />}
+                      {!ownerSurpriseView && (
+                        <ClaimButton key={`${item.id}-${cycles[item.id] ?? 0}`} itemId={item.id} onClaimed={handleClaimed} />
+                      )}
                     </div>
-                    {sharesOpen && !ownerSurpriseView && item.price && remaining > 0 && (
-                      <div style={{ marginTop: 10, paddingTop: 10, borderTop: '2px dashed var(--ink)' }}>
-                        <p className="rg-mono" style={{ fontSize: 9, margin: '0 0 6px' }}>
-                          REGALO COMPARTIDO · {formatPrice(raisedSoFar, currency)} DE {formatPrice(item.price, currency)}
-                        </p>
-                        <PledgeButton
-                          itemId={item.id}
-                          remaining={remaining}
-                          currency={currency}
-                          onPledged={handlePledged}
-                        />
-                        {mine[item.id] && (
-                          <button
-                            type="button"
-                            onClick={() => handleUndo(item.id)}
-                            disabled={undoPending}
-                            className="rg-mono"
-                            style={{
-                              background: 'none', border: 'none', cursor: undoPending ? 'default' : 'pointer',
-                              fontSize: 10, color: 'var(--ink)', marginTop: 8,
-                              padding: '6px 0', textDecoration: 'underline', minHeight: 32, display: 'block',
-                            }}
-                          >
-                            {undoPending ? '...' : '¿TE EQUIVOCASTE CON TU APORTE? DESHACER'}
-                          </button>
-                        )}
-                        {undoError?.id === item.id && (
-                          <p style={{ fontSize: 11, color: 'var(--red-ink)', fontWeight: 700, margin: '4px 0 0' }}>{undoError.message}</p>
-                        )}
-                      </div>
-                    )}
                   </div>
+                  {sharesOpen && !ownerSurpriseView && item.price && remaining > 0 && (
+                    <div style={{ marginTop: 10, paddingTop: 10, borderTop: '2px dashed var(--ink)' }}>
+                      <p className="rg-mono" style={{ fontSize: 9, margin: '0 0 6px' }}>
+                        REGALO COMPARTIDO · {formatPrice(raisedSoFar, currency)} DE {formatPrice(item.price, currency)}
+                      </p>
+                      <div
+                        role="progressbar"
+                        aria-label="Lo juntado para este regalo"
+                        aria-valuemin={0}
+                        aria-valuemax={item.price}
+                        aria-valuenow={Math.min(raisedSoFar, item.price)}
+                        aria-valuetext={`${formatPrice(raisedSoFar, currency)} de ${formatPrice(item.price, currency)}`}
+                        style={{ height: 8, border: '2px solid var(--ink)', background: 'var(--paper)', marginBottom: 8 }}
+                      >
+                        <div style={{ height: '100%', width: `${Math.min(100, (raisedSoFar / item.price) * 100)}%`, background: 'var(--green)' }} />
+                      </div>
+                      <PledgeButton
+                        key={`${item.id}-${cycles[item.id] ?? 0}`}
+                        itemId={item.id}
+                        remaining={remaining}
+                        currency={currency}
+                        onPledged={handlePledged}
+                      />
+                      {mine[item.id] && (
+                        <button
+                          type="button"
+                          onClick={() => handleUndo(item.id)}
+                          disabled={undoPending}
+                          className="rg-mono"
+                          style={{
+                            background: 'none', border: 'none', cursor: undoPending ? 'default' : 'pointer',
+                            fontSize: 10, color: 'var(--ink)', marginTop: 8,
+                            padding: '6px 0', textDecoration: 'underline', minHeight: 32, display: 'block',
+                          }}
+                        >
+                          {undoPending ? '...' : '¿TE EQUIVOCASTE CON TU APORTE? DESHACER'}
+                        </button>
+                      )}
+                      {undoError?.id === item.id && (
+                        <p style={{ fontSize: 11, color: 'var(--red-ink)', fontWeight: 700, margin: '4px 0 0' }}>{undoError.message}</p>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             )}
