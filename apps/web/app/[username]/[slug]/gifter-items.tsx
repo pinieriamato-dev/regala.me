@@ -54,6 +54,8 @@ export default function GifterItems({ items, claimedIds, currency, ownerSurprise
   const [liveFresh,    setLiveFresh]    = useState<Set<string>>(new Set())
   const [lastClaimed,  setLastClaimed]  = useState<string | null>(null)
   const [brokenImages, setBrokenImages] = useState<Set<string>>(new Set())
+  // Bumped on undo so the claim and pledge buttons remount with fresh action state.
+  const [cycles,       setCycles]       = useState<Record<string, number>>({})
   const [undoError,    setUndoError]    = useState<{ id: string; message: string } | null>(null)
   const [undoPending,  startUndo]       = useTransition()
   const prevClaimed = useRef<Set<string> | null>(null)
@@ -113,6 +115,7 @@ export default function GifterItems({ items, claimedIds, currency, ownerSurprise
       setMine(prev => { const next = { ...prev }; delete next[itemId]; return next })
       setJustClaimed(prev => { const next = new Set(prev); next.delete(itemId); return next })
       setLastClaimed(null)
+      setCycles(prev => ({ ...prev, [itemId]: (prev[itemId] ?? 0) + 1 }))
     })
   }
 
@@ -263,7 +266,9 @@ export default function GifterItems({ items, claimedIds, currency, ownerSurprise
                           VER PRODUCTO
                         </a>
                       )}
-                      {!ownerSurpriseView && <ClaimButton itemId={item.id} onClaimed={handleClaimed} />}
+                      {!ownerSurpriseView && (
+                        <ClaimButton key={`${item.id}-${cycles[item.id] ?? 0}`} itemId={item.id} onClaimed={handleClaimed} />
+                      )}
                     </div>
                   </div>
                   {sharesOpen && !ownerSurpriseView && item.price && remaining > 0 && (
@@ -283,6 +288,7 @@ export default function GifterItems({ items, claimedIds, currency, ownerSurprise
                         <div style={{ height: '100%', width: `${Math.min(100, (raisedSoFar / item.price) * 100)}%`, background: 'var(--green)' }} />
                       </div>
                       <PledgeButton
+                        key={`${item.id}-${cycles[item.id] ?? 0}`}
                         itemId={item.id}
                         remaining={remaining}
                         currency={currency}
