@@ -132,6 +132,7 @@ ML_CLIENT_SECRET=<optional — see above>
 HCAPTCHA_SITE_KEY=<optional — gates signup/signin/reset forms; captcha is skipped entirely if unset>
 POSTHOG_KEY=<optional — server-side product analytics (lib/analytics.ts); events are skipped if unset>
 POSTHOG_HOST=<optional — defaults to https://us.i.posthog.com; use the EU host for an EU project>
+SUPABASE_SERVICE_ROLE_KEY=<optional — server-only; owner email on claim needs it>
 ```
 
 ### Mobile — `apps/mobile/.env`

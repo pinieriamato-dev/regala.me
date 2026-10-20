@@ -25,10 +25,13 @@ export default async function DashboardPage() {
     .filter(l => !l.is_surprise)
     .flatMap(l => (l.items ?? []).map((i: { id: string }) => i.id))
   const { data: claims } = allItemIds.length
-    ? await supabase.from('claims').select('item_id').in('item_id', allItemIds)
+    ? await supabase.from('claims').select('item_id, is_group_gift').in('item_id', allItemIds)
     : { data: [] }
 
-  const claimedSet = new Set((claims ?? []).map((c: { item_id: string }) => c.item_id))
+  // Shared-gift pledges don't mark an item as claimed.
+  const claimedSet = new Set(
+    (claims ?? []).filter((c: { is_group_gift: boolean | null }) => !c.is_group_gift).map((c: { item_id: string }) => c.item_id)
+  )
 
   return (
     <div>

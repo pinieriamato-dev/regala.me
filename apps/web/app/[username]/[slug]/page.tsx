@@ -36,14 +36,25 @@ const getListData = cache(async (username: string, slug: string) => {
   const itemIds = itemList.map((i: Item) => i.id)
 
   const { data: claims } = itemIds.length
-    ? await supabase.from('claims').select('item_id').in('item_id', itemIds)
+    ? await supabase.from('claims').select('item_id, is_group_gift, contribution_amount').in('item_id', itemIds)
     : { data: [] }
 
-  const claimedIds = (claims ?? []).map((c: Pick<Claim, 'item_id'>) => c.item_id)
+  // Shared-gift pledges are not a claim: only a whole-item claim marks the gift as taken.
+  const claimedIds = (claims ?? [])
+    .filter((c: Pick<Claim, 'item_id' | 'is_group_gift'>) => !c.is_group_gift)
+    .map((c: Pick<Claim, 'item_id'>) => c.item_id)
   const claimedSet = new Set(claimedIds)
   const available = itemList.filter((i: Item) => !claimedSet.has(i.id)).length
 
-  return { list, items: itemList, claimedIds, available }
+  // Amount pledged per item toward a shared gift. Surprise lists never show it.
+  const raised: Record<string, number> = {}
+  if (!list.is_surprise) {
+    for (const c of (claims ?? []) as Pick<Claim, 'item_id' | 'is_group_gift' | 'contribution_amount'>[]) {
+      if (c.is_group_gift) raised[c.item_id] = (raised[c.item_id] ?? 0) + Number(c.contribution_amount ?? 0)
+    }
+  }
+
+  return { list, items: itemList, claimedIds, available, raised }
 })
 
 export async function generateMetadata({ params }: Props) {
@@ -87,7 +98,7 @@ export default async function GifterPage({ params }: Props) {
     item_count: data.items.length,
   })
 
-  const { list, items, claimedIds } = data
+  const { list, items, claimedIds, raised } = data
   const isOwnerSurpriseView = !!(list.is_surprise && user?.id === list.owner_id)
 
   const emoji = occasionEmoji(list.occasion as OccasionId)
@@ -169,6 +180,8 @@ export default async function GifterPage({ params }: Props) {
           claimedIds={isOwnerSurpriseView ? [] : claimedIds}
           currency={currency}
           ownerSurpriseView={isOwnerSurpriseView}
+          raised={raised}
+          sharesOpen={!list.is_surprise}
         />
 
         {/* Viral footer */}
