@@ -5,8 +5,8 @@ import { createServerSupabase } from '@/lib/supabase/server'
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
 const MAX_BYTES      = 2 * 1024 * 1024 // 2 MB
 
-// Item photos go in the avatars bucket under the owner's folder, so the existing
-// owner-scoped upload policy covers them without a new bucket. Move them to a
+// Item photos and event covers go in the avatars bucket under the owner's folder, so the
+// existing owner-scoped upload policy covers them without a new bucket. Move them to a
 // dedicated bucket later if the avatars policy gets tighter.
 export async function POST(request: NextRequest) {
   const supabase = await createServerSupabase()
@@ -25,7 +25,8 @@ export async function POST(request: NextRequest) {
   }
 
   const ext = file.type === 'image/jpeg' ? 'jpg' : file.type.split('/')[1]
-  const path = `${user.id}/items/${randomUUID()}.${ext}`
+  const folder = formData.get('kind') === 'cover' ? 'covers' : 'items'
+  const path = `${user.id}/${folder}/${randomUUID()}.${ext}`
 
   const { error } = await supabase.storage
     .from('avatars')

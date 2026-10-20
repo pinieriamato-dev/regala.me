@@ -110,6 +110,11 @@ export default async function GifterPage({ params }: Props) {
       </div>
 
       <div style={{ maxWidth: 600, margin: '0 auto', padding: '28px 20px' }}>
+        {list.is_premium && list.cover_url && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={list.cover_url} alt="" style={{ display: 'block', width: '100%', maxHeight: 280, objectFit: 'cover', border: '2px solid var(--ink)', boxShadow: 'var(--shadow)', marginBottom: 24 }} />
+        )}
+
         {/* Header */}
         <div style={{ marginBottom: 28 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 10 }}>
@@ -129,6 +134,16 @@ export default async function GifterPage({ params }: Props) {
               )}
             </div>
           </div>
+
+          {list.is_premium && (
+            <a
+              href={`/${encodeURIComponent(username)}/${slug}/invitacion`}
+              className="rg-btn rg-btn-ghost"
+              style={{ padding: '10px 16px', fontSize: 11, marginBottom: 14 }}
+            >
+              VER INVITACIÓN →
+            </a>
+          )}
 
           {isOwnerSurpriseView && (
             <div className="rg-card-yellow" style={{ padding: '10px 14px', marginBottom: 14 }}>

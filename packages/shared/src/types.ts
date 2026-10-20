@@ -31,6 +31,8 @@ export interface Wishlist {
   is_surprise: boolean
   currency: Currency
   privacy_level: 'public' | 'link_only' | 'private'
+  is_premium: boolean
+  cover_url: string | null
   created_at: string
 }
 
