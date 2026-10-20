@@ -57,6 +57,7 @@ export default function MergeForm({ lists }: { lists: ListSummary[] }) {
                 <button
                   key={list.id}
                   type="button"
+                  aria-pressed={isSelected}
                   onClick={() => setSourceId(isSelected ? null : list.id)}
                   disabled={isDisabled}
                   style={{
@@ -99,6 +100,7 @@ export default function MergeForm({ lists }: { lists: ListSummary[] }) {
                 <button
                   key={list.id}
                   type="button"
+                  aria-pressed={isSelected}
                   onClick={() => setTargetId(isSelected ? null : list.id)}
                   disabled={isDisabled}
                   style={{
