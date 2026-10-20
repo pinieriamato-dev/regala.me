@@ -54,6 +54,23 @@ const MOCK_PHONE_ITEMS = [
   { t: 'Plantita monstera', claimed: 'CAMI' },
 ]
 
+const TICKER_ITEMS = [
+  'Nadie repite',
+  'Sin grupos infinitos',
+  'Pegás el link y listo',
+  'No hace falta cuenta',
+]
+
+function TickerCopy({ ariaHidden }: { ariaHidden?: boolean }) {
+  return (
+    <div className="rg-ticker-copy" aria-hidden={ariaHidden || undefined} style={{ display: 'flex' }}>
+      {TICKER_ITEMS.map(t => (
+        <span key={t} className="rg-ticker-item">{t} ✦</span>
+      ))}
+    </div>
+  )
+}
+
 function Logomark() {
   return (
     <div className="flex items-center gap-2.5">
@@ -129,7 +146,7 @@ export default async function HomePage({ searchParams }: HomeProps) {
 
         {/* Phone card mockup */}
         <div className="hero-phone">
-          <div style={{
+          <div className="rg-wobble" style={{
             position: 'absolute', top: -12, right: 120, zIndex: 5,
             fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 700,
             background: 'var(--yellow)', padding: '4px 10px',
@@ -163,6 +180,14 @@ export default async function HomePage({ searchParams }: HomeProps) {
           </div>
         </div>
       </section>
+
+      {/* ── TICKER ───────────────────────────────────────── */}
+      <div className="rg-ticker" role="presentation">
+        <div className="rg-ticker-track">
+          <TickerCopy />
+          <TickerCopy ariaHidden />
+        </div>
+      </div>
 
       {/* ── 3 STEPS ──────────────────────────────────────── */}
       <section id="como-funciona" className="px-5 md:px-9 py-12 md:py-14 bg-yellow border-y-2 border-ink">

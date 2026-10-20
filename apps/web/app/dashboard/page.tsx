@@ -2,6 +2,7 @@ import { createServerSupabase } from '@/lib/supabase/server'
 import { occasionEmoji } from 'shared'
 import type { OccasionId } from 'shared'
 import Link from 'next/link'
+import SharedElement from '@/components/SharedElement'
 import { redirect } from 'next/navigation'
 
 export default async function DashboardPage() {
@@ -134,9 +135,9 @@ export default async function DashboardPage() {
               <div key={list.id} className="rg-card" style={{ padding: 20 }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <span style={{ fontFamily: 'var(--font-display)', fontSize: 32 }}>{emoji}</span>
+                    <SharedElement name={`list-emoji-${list.id}`}><span style={{ fontFamily: 'var(--font-display)', fontSize: 32 }}>{emoji}</span></SharedElement>
                     <div>
-                      <div style={{ fontWeight: 800, fontSize: 15, lineHeight: 1.2 }}>{list.title}</div>
+                      <SharedElement name={`list-title-${list.id}`}><div style={{ fontWeight: 800, fontSize: 15, lineHeight: 1.2 }}>{list.title}</div></SharedElement>
                       <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'rgba(15,15,15,0.5)', marginTop: 3 }}>
                         {list.occasion_date
                           ? new Date(list.occasion_date).toLocaleDateString('es-AR', { day: 'numeric', month: 'long' })
