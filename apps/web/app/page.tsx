@@ -38,7 +38,7 @@ const USE_CASES = [
 ]
 
 const FAQS = [
-  { q: '¿Tengo que pagar algo?', a: 'Hoy, no. La versión para coordinar tus listas es gratis. Si en algún momento agregamos premium, avisamos antes — y lo básico se queda como está.' },
+  { q: '¿Tengo que pagar algo?', a: 'Hoy, no. La versión para coordinar tus listas es gratis.' },
   { q: '¿Mis amigos tienen que crear cuenta?', a: 'No. Abren el link, eligen un regalo, ponen su nombre, listo. Nada de instalar apps. Nada de signups.' },
   { q: '¿Puedo poner cosas sin link de tienda?', a: 'Sí. Podés poner "una torta de chocolate", "una planta linda", "que vengan a tomar mate". El item no necesita URL ni foto ni precio.' },
   { q: '¿Funciona en Argentina y otros países?', a: 'Sí. Empezamos en Argentina pero funciona en cualquier país de LATAM y España. Multi-moneda (ARS, BRL, MXN, CLP, COP, EUR, USD).' },

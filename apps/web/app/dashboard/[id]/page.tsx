@@ -9,9 +9,7 @@ import DeleteWishlistButton from './delete-wishlist-button'
 import ItemCard from './item-card'
 import PrivacyEditor from './privacy-editor'
 import SurpriseToggle from './surprise-toggle'
-import PremiumPanel from './premium-panel'
 import TrackedLink from '@/components/TrackedLink'
-import { isAmigoListTitle } from '@/lib/amigo'
 
 type Props = {
   params: Promise<{ id: string }>
@@ -27,7 +25,7 @@ export default async function ListDetailPage({ params, searchParams }: Props) {
 
   const { data: list } = await supabase
     .from('wishlists')
-    .select('id, title, slug, occasion, occasion_date, is_surprise, currency, privacy_level, is_premium, is_default, cover_url, profiles!inner(username)')
+    .select('id, title, slug, occasion, occasion_date, is_surprise, currency, privacy_level, is_default, profiles!inner(username)')
     .eq('id', id)
     .eq('owner_id', user.id)
     .single()
@@ -126,17 +124,6 @@ export default async function ListDetailPage({ params, searchParams }: Props) {
               >
                 COMPARTIR POR WHATSAPP
               </TrackedLink>
-              {list.is_premium && (
-                <a
-                  href={`/${username}/${list.slug}/invitacion`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rg-btn rg-btn-ghost"
-                  style={{ padding: '10px 16px', fontSize: 11 }}
-                >
-                  VER INVITACIÓN
-                </a>
-              )}
               <a
                 href={`/${username}/${list.slug}`}
                 target="_blank"
@@ -152,18 +139,6 @@ export default async function ListDetailPage({ params, searchParams }: Props) {
         <PrivacyEditor listId={id} current={(list.privacy_level ?? 'public') as 'public' | 'link_only' | 'private'} />
         <SurpriseToggle listId={id} current={list.is_surprise ?? false} />
       </div>
-
-      {/* The amigo participant's list is created by the draw flow: no premium upsell there. */}
-      {(list.is_premium || !isAmigoListTitle(list.title)) && (
-        <PremiumPanel
-          listId={id}
-          username={username}
-          isPremium={list.is_premium ?? false}
-          coverUrl={list.cover_url ?? null}
-          slug={list.slug}
-          privacyLevel={(list.privacy_level ?? 'public') as 'public' | 'link_only' | 'private'}
-        />
-      )}
 
       {/* Items */}
       <div style={{ marginBottom: 16 }}>
