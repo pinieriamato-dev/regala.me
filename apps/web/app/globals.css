@@ -571,6 +571,8 @@ body {
   .rg-ticker-track { animation: none; }
   .rg-ticker-copy[aria-hidden="true"] { display: none; }
   ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+}
+
 /* ── Dashboard & empty states (pulido del dashboard) ── */
 .rg-page-actions { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; }
 .rg-page-actions > .rg-page-primary { order: -1; flex: 1 1 100%; justify-content: center; }
