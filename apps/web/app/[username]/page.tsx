@@ -25,7 +25,7 @@ export default async function UserProfilePage({ params }: Props) {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('id, username, display_name, bio, birthday, avatar_url')
+    .select('id, username, display_name, bio, birthday, avatar_url, instagram')
     .eq('username', username)
     .single()
 
@@ -67,6 +67,17 @@ export default async function UserProfilePage({ params }: Props) {
             <div className="rg-mono" style={{ fontSize: 10, marginTop: 4, color: 'rgba(15,15,15,0.5)' }}>
               @{username}
             </div>
+            {profile.instagram && (
+              <a
+                href={`https://instagram.com/${profile.instagram}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rg-mono"
+                style={{ display: 'inline-block', marginTop: 8, fontSize: 10, color: 'var(--ink)', border: '2px solid var(--ink)', padding: '4px 8px', textDecoration: 'none', background: 'var(--paper)' }}
+              >
+                INSTAGRAM @{profile.instagram}
+              </a>
+            )}
           </div>
         </div>
 
