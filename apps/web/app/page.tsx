@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import Logomark from '@/components/Logomark'
 import { createServerSupabase } from '@/lib/supabase/server'
 
 const STEPS = [
@@ -54,21 +55,6 @@ const MOCK_PHONE_ITEMS = [
   { t: 'Plantita monstera', claimed: 'CAMI' },
 ]
 
-function Logomark() {
-  return (
-    <div className="flex items-center gap-2.5">
-      <svg width={32} height={32} viewBox="0 0 32 32" fill="none">
-        <path d="M6 8 L6 28 L26 28 L26 8 L18 8 L16 4 L14 8 Z" fill="#F5E13E" stroke="#0F0F0F" strokeWidth="2" strokeLinejoin="round"/>
-        <circle cx="16" cy="7" r="2" fill="none" stroke="#0F0F0F" strokeWidth="1.5"/>
-        <circle cx="22" cy="10" r="2.5" fill="#E63322"/>
-      </svg>
-      <span style={{ fontFamily: 'var(--font-display)', fontSize: 22, letterSpacing: -0.5 }}>
-        regala<span style={{ color: '#E63322' }}>.</span><span style={{ fontSize: 18 }}>me</span>
-      </span>
-    </div>
-  )
-}
-
 type HomeProps = { searchParams: Promise<Record<string, string | string[] | undefined>> }
 
 export default async function HomePage({ searchParams }: HomeProps) {
@@ -93,7 +79,7 @@ export default async function HomePage({ searchParams }: HomeProps) {
 
       {/* ── NAV ─────────────────────────────────────────── */}
       <nav className="sticky top-0 z-20 flex items-center justify-between px-5 md:px-9 py-4 bg-paper border-b-2 border-ink">
-        <Logomark />
+        <Logomark withIcon size={22} />
         <div className="flex gap-2 items-center">
           <Link href="/auth" className="rg-btn rg-btn-ghost" style={{ padding: '8px 12px', fontSize: 11 }}>
             INGRESAR
@@ -104,6 +90,7 @@ export default async function HomePage({ searchParams }: HomeProps) {
         </div>
       </nav>
 
+      <main id="main">
       {/* ── HERO ─────────────────────────────────────────── */}
       <section className="hero-section">
         <div className="hero-content">
@@ -275,9 +262,11 @@ export default async function HomePage({ searchParams }: HomeProps) {
         </Link>
       </section>
 
+      </main>
+
       {/* ── FOOTER ───────────────────────────────────────── */}
       <footer className="border-t-2 border-ink px-5 md:px-9 py-6 flex flex-col sm:flex-row items-center gap-4 sm:justify-between">
-        <Logomark />
+        <Logomark withIcon size={22} />
         <div className="rg-mono text-center" style={{ fontSize: 10, color: 'var(--ink-muted)' }}>
           hecho con · café · y · fernet · en BA
         </div>

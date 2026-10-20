@@ -2,6 +2,7 @@ import { createServerSupabase } from '@/lib/supabase/server'
 import { decodeParam } from '@/lib/params'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import TopBar from '@/components/TopBar'
 import JoinForm from './JoinForm'
 
 // Invite page for the amigo invisible draw. Reads the code per request, never prerendered.
@@ -20,7 +21,8 @@ export default async function JoinAmigoPage({ params }: Props) {
 
   const shell = (children: React.ReactNode) => (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--ink)' }}>
-      <main style={{ maxWidth: 480, margin: '0 auto', padding: '48px 16px' }}>
+      <TopBar band />
+      <main id="main" style={{ maxWidth: 480, margin: '0 auto', padding: '48px 16px' }}>
         <div className="rg-mono" style={{ marginBottom: 8 }}>Amigo invisible</div>
         {children}
       </main>

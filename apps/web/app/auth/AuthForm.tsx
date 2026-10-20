@@ -4,7 +4,7 @@ import { useState, useEffect, useActionState, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { handleAuth, requestPasswordReset } from './actions'
 import HCaptcha from '@hcaptcha/react-hcaptcha'
-import Link from 'next/link'
+import TopBar from '@/components/TopBar'
 import { Field } from '@/components/Field'
 
 type Mode = 'signin' | 'signup' | 'forgot'
@@ -71,20 +71,9 @@ export default function AuthForm({ siteKey }: AuthFormProps) {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--ink)' }}>
-      <nav style={{
-        padding: '16px 28px', borderBottom: '2px solid var(--ink)',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        background: 'var(--paper)',
-      }}>
-        <Link href="/" style={{
-          fontFamily: 'var(--font-display)', fontSize: 20, letterSpacing: -0.5,
-          color: 'var(--ink)', textDecoration: 'none',
-        }}>
-          regala<span style={{ color: 'var(--red)' }}>.</span>me
-        </Link>
-      </nav>
+      <TopBar band />
 
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 20px' }}>
+      <main id="main" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 20px' }}>
         <div style={{ width: '100%', maxWidth: 400 }}>
 
           {/* ── Signup email-sent confirmation ── */}
@@ -267,7 +256,7 @@ export default function AuthForm({ siteKey }: AuthFormProps) {
             </>
           )}
         </div>
-      </div>
+      </main>
     </div>
   )
 }
