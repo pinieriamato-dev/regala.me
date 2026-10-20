@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
+import { Field } from '@/components/Field'
 
 // Image URL field with a phone photo upload next to it. The input stays uncontrolled
 // with name="image_url", so the link-extractor can still fill it in the add form.
@@ -29,15 +30,20 @@ export default function ItemImageField({ defaultValue }: { defaultValue?: string
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-      <input
-        ref={urlRef}
-        name="image_url"
-        type="url"
-        defaultValue={defaultValue ?? ''}
-        placeholder="Link de imagen (opcional)"
-        className="rg-input"
-        style={{ fontSize: 13 }}
-      />
+      <Field label="Link de imagen">
+        <input
+          ref={urlRef}
+          name="image_url"
+          type="url"
+          inputMode="url"
+          autoComplete="off"
+          autoCapitalize="none"
+          defaultValue={defaultValue ?? ''}
+          placeholder="https://..."
+          className="rg-input"
+          style={{ fontSize: 13 }}
+        />
+      </Field>
       <input
         ref={fileRef}
         type="file"
@@ -58,7 +64,7 @@ export default function ItemImageField({ defaultValue }: { defaultValue?: string
       >
         {uploading ? 'SUBIENDO...' : 'SUBIR FOTO DESDE EL CELULAR'}
       </button>
-      {error && <p style={{ fontSize: 11, color: 'var(--red)', fontWeight: 700, margin: 0 }}>{error}</p>}
+      {error && <p role="alert" className="rg-error" style={{ fontSize: 11, margin: 0 }}>{error}</p>}
     </div>
   )
 }

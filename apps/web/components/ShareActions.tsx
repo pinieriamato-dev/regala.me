@@ -6,10 +6,11 @@ type Props = {
   url: string
   title: string
   compact?: boolean
+  label?: string
 }
 
 // Copy the link or open the system share sheet (Instagram, Telegram, mail…). WhatsApp stays a separate link in each page.
-export default function ShareActions({ url, title, compact = false }: Props) {
+export default function ShareActions({ url, title, compact = false, label = 'Link de tu lista' }: Props) {
   const [copied, setCopied] = useState(false)
   const [canShare, setCanShare] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -44,7 +45,7 @@ export default function ShareActions({ url, title, compact = false }: Props) {
           ref={inputRef}
           readOnly
           value={url}
-          aria-label="Link de tu lista"
+          aria-label={label}
           className="rg-input"
           onFocus={e => e.currentTarget.select()}
           style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 400 }}
