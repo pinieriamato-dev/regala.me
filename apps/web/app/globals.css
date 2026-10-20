@@ -18,6 +18,10 @@
   --shadow: 5px 5px 0 0 #0F0F0F;
   --shadow-sm: 3px 3px 0 0 #0F0F0F;
   --radius: 4px;
+
+  /* Text colors with enough contrast on cream/paper (WCAG AA) */
+  --ink-muted: rgba(15, 15, 15, 0.65);
+  --red-ink:   #B8261A;
 }
 
 html { background: var(--bg); scroll-behavior: smooth; }
@@ -186,6 +190,31 @@ body {
   outline: 3px solid var(--ink);
   outline-offset: 0;
   box-shadow: 4px 4px 0 0 var(--ink);
+}
+.rg-input[aria-invalid="true"] {
+  border-color: var(--red-ink);
+  box-shadow: 3px 3px 0 0 var(--red-ink);
+}
+
+/* ── Field labels, hints and errors (see components/Field.tsx) ── */
+.rg-label {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+.rg-hint {
+  font-size: 12px;
+  margin-top: 6px;
+  color: var(--ink-muted);
+}
+.rg-error {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--red-ink);
+  margin: 6px 0 0;
 }
 
 /* ── Sticker badges ──────────────────────────────────── */

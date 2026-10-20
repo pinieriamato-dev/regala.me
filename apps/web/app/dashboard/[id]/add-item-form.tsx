@@ -1,7 +1,8 @@
 'use client'
 
-import { useTransition, useState, useRef } from 'react'
+import { useTransition, useState, useRef, useId } from 'react'
 import { addItem } from '@/app/dashboard/actions'
+import { Field } from '@/components/Field'
 import ItemImageField from './item-image-field'
 
 const PRIORITIES = [
@@ -26,7 +27,9 @@ export default function AddItemForm({ listId, currency }: { listId: string; curr
   const [extracting,   setExtracting]   = useState(false)
   const [extractError, setExtractError] = useState('')
   const [extracted,    setExtracted]    = useState<ExtractedProduct | null>(null)
+  const [formError,    setFormError]    = useState('')
   const formRef = useRef<HTMLFormElement>(null)
+  const extractId = useId()
 
   const handleExtract = async () => {
     if (!extractUrl.trim()) return
@@ -66,8 +69,11 @@ export default function AddItemForm({ listId, currency }: { listId: string; curr
     e.preventDefault()
     const fd = new FormData(e.currentTarget)
     fd.set('priority', String(priority))
+    setFormError('')
     startTransition(async () => {
-      await addItem(listId, fd)
+      const res = await addItem(listId, fd)
+      // Keep the form open with the typed values if the server rejected the item.
+      if (res?.error) { setFormError(res.error); return }
       formRef.current?.reset()
       setPriority(1)
       setExtractUrl('')
@@ -98,9 +104,15 @@ export default function AddItemForm({ listId, currency }: { listId: string; curr
         <div className="rg-mono" style={{ fontSize: 9, marginBottom: 10, color: 'rgba(15,15,15,0.7)' }}>
           🔗 PEGÁ EL LINK → LO LLENAMOS AUTOMÁTICAMENTE
         </div>
+        <label htmlFor={extractId} className="sr-only">Link del producto para extraer datos</label>
         <div style={{ display: 'flex', gap: 8 }}>
           <input
+            id={extractId}
             type="url"
+            inputMode="url"
+            enterKeyHint="go"
+            autoComplete="off"
+            autoCapitalize="none"
             value={extractUrl}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setExtractUrl(e.target.value)}
             placeholder="https://www.mercadolibre.com.ar/..."
@@ -119,7 +131,7 @@ export default function AddItemForm({ listId, currency }: { listId: string; curr
           </button>
         </div>
         {extractError && (
-          <p style={{ fontSize: 11, color: 'var(--red)', fontWeight: 700, marginTop: 8, margin: '8px 0 0' }}>
+          <p role="alert" className="rg-error" style={{ fontSize: 11, margin: '8px 0 0' }}>
             {extractError}
           </p>
         )}
@@ -133,7 +145,7 @@ export default function AddItemForm({ listId, currency }: { listId: string; curr
                 onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
               />
             )}
-            <p className="rg-mono" style={{ fontSize: 9, color: 'var(--ink)', margin: 0 }}>
+            <p role="status" className="rg-mono" style={{ fontSize: 9, color: 'var(--ink)', margin: 0 }}>
               ✓ DATOS EXTRAÍDOS. REVISÁ Y AJUSTÁ SI HACE FALTA.
             </p>
           </div>
@@ -142,37 +154,54 @@ export default function AddItemForm({ listId, currency }: { listId: string; curr
 
       {/* Manual form */}
       <form ref={formRef} onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        <input
-          name="title"
-          type="text"
-          required
-          placeholder="Nombre del regalo *"
-          className="rg-input"
-          style={{ fontSize: 13 }}
-        />
-        <input
-          name="description"
-          type="text"
-          placeholder="Descripción breve (opcional)"
-          className="rg-input"
-          style={{ fontSize: 13 }}
-        />
-        <input
-          name="price"
-          type="text"
-          inputMode="decimal"
-          placeholder={`Precio en ${currency} (ej: 66500)`}
-          className="rg-input"
-          style={{ fontSize: 13 }}
-        />
-        <input
-          name="url"
-          type="url"
-          placeholder="Link al producto (opcional)"
-          className="rg-input"
-          style={{ fontSize: 13 }}
-        />
+        <Field label="Nombre del regalo">
+          <input
+            name="title"
+            type="text"
+            required
+            autoComplete="off"
+            autoCapitalize="sentences"
+            placeholder="Nombre del regalo *"
+            className="rg-input"
+            style={{ fontSize: 13 }}
+          />
+        </Field>
+        <Field label="Descripción">
+          <input
+            name="description"
+            type="text"
+            autoComplete="off"
+            placeholder="Descripción breve (opcional)"
+            className="rg-input"
+            style={{ fontSize: 13 }}
+          />
+        </Field>
+        <Field label="Precio">
+          <input
+            name="price"
+            type="text"
+            inputMode="decimal"
+            autoComplete="off"
+            placeholder={`Precio en ${currency} (ej: 66500)`}
+            className="rg-input"
+            style={{ fontSize: 13 }}
+          />
+        </Field>
+        <Field label="Link al producto">
+          <input
+            name="url"
+            type="url"
+            inputMode="url"
+            enterKeyHint="next"
+            autoComplete="off"
+            autoCapitalize="none"
+            placeholder="Link al producto (opcional)"
+            className="rg-input"
+            style={{ fontSize: 13 }}
+          />
+        </Field>
         <ItemImageField />
+        {formError && <p role="alert" className="rg-error" style={{ margin: 0 }}>{formError}</p>}
 
         <div>
           <div className="rg-mono" style={{ fontSize: 9, marginBottom: 8, color: 'rgba(15,15,15,0.6)' }}>PRIORIDAD</div>
