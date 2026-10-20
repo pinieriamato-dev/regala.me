@@ -124,7 +124,7 @@ export default async function AmigoGroupPage({ params }: Props) {
           <div className="rg-mono" style={{ fontSize: 9, marginBottom: 12, color: 'rgba(15,15,15,0.6)' }}>
             SORTEO · NO SE PUEDE DESHACER
           </div>
-          <DrawButton groupId={group.id} canDraw={count >= 3} />
+          <DrawButton groupId={group.id} canDraw={count >= 3} participants={count} />
         </div>
       )}
     </div>
