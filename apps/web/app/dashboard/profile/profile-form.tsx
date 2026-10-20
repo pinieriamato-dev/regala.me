@@ -2,6 +2,7 @@
 
 import { useActionState, useRef, useState } from 'react'
 import { updateProfile } from '@/app/dashboard/actions'
+import { Field } from '@/components/Field'
 
 type Profile = {
   username: string | null
@@ -12,9 +13,6 @@ type Profile = {
   instagram: string | null
   phone: string | null
 }
-
-const labelStyle = { fontSize: 9, marginBottom: 6, color: 'var(--ink-muted)' }
-const hintStyle = { fontSize: 8, marginTop: 4, color: 'var(--ink-muted)' }
 
 export default function ProfileForm({ profile, email }: { profile: Profile | null; email: string }) {
   const [state, action, pending]  = useActionState(updateProfile, null)
@@ -105,26 +103,27 @@ export default function ProfileForm({ profile, email }: { profile: Profile | nul
       </div>
 
       {uploadErr && (
-        <p style={{ fontSize: 12, color: 'var(--red-ink)', fontWeight: 700, margin: '-12px 0 0' }}>{uploadErr}</p>
+        <p role="alert" className="rg-error" style={{ margin: '-12px 0 0' }}>{uploadErr}</p>
       )}
 
       <div className="rg-divider" />
 
-      <div>
-        <div className="rg-mono" style={labelStyle}>NOMBRE</div>
+      <Field label="Nombre">
         <input
           name="display_name"
           type="text"
           maxLength={80}
+          autoComplete="name"
+          autoCapitalize="words"
           defaultValue={profile?.display_name ?? ''}
           placeholder="Tu nombre"
           className="rg-input"
           style={{ fontSize: 14, fontWeight: 700 }}
         />
-      </div>
+      </Field>
 
       <div>
-        <div className="rg-mono" style={labelStyle}>NOMBRE DE USUARIO</div>
+        <label htmlFor="profile-username" className="rg-label" style={{ marginBottom: 6 }}>Nombre de usuario</label>
         <div style={{ display: 'flex', alignItems: 'stretch' }}>
           <span className="rg-mono" style={{
             display: 'flex', alignItems: 'center', padding: '0 10px', fontSize: 11,
@@ -133,46 +132,47 @@ export default function ProfileForm({ profile, email }: { profile: Profile | nul
             regala.me/
           </span>
           <input
+            id="profile-username"
             name="username"
             type="text"
             maxLength={30}
+            autoComplete="username"
             autoCapitalize="none"
             autoCorrect="off"
             spellCheck={false}
+            aria-describedby="profile-username-hint"
             defaultValue={profile?.username ?? ''}
             placeholder="tu-usuario"
             className="rg-input"
             style={{ fontSize: 14, fontWeight: 700, flex: 1, minWidth: 0 }}
           />
         </div>
-        <div className="rg-mono" style={hintStyle}>
+        <p id="profile-username-hint" className="rg-hint">
           Es la dirección de tu perfil. Si la cambiás, los links viejos a tus listas dejan de funcionar.
-        </div>
+        </p>
       </div>
 
-      <div>
-        <div className="rg-mono" style={labelStyle}>MAIL</div>
+      <Field label="Mail" hint="Si lo cambiás, te mandamos un mail para confirmar la dirección nueva.">
         <input
           name="email"
           type="email"
           required
           maxLength={254}
           autoComplete="email"
+          inputMode="email"
+          autoCapitalize="none"
           defaultValue={email}
           className="rg-input"
           style={{ fontSize: 13 }}
         />
-        <div className="rg-mono" style={hintStyle}>
-          Si lo cambiás, te mandamos un mail para confirmar la dirección nueva.
-        </div>
-      </div>
+      </Field>
 
-      <div>
-        <div className="rg-mono" style={labelStyle}>INSTAGRAM</div>
+      <Field label="Instagram">
         <input
           name="instagram"
           type="text"
           maxLength={100}
+          autoComplete="off"
           autoCapitalize="none"
           autoCorrect="off"
           spellCheck={false}
@@ -181,10 +181,9 @@ export default function ProfileForm({ profile, email }: { profile: Profile | nul
           className="rg-input"
           style={{ fontSize: 13 }}
         />
-      </div>
+      </Field>
 
-      <div>
-        <div className="rg-mono" style={labelStyle}>TELÉFONO</div>
+      <Field label="Teléfono" hint="No se muestra en tu perfil público.">
         <input
           name="phone"
           type="tel"
@@ -195,40 +194,34 @@ export default function ProfileForm({ profile, email }: { profile: Profile | nul
           className="rg-input"
           style={{ fontSize: 13 }}
         />
-        <div className="rg-mono" style={hintStyle}>
-          No se muestra en tu perfil público.
-        </div>
-      </div>
+      </Field>
 
-      <div>
-        <div className="rg-mono" style={{ fontSize: 9, marginBottom: 6, color: 'var(--ink-muted)' }}>BIO</div>
+      <Field label="Bio">
         <textarea
           name="bio"
           maxLength={160}
+          autoComplete="off"
           defaultValue={profile?.bio ?? ''}
           placeholder="Una línea sobre vos (opcional)"
           className="rg-input"
           style={{ fontSize: 13, resize: 'vertical', minHeight: 72 }}
         />
-      </div>
+      </Field>
 
-      <div>
-        <div className="rg-mono" style={{ fontSize: 9, marginBottom: 6, color: 'var(--ink-muted)' }}>CUMPLEAÑOS</div>
+      <Field label="Cumpleaños" hint="Solo se muestra el día y mes en tu perfil público. El año queda privado.">
         <input
           name="birthday"
           type="date"
+          autoComplete="bday"
           defaultValue={profile?.birthday ?? ''}
           className="rg-input"
           style={{ fontSize: 13 }}
         />
-        <div className="rg-mono" style={{ fontSize: 8, marginTop: 4, color: 'var(--ink-muted)' }}>
-          Solo se muestra el día y mes en tu perfil público. El año queda privado.
-        </div>
-      </div>
+      </Field>
 
       {/* Save result, right above the submit button so it shows without scrolling. */}
       {state?.error && (
-        <p role="alert" style={{ fontSize: 12, color: 'var(--paper)', background: 'var(--red)', border: '2px solid var(--ink)', boxShadow: 'var(--shadow-sm)', padding: '12px 14px', fontWeight: 700, margin: 0 }}>
+        <p role="alert" style={{ fontSize: 12, color: 'var(--paper)', background: 'var(--red-ink)', border: '2px solid var(--ink)', boxShadow: 'var(--shadow-sm)', padding: '12px 14px', fontWeight: 700, margin: 0 }}>
           ! {state.error}
         </p>
       )}

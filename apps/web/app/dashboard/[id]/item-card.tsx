@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { deleteItem, editItem, moveItem, releaseClaim } from '@/app/dashboard/actions'
 import { formatPrice, type Item, type Priority } from 'shared'
+import { Field } from '@/components/Field'
 import ItemImageField from './item-image-field'
 
 const PRIORITIES: { value: Priority; label: string }[] = [
@@ -240,14 +241,18 @@ function EditForm({
   onSaved: () => void
 }) {
   const [priority, setPriority] = useState(item.priority ?? 1)
+  const [formError, setFormError] = useState('')
   const [pending, startTransition] = useTransition()
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const fd = new FormData(e.currentTarget)
     fd.set('priority', String(priority))
+    setFormError('')
     startTransition(async () => {
-      await editItem(item.id, listId, fd)
+      const res = await editItem(item.id, listId, fd)
+      // Stay in edit mode with the typed values if the save failed.
+      if (res?.error) { setFormError(res.error); return }
       onSaved()
     })
   }
@@ -261,41 +266,57 @@ function EditForm({
         <div className="rg-mono" style={{ fontSize: 9, marginBottom: 2, color: 'var(--ink-muted)' }}>
           EDITANDO ÍTEM
         </div>
-        <input
-          name="title"
-          type="text"
-          defaultValue={item.title}
-          required
-          className="rg-input"
-          style={{ fontSize: 13 }}
-          placeholder="Nombre del regalo *"
-        />
-        <input
-          name="description"
-          type="text"
-          defaultValue={item.description ?? ''}
-          className="rg-input"
-          style={{ fontSize: 13 }}
-          placeholder="Descripción (opcional)"
-        />
-        <input
-          name="price"
-          type="text"
-          inputMode="decimal"
-          // es-AR decimal comma so addItemSchema parses it back unchanged (12345.5 → "12345,5")
-          defaultValue={item.price ? String(item.price).replace('.', ',') : ''}
-          className="rg-input"
-          style={{ fontSize: 13 }}
-          placeholder={`Precio en ${currency} (opcional)`}
-        />
-        <input
-          name="url"
-          type="url"
-          defaultValue={item.url ?? ''}
-          className="rg-input"
-          style={{ fontSize: 13 }}
-          placeholder="Link al producto (opcional)"
-        />
+        <Field label="Nombre del regalo">
+          <input
+            name="title"
+            type="text"
+            defaultValue={item.title}
+            required
+            autoComplete="off"
+            autoCapitalize="sentences"
+            className="rg-input"
+            style={{ fontSize: 13 }}
+            placeholder="Nombre del regalo *"
+          />
+        </Field>
+        <Field label="Descripción">
+          <input
+            name="description"
+            type="text"
+            defaultValue={item.description ?? ''}
+            autoComplete="off"
+            className="rg-input"
+            style={{ fontSize: 13 }}
+            placeholder="Descripción (opcional)"
+          />
+        </Field>
+        <Field label="Precio">
+          <input
+            name="price"
+            type="text"
+            inputMode="decimal"
+            autoComplete="off"
+            // es-AR decimal comma so addItemSchema parses it back unchanged (12345.5 → "12345,5")
+            defaultValue={item.price ? String(item.price).replace('.', ',') : ''}
+            className="rg-input"
+            style={{ fontSize: 13 }}
+            placeholder={`Precio en ${currency} (opcional)`}
+          />
+        </Field>
+        <Field label="Link al producto">
+          <input
+            name="url"
+            type="url"
+            inputMode="url"
+            enterKeyHint="next"
+            autoComplete="off"
+            autoCapitalize="none"
+            defaultValue={item.url ?? ''}
+            className="rg-input"
+            style={{ fontSize: 13 }}
+            placeholder="Link al producto (opcional)"
+          />
+        </Field>
         <ItemImageField defaultValue={item.image_url} />
         <div>
           <div className="rg-mono" style={{ fontSize: 9, marginBottom: 6, color: 'var(--ink-muted)' }}>
@@ -321,6 +342,7 @@ function EditForm({
             ))}
           </div>
         </div>
+        {formError && <p role="alert" className="rg-error" style={{ margin: 0 }}>{formError}</p>}
         <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
           <button
             type="button"

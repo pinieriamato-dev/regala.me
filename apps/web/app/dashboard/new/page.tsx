@@ -7,6 +7,7 @@ import type { CreateWishlistResult } from '@/app/dashboard/actions'
 import { OCCASIONS, CURRENCIES } from 'shared'
 import type { OccasionId, Currency } from 'shared'
 import Link from 'next/link'
+import { Field } from '@/components/Field'
 
 const PERSONAL = { id: 'personal' as const, label: 'Lista personal', emoji: '✨' }
 
@@ -66,26 +67,26 @@ export default function NewListPage() {
 
       <div className="rg-card" style={{ padding: 28 }}>
         {state && 'error' in state && (
-          <p style={{ color: 'var(--red-ink)', fontWeight: 700, fontSize: 13, marginBottom: 16, padding: '10px 14px', border: '2px solid var(--red)' }}>
+          <p role="alert" style={{ color: 'var(--red-ink)', fontWeight: 700, fontSize: 13, marginBottom: 16, padding: '10px 14px', border: '2px solid var(--red)' }}>
             {state.error}
           </p>
         )}
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
 
           {/* Title */}
-          <div>
-            <div className="rg-mono" style={{ fontSize: 9, marginBottom: 8, color: 'var(--ink-muted)' }}>
-              NOMBRE DE LA LISTA *
-            </div>
+          <Field label="Nombre de la lista">
             <input
               name="title"
               type="text"
               required
+              autoComplete="off"
+              autoCapitalize="sentences"
+              enterKeyHint="next"
               placeholder={occasion === 'personal' ? 'Ej: Mi lista de deseos' : 'Ej: Mi cumple 30'}
               className="rg-input"
               style={{ fontSize: 14 }}
             />
-          </div>
+          </Field>
 
           {/* Occasion */}
           <div>
@@ -129,17 +130,15 @@ export default function NewListPage() {
 
           {/* Date — only for events */}
           {occasion !== 'personal' && (
-            <div>
-              <div className="rg-mono" style={{ fontSize: 9, marginBottom: 8, color: 'var(--ink-muted)' }}>
-                FECHA DEL EVENTO
-              </div>
+            <Field label="Fecha del evento">
               <input
                 name="occasion_date"
                 type="date"
+                autoComplete="off"
                 className="rg-input"
                 style={{ fontSize: 14 }}
               />
-            </div>
+            </Field>
           )}
 
           {/* Currency */}

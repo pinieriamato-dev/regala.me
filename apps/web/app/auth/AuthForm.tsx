@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import { handleAuth, requestPasswordReset } from './actions'
 import HCaptcha from '@hcaptcha/react-hcaptcha'
 import Link from 'next/link'
+import { Field } from '@/components/Field'
 
 type Mode = 'signin' | 'signup' | 'forgot'
 
@@ -127,13 +128,11 @@ export default function AuthForm({ siteKey }: AuthFormProps) {
               <div className="rg-card" style={{ padding: 24 }}>
                 <form action={forgotAction} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                   <input type="hidden" name="captchaToken" value={forgotCaptchaToken} />
-                  <div>
-                    <div style={{ fontFamily: 'var(--font-display)', fontSize: 10, letterSpacing: 1.5, marginBottom: 5 }}>
-                      EMAIL
-                    </div>
-                    <input className="rg-input" type="email" name="email"
+                  <Field label="Email">
+                    <input className="rg-input" type="email" name="email" autoComplete="email"
+                      inputMode="email" autoCapitalize="none" spellCheck={false}
                       placeholder="vos@email.com" required />
-                  </div>
+                  </Field>
                   {siteKey && (
                     <div style={{ display: 'flex', justifyContent: 'center' }}>
                       <HCaptcha
@@ -174,39 +173,31 @@ export default function AuthForm({ siteKey }: AuthFormProps) {
                   <input type="hidden" name="mode" value={mode} />
                   <input type="hidden" name="captchaToken" value={authCaptchaToken} />
                   {mode === 'signup' && (
-                    <div>
-                      <div style={{ fontFamily: 'var(--font-display)', fontSize: 10, letterSpacing: 1.5, marginBottom: 5 }}>
-                        TU NOMBRE
-                      </div>
-                      <input className="rg-input" type="text" name="name"
-                        placeholder="Sofía García" required />
-                    </div>
+                    <Field label="Tu nombre">
+                      <input className="rg-input" type="text" name="name" autoComplete="name"
+                        autoCapitalize="words" placeholder="Sofía García" required />
+                    </Field>
                   )}
-                  <div>
-                    <div style={{ fontFamily: 'var(--font-display)', fontSize: 10, letterSpacing: 1.5, marginBottom: 5 }}>
-                      EMAIL
-                    </div>
-                    <input className="rg-input" type="email" name="email"
+                  <Field label="Email">
+                    <input className="rg-input" type="email" name="email" autoComplete="email"
+                      inputMode="email" autoCapitalize="none" spellCheck={false}
                       placeholder="vos@email.com" required />
-                  </div>
-                  <div>
-                    <div style={{
-                      fontFamily: 'var(--font-display)', fontSize: 10, letterSpacing: 1.5,
-                      marginBottom: 5, display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                    }}>
-                      CONTRASEÑA
-                      {mode === 'signin' && (
-                        <button type="button" onClick={() => switchMode('forgot')} style={{
-                          ...linkStyle, fontSize: 9, letterSpacing: 0.5,
-                        }}>
-                          ¿OLVIDASTE LA CLAVE?
-                        </button>
-                      )}
-                    </div>
+                  </Field>
+                  <Field
+                    label="Contraseña"
+                    labelAction={mode === 'signin' && (
+                      <button type="button" onClick={() => switchMode('forgot')} style={{
+                        ...linkStyle, fontSize: 9, letterSpacing: 0.5,
+                      }}>
+                        ¿OLVIDASTE LA CLAVE?
+                      </button>
+                    )}
+                  >
                     <input className="rg-input" type="password" name="password"
+                      autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
                       placeholder={mode === 'signup' ? 'Mínimo 6 caracteres, letras y números' : 'Tu contraseña'}
                       minLength={6} required />
-                  </div>
+                  </Field>
 
                   {siteKey && (
                     <div style={{ display: 'flex', justifyContent: 'center' }}>
@@ -288,7 +279,7 @@ const linkStyle: React.CSSProperties = {
 
 function ErrorBox({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{
+    <div role="alert" style={{
       padding: '10px 14px', background: 'rgba(230,51,34,0.08)',
       border: '2px solid var(--red)', borderRadius: '4px',
       fontSize: 12, color: 'var(--red-ink)', fontWeight: 700,
