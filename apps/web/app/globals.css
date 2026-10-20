@@ -13,14 +13,27 @@
   --paper:  #FBF8EE;
   --yellow: #F5E13E;
   --red:    #E63322;
+  --red-ink:   #B8261A; /* texto y errores: 5.5:1 sobre crema */
+  --ink-muted:   rgba(15,15,15,0.65);   /* texto secundario: 5.7:1 sobre crema */
+  --paper-muted: rgba(251,248,238,0.62); /* texto secundario sobre tinta: 7.2:1 */
   --green:  #2EC25E;
   --border: 2px solid #0F0F0F;
   --shadow: 5px 5px 0 0 #0F0F0F;
   --shadow-sm: 3px 3px 0 0 #0F0F0F;
   --radius: 4px;
+
+  /* Motion tokens: short, physical, transform/opacity only (no blur) */
+  --dur-instant: 80ms;
+  --dur-fast: 140ms;
+  --dur-base: 220ms;
+  --dur-slow: 360ms;
+  --dur-celebrate: 900ms;
+  --ease-out: cubic-bezier(.2, .8, .2, 1);
+  --ease-in: cubic-bezier(.4, 0, 1, 1);
+  --ease-stamp: cubic-bezier(.3, 1.5, .5, 1);
 }
 
-html { background: var(--bg); scroll-behavior: smooth; }
+html { background: var(--bg); }
 
 body {
   background: var(--bg);
@@ -28,6 +41,16 @@ body {
   font-family: var(--font-body);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Keyboard focus: one visible ring for every interactive element. Inputs keep their own ring in .rg-input. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 2px;
+}
+.rg-card-ink :focus-visible,
+.bg-ink :focus-visible {
+  outline-color: var(--yellow);
 }
 
 /* ── Display / headline ─────────────────────────────── */
@@ -58,7 +81,7 @@ body {
   font-size: 11px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(15, 15, 15, 0.55);
+  color: var(--ink-muted);
 }
 
 /* ── Cards ──────────────────────────────────────────── */
@@ -95,7 +118,6 @@ body {
   text-transform: uppercase;
   cursor: pointer;
   border-radius: var(--radius);
-  transition: transform 0.08s ease, box-shadow 0.08s ease;
   text-decoration: none;
 }
 .rg-btn-primary {
@@ -128,9 +150,33 @@ body {
   transform: translate(-1px, -1px);
   box-shadow: var(--shadow);
 }
-.rg-btn:focus-visible {
-  outline: 3px solid var(--ink);
-  outline-offset: 2px;
+/* Press and disabled states for every button. Placed after the variants so it wins at equal specificity. */
+.rg-btn, .rg-nav, .rg-chip, .rg-icon-btn {
+  transition: transform var(--dur-fast) var(--ease-out),
+              box-shadow var(--dur-fast) var(--ease-out),
+              background-color var(--dur-fast) var(--ease-out);
+}
+.rg-btn:active:not(:disabled) {
+  transform: translate(3px, 3px);
+  box-shadow: 0 0 0 0 var(--ink);
+  transition-duration: var(--dur-instant);
+}
+.rg-btn:disabled,
+.rg-btn[aria-disabled="true"] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+.rg-btn:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+@media (hover: none) {
+  .rg-btn:hover {
+    transform: none;
+    box-shadow: var(--shadow-sm);
+  }
 }
 
 /* Header nav buttons: small bordered chips that lift on hover and press in on click */
@@ -147,7 +193,6 @@ body {
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
   cursor: pointer;
-  transition: transform 0.08s ease, box-shadow 0.08s ease, background-color 0.08s ease;
 }
 .rg-nav:hover {
   background: var(--yellow);
@@ -157,13 +202,6 @@ body {
 .rg-nav:active {
   transform: translate(2px, 2px);
   box-shadow: none;
-}
-.rg-nav:focus-visible {
-  outline: 3px solid var(--ink);
-  outline-offset: 2px;
-}
-@media (prefers-reduced-motion: reduce) {
-  .rg-nav { transition: none; }
 }
 
 /* ── Inputs ──────────────────────────────────────────── */
@@ -180,12 +218,37 @@ body {
   color: var(--ink);
   outline: none;
 }
-.rg-input::placeholder { color: rgba(15,15,15,0.38); }
+.rg-input::placeholder { color: var(--ink-muted); }
 .rg-input:focus { box-shadow: var(--shadow); }
 .rg-input:focus-visible {
   outline: 3px solid var(--ink);
   outline-offset: 0;
   box-shadow: 4px 4px 0 0 var(--ink);
+}
+.rg-input[aria-invalid="true"] {
+  border-color: var(--red-ink);
+  box-shadow: 3px 3px 0 0 var(--red-ink);
+}
+
+/* ── Field labels, hints and errors (see components/Field.tsx) ── */
+.rg-label {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+.rg-hint {
+  font-size: 12px;
+  margin-top: 6px;
+  color: var(--ink-muted);
+}
+.rg-error {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--red-ink);
+  margin: 6px 0 0;
 }
 
 /* ── Sticker badges ──────────────────────────────────── */
@@ -193,9 +256,9 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 3px 8px;
+  padding: 4px 8px;
   font-family: var(--font-display);
-  font-size: 9px;
+  font-size: 10px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   border: 1.5px solid var(--ink);
@@ -204,10 +267,34 @@ body {
   background: var(--yellow);
   color: var(--ink);
 }
-.rg-sticker-red   { background: var(--red);   color: #fff; }
+.rg-sticker-red   { background: var(--red-ink); color: #fff; }
 .rg-sticker-green { background: var(--green);  color: var(--ink); }
 .rg-sticker-ink   { background: var(--ink);   color: var(--paper); }
 .rg-sticker-paper { background: var(--paper); color: var(--ink); }
+
+/* ── Segmented control (dark surface, yellow = active) ── */
+.rg-seg {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  border: 1.5px solid var(--paper-muted);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.rg-seg button {
+  min-height: 44px;
+  padding: 8px 4px;
+  background: transparent;
+  color: var(--paper);
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  border: 0;
+  border-right: 1.5px solid var(--paper-muted);
+  cursor: pointer;
+}
+.rg-seg button:last-child { border-right: 0; }
+.rg-seg button[aria-pressed="true"] { background: var(--yellow); color: var(--ink); }
+.rg-seg button:disabled { cursor: default; }
 
 /* ── Divider ─────────────────────────────────────────── */
 .rg-divider { height: 2px; background: var(--ink); }
@@ -226,7 +313,7 @@ body {
   justify-content: center;
   font-family: var(--font-mono);
   font-size: 9px;
-  color: rgba(15,15,15,0.5);
+  color: var(--ink-muted);
   text-align: center;
   padding: 6px;
 }
@@ -277,9 +364,6 @@ body {
   box-shadow: var(--shadow-sm);
   animation: rg-stripes 900ms linear infinite;
 }
-@keyframes rg-stripes {
-  to { background-position: 22.6px 0, 0 0; }
-}
 @media (prefers-reduced-motion: reduce) {
   .rg-skeleton { animation: none; }
 }
@@ -294,6 +378,40 @@ body {
   gap: 16px;
   padding: 48px 16px;
   text-align: center;
+/* ── Gifter claim celebration ───────────────────────── */
+.rg-sticker.is-stamped {
+  animation: rg-stamp 260ms var(--ease-stamp, cubic-bezier(0.2, 1.4, 0.4, 1)) both;
+}
+.rg-thud {
+  animation: rg-thud 160ms ease-out both;
+}
+.rg-confetti {
+  position: absolute;
+  left: 24px;
+  top: 18px;
+  pointer-events: none;
+}
+.rg-confetti i {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: var(--c);
+  border: 1.5px solid var(--ink);
+  animation: rg-confetti var(--dur-celebrate, 900ms) var(--ease-out, cubic-bezier(0.2, 0.8, 0.2, 1)) both;
+}
+.rg-strike {
+  background: linear-gradient(var(--ink), var(--ink)) no-repeat 0 55% / 0% 2px;
+  animation: rg-strike 320ms var(--ease-out, cubic-bezier(0.2, 0.8, 0.2, 1)) forwards;
+}
+@keyframes rg-thud {
+  50% { transform: translate(3px, 3px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rg-sticker.is-stamped,
+  .rg-thud,
+  .rg-strike { animation: none; }
+  .rg-strike { background-size: 100% 2px; }
+  .rg-confetti { display: none; }
 }
 
 /* ── Scroll hide (scoped — don't hide all scrollbars) ── */
@@ -304,6 +422,61 @@ body {
 .rg-marquee-track::-webkit-scrollbar,
 .rg-hscroll::-webkit-scrollbar {
   display: none;
+}
+
+/* ── Keyframes ───────────────────────────────────────── */
+@keyframes rg-stamp {            /* sticker / seal lands on the paper */
+  0%   { transform: scale(1.8) rotate(-14deg); opacity: 0; }
+  60%  { transform: scale(.94) rotate(-2deg);  opacity: 1; }
+  100% { transform: scale(1)   rotate(-3deg); }
+}
+@keyframes rg-rise {             /* card entrance, shadow lands last */
+  from { transform: translateY(10px); box-shadow: 0 0 0 0 var(--ink); }
+  to   { transform: none;             box-shadow: var(--shadow-sm); }
+}
+@keyframes rg-drop {             /* inline confirm panel */
+  from { transform: translateY(-6px) rotate(-.6deg); opacity: 0; }
+  to   { transform: none; opacity: 1; }
+}
+@keyframes rg-wobble {           /* .rg-em / stickers, once */
+  0%, 100% { transform: rotate(-1.2deg); }
+  30% { transform: rotate(-4deg); }
+  60% { transform: rotate(1.5deg); }
+}
+@keyframes rg-confetti {         /* square paper bits, no blur */
+  0%   { transform: rotate(var(--a)) translateY(0) scale(.4); opacity: 1; }
+  70%  { opacity: 1; }
+  100% { transform: rotate(var(--a)) translateY(calc(var(--d) * -1)) rotate(200deg) scale(1); opacity: 0; }
+}
+@keyframes rg-strike { to { background-size: 100% 2px; } }
+@keyframes rg-flash  { from { background-color: var(--yellow); } to { background-color: var(--paper); } }
+@keyframes rg-stripes { to { background-position: 22.6px 0; } }
+@keyframes rg-shake  {
+  0%, 100% { transform: none; } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); }
+}
+
+/* ── Utility classes ─────────────────────────────────── */
+/* backwards, not both: a forwards fill would pin box-shadow and override inline "none" on claimed gifter cards */
+.rg-rise    { animation: rg-rise var(--dur-base) var(--ease-out) backwards; animation-delay: calc(var(--i, 0) * 40ms); }
+.rg-stamped { animation: rg-stamp 260ms var(--ease-stamp) both; }
+.rg-em.is-wobble:hover, .rg-em.is-wobble:focus-visible { animation: rg-wobble 600ms var(--ease-out); }
+.rg-shake   { animation: rg-shake 200ms var(--ease-out); }
+.marquee-track:hover, .marquee-track:focus-within { animation-play-state: paused; }
+
+/* ── Reduced motion: keep state changes, drop travel ── */
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+  .marquee-track { animation: none !important; transform: none !important; }
+  .rg-confetti { display: none; }
+  .rg-btn:hover, .rg-nav:hover, .rg-chip:hover { transform: none; }
+  .rg-stamped { transform: rotate(-3deg); opacity: 1; }
 }
 
 /* ── Homepage hero — responsive ─────────────────────── */
@@ -333,4 +506,33 @@ body {
     width: 220px !important;
   }
   .hero-content { order: 0; }
+}
+
+/* ── Dashboard & empty states (pulido del dashboard) ── */
+.rg-page-actions { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; }
+.rg-page-actions > .rg-page-primary { order: -1; flex: 1 1 100%; justify-content: center; }
+.rg-page-actions > .rg-page-secondary { flex: 1 1 0; justify-content: center; padding: 9px 14px; font-size: 11px; }
+@media (min-width: 640px) {
+  .rg-page-actions { width: auto; }
+  .rg-page-actions > .rg-page-primary { order: 0; flex: none; }
+  .rg-page-actions > .rg-page-secondary { flex: none; }
+}
+
+/* Whole card is clickable: the stretched link covers the card, other controls sit above it. */
+.rg-card-link { position: relative; }
+.rg-stretch::after { content: ""; position: absolute; inset: 0; }
+.rg-card-link .rg-raise { position: relative; z-index: 1; }
+
+.rg-empty {
+  padding: 40px 24px;
+  text-align: center;
+  border: 2px dashed var(--ink);
+  background: var(--paper);
+}
+
+.rg-merge-grid { display: grid; grid-template-columns: 1fr 32px 1fr; gap: 12px; align-items: start; }
+.rg-merge-arrow { font-family: var(--font-display); font-size: 22px; text-align: center; padding-top: 44px; }
+@media (max-width: 559px) {
+  .rg-merge-grid { grid-template-columns: 1fr; }
+  .rg-merge-arrow { padding-top: 0; transform: rotate(90deg); line-height: 1; }
 }

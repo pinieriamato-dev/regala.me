@@ -3,6 +3,7 @@
 import { useActionState } from 'react'
 import { updatePassword } from '@/app/auth/actions'
 import TopBar from '@/components/TopBar'
+import { Field } from '@/components/Field'
 
 export default function ResetPasswordForm() {
   const [state, action, pending] = useActionState(updatePassword, null)
@@ -22,26 +23,20 @@ export default function ResetPasswordForm() {
 
           <div className="rg-card" style={{ padding: 24 }}>
             <form action={action} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <div>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 10, letterSpacing: 1.5, marginBottom: 5 }}>
-                  NUEVA CONTRASEÑA
-                </div>
-                <input className="rg-input" type="password" name="password"
+              <Field label="Nueva contraseña">
+                <input className="rg-input" type="password" name="password" autoComplete="new-password"
                   placeholder="Mínimo 6 caracteres, letras y números" minLength={6} required />
-              </div>
-              <div>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 10, letterSpacing: 1.5, marginBottom: 5 }}>
-                  CONFIRMAR CONTRASEÑA
-                </div>
-                <input className="rg-input" type="password" name="confirm"
+              </Field>
+              <Field label="Confirmar contraseña">
+                <input className="rg-input" type="password" name="confirm" autoComplete="new-password"
                   placeholder="Repetí la contraseña" minLength={6} required />
-              </div>
+              </Field>
 
               {state?.error && (
-                <div style={{
+                <div role="alert" style={{
                   padding: '10px 14px', background: 'rgba(230,51,34,0.08)',
                   border: '2px solid var(--red)', borderRadius: '4px',
-                  fontSize: 12, color: 'var(--red)', fontWeight: 700,
+                  fontSize: 12, color: 'var(--red-ink)', fontWeight: 700,
                 }}>
                   {state.error}
                 </div>

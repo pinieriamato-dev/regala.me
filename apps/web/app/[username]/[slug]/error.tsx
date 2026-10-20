@@ -9,7 +9,7 @@ export default function GifterError({ reset }: { error: Error & { digest?: strin
       <TopBar band />
       <main id="main" className="rg-system">
         <h1 className="rg-display" style={{ fontSize: 48 }}>ALGO SALIÓ MAL.</h1>
-        <p style={{ fontSize: 14, color: 'rgba(15,15,15,0.6)', margin: 0 }}>No pudimos cargar esta lista. Intentá de nuevo.</p>
+        <p style={{ fontSize: 14, color: 'var(--ink-muted)', margin: 0 }}>No pudimos cargar esta lista. Intentá de nuevo.</p>
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
           <button type="button" onClick={reset} className="rg-btn rg-btn-primary" style={{ padding: '12px 24px', fontSize: 13 }}>
             PROBAR DE NUEVO
