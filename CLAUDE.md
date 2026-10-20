@@ -100,9 +100,9 @@ and `display_name` from the **email local part**, ignoring the name typed at sig
 (`user_metadata.display_name`). Usernames can contain `+` (email aliases) — see "Route params" in §7.
 
 ### Migrations
-New schema changes go in `supabase/migrations/<timestamp>_<name>.sql`. `.github/workflows/migrate.yml` runs `supabase db push`
-against the production project when a change to that folder lands on `main`, so nobody applies them by hand.
-Needs the repo secrets `SUPABASE_ACCESS_TOKEN` and `SUPABASE_DB_PASSWORD`. Migrations must be safe to re-run (`if not exists`, `drop ... if exists`).
+New schema changes go in `supabase/migrations/<timestamp>_<name>.sql`. The Supabase GitHub integration (dashboard: Project Settings → Integrations → GitHub)
+applies that folder to production when a change lands on `main`, so nobody applies them by hand. `supabase/config.toml` is what the integration reads.
+Migrations must be safe to re-run (`if not exists`, `drop ... if exists`). Don't enable the integration and a GitHub Action that both push migrations.
 Older scripts in `docs/sql/` were applied by hand before this and are not replayed.
 As of Oct 2026 the Supabase MCP connector in Claude sessions is denied SQL/advisor access — ask the user to grant it, or hand them the SQL to run.
 

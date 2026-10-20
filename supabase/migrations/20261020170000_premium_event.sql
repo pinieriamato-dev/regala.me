@@ -1,5 +1,5 @@
 -- ROADMAP L3: premium per event (cover image + custom list URL + invitation with QR).
--- Applied to production by .github/workflows/migrate.yml when this file lands on main.
+-- Applied by the Supabase GitHub integration from supabase/migrations/ on deploy.
 -- The app selects is_premium and cover_url, so this must be applied before the code that reads them.
 
 alter table public.wishlists
