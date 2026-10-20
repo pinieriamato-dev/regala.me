@@ -7,15 +7,9 @@ import { createServerSupabase } from '@/lib/supabase/server'
 import { notifyOwnerOfClaim } from '@/lib/notify-owner'
 import { z } from 'zod'
 import { trackEvent } from '@/lib/analytics'
-import { createColectaCheckout, mercadoPagoEnabled } from '@/lib/mercadopago'
 
 type ClaimState = { error?: string; success?: boolean; releaseToken?: string | null } | null
-type ColectaState = { error?: string; redirectTo?: string } | null
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://regala.me'
-const COLECTA_MIN_ARS = 100
-// Same shape the gifter page uses for its path: /{username}/{slug}, username possibly percent-encoded.
-const RETURN_PATH_RE = /^\/[\w%+.-]+\/[\w-]+$/
+type ShareState = { error?: string; success?: boolean; releaseToken?: string | null } | null
 
 // Gifters type a free-text name; keep it a plausible human name, not a link or markup.
 const nameSchema = z
@@ -99,14 +93,14 @@ export async function claimItem(_prevState: ClaimState, formData: FormData): Pro
   // Fail open if the count can't be read: a broken limiter must not block real gifters.
   if (!countError && (recentOnList ?? 0) >= LIST_MAX_CLAIMS) return { error: TOO_MANY }
 
-  // An open colecta means several gifters are chipping in: a whole-item claim would clash with it.
-  const { count: colectaCount, error: colectaError } = await supabase
+  // Once several people have pledged toward a gift, it's shared: a whole-item claim would clash with that.
+  const { count: sharedCount, error: sharedError } = await supabase
     .from('claims')
     .select('id', { count: 'exact', head: true })
     .eq('item_id', parsed.data.item_id)
     .eq('is_group_gift', true)
-  if (!colectaError && (colectaCount ?? 0) > 0) {
-    return { error: 'Este regalo se está colectando entre varios. Sumá un aporte.' }
+  if (!sharedError && (sharedCount ?? 0) > 0) {
+    return { error: 'Este regalo se está compartiendo entre varios. Sumá un aporte.' }
   }
 
   // The gifter keeps the raw token (localStorage) to undo their claim; the DB only stores its hash.
@@ -144,25 +138,21 @@ export async function claimItem(_prevState: ClaimState, formData: FormData): Pro
   return { success: true, releaseToken: tokenSaved ? releaseToken : null }
 }
 
-// Group gift: several gifters pay a share through Mercado Pago. The claim row is only written once the
-// webhook confirms the payment, so a pending or abandoned checkout never shows up as a contribution.
-export async function startColecta(_prevState: ColectaState, formData: FormData): Promise<ColectaState> {
-  if (!mercadoPagoEnabled()) return { error: 'Las colectas todavía no están disponibles.' }
-
+// Shared gift: several gifters each pledge a part of an item's price. Nothing is paid in the app;
+// the gifters coordinate the money between them, so this only records who chips in how much.
+export async function pledgeToGift(_prevState: ShareState, formData: FormData): Promise<ShareState> {
   const itemId = z.string().uuid().safeParse(formData.get('item_id'))
   if (!itemId.success) return { error: 'No se pudo aportar. Intentá de nuevo.' }
 
   const name = nameSchema.safeParse(formData.get('name') ?? '')
   if (!name.success) return { error: name.error.issues[0]?.message ?? 'Escribí tu nombre.' }
 
-  // LATAM thousands separators are fine ("5.000"); decimals are not, since Mercado Pago gets whole pesos.
+  // LATAM thousands separators are fine ("5.000"); decimals are not.
   const amountDigits = String(formData.get('amount') ?? '').replace(/[.\s]/g, '')
-  if (!/^\d{1,9}$/.test(amountDigits)) return { error: 'Poné un monto en pesos, sin centavos.' }
+  if (!/^\d{1,12}$/.test(amountDigits) || Number(amountDigits) < 1) {
+    return { error: 'Poné un monto entero, sin centavos.' }
+  }
   const amount = Number(amountDigits)
-  if (amount < COLECTA_MIN_ARS) return { error: `El aporte mínimo es $${COLECTA_MIN_ARS}.` }
-
-  const returnPath = String(formData.get('return_path') ?? '')
-  if (!RETURN_PATH_RE.test(returnPath)) return { error: 'No se pudo aportar. Intentá de nuevo.' }
 
   const h = await headers()
   const ip = h.get('x-forwarded-for')?.split(',')[0]?.trim() || h.get('x-real-ip') || 'unknown'
@@ -170,57 +160,61 @@ export async function startColecta(_prevState: ColectaState, formData: FormData)
 
   const supabase = await createServerSupabase()
 
-  // Surprise lists never show money raised, and colectas on them would leak it, so they are out.
+  // Surprise lists never show money raised, so they can't be shared.
   const { data: item } = await supabase
     .from('items')
-    .select('id, title, price, wishlist_id, wishlists!inner(privacy_level, is_surprise, currency)')
+    .select('id, price, wishlists!inner(privacy_level, is_surprise)')
     .eq('id', itemId.data)
     .in('wishlists.privacy_level', ['public', 'link_only'])
     .single()
 
   // The embedded list is a single row (many-to-one), though the generated types read it as an array.
-  const list = item?.wishlists as unknown as { is_surprise: boolean; currency: string } | undefined
-  if (!item || !item.price || !list || list.is_surprise || list.currency !== 'ARS') {
-    return { error: 'No se pudo aportar a esta colecta.' }
+  const list = item?.wishlists as unknown as { is_surprise: boolean } | undefined
+  if (!item || !item.price || !list || list.is_surprise) {
+    return { error: 'No se pudo aportar a este regalo.' }
   }
 
-  const { count: claimedCount } = await supabase
+  // Read every claim row and split in code: rows written before the is_group_gift default are null.
+  const { data: existing } = await supabase
     .from('claims')
-    .select('id', { count: 'exact', head: true })
+    .select('is_group_gift, contribution_amount')
     .eq('item_id', item.id)
-    .eq('is_group_gift', false)
-  if ((claimedCount ?? 0) > 0) return { error: '¡Ya alguien lo reclamó entero!' }
+  const rows = (existing ?? []) as { is_group_gift: boolean | null; contribution_amount: number | null }[]
+  if (rows.some(r => !r.is_group_gift)) return { error: '¡Ya alguien lo reclamó entero!' }
 
-  const { data: contributions } = await supabase
-    .from('claims')
-    .select('contribution_amount')
-    .eq('item_id', item.id)
-    .eq('is_group_gift', true)
-  const raised = (contributions ?? []).reduce((sum: number, c: { contribution_amount: number | null }) =>
-    sum + Number(c.contribution_amount ?? 0), 0)
+  const raised = rows.reduce((sum, r) => sum + Number(r.contribution_amount ?? 0), 0)
   const remaining = Math.ceil(Number(item.price) - raised)
-  if (remaining <= 0) return { error: '¡Ya llegaron al monto del regalo!' }
+  if (remaining <= 0) return { error: '¡Ya llegó al monto del regalo!' }
   if (amount > remaining) return { error: `Lo que falta es $${remaining.toLocaleString('es-AR')}.` }
 
-  try {
-    const redirectTo = await createColectaCheckout({
-      itemId: item.id,
-      itemTitle: item.title,
-      amount,
-      metadata: {
-        item_id: item.id,
-        wishlist_id: item.wishlist_id,
-        claimer_name: name.data,
-        amount,
-      },
-      returnUrl: `${SITE_URL}${returnPath}`,
-      siteUrl: SITE_URL,
-    })
-    return { redirectTo }
-  } catch (err) {
-    console.error('Colecta checkout failed', err)
-    return { error: 'No pudimos abrir el pago. Intentá de nuevo.' }
+  const releaseToken = randomUUID()
+  let { error } = await supabase.from('claims').insert({
+    item_id: item.id,
+    claimer_name: name.data,
+    is_group_gift: true,
+    contribution_amount: amount,
+    release_token_hash: hashReleaseToken(releaseToken),
+  })
+  let tokenSaved = true
+
+  // Column not migrated yet: record the pledge without undo support, same as a whole claim.
+  if (error?.code === 'PGRST204') {
+    tokenSaved = false
+    ;({ error } = await supabase.from('claims').insert({
+      item_id: item.id,
+      claimer_name: name.data,
+      is_group_gift: true,
+      contribution_amount: amount,
+    }))
   }
+
+  if (error) {
+    // Until docs/sql/2026-10-20-group-gift.sql runs, the item-level unique index still blocks a second row.
+    if (error.code === '23505') return { error: 'No se pudo aportar. Puede que el regalo ya esté reclamado.' }
+    return { error: 'No se pudo aportar. Intentá de nuevo.' }
+  }
+
+  return { success: true, releaseToken: tokenSaved ? releaseToken : null }
 }
 
 export async function releaseClaim(itemId: string, token: string): Promise<{ error?: string }> {

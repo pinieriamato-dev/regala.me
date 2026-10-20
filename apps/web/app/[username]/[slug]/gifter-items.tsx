@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect, useTransition } from 'react'
 import { formatPrice, type Item } from 'shared'
 import ClaimButton from './claim-button'
-import ColectaButton from './colecta-button'
+import PledgeButton from './pledge-button'
 import { releaseClaim } from './actions'
 
 type Props = {
@@ -12,8 +12,10 @@ type Props = {
   currency: string
   // Owner looking at their own surprise list: the server sends no claim data, so hide claim UI too.
   ownerSurpriseView: boolean
-  // Set only when Mercado Pago is configured and the list isn't a surprise: money raised per item.
-  colecta?: { returnPath: string; raised: Record<string, number> }
+  // Amount already pledged per item by shared-gift gifters. Empty on surprise lists.
+  raised: Record<string, number>
+  // False on surprise lists: a shared gift would show how much was raised.
+  sharesOpen: boolean
 }
 
 const tokenKey = (itemId: string) => `regalame:claim:${itemId}`
@@ -28,7 +30,7 @@ function writeToken(itemId: string, token: string | null) {
   } catch {}
 }
 
-export default function GifterItems({ items, claimedIds, currency, ownerSurpriseView, colecta }: Props) {
+export default function GifterItems({ items, claimedIds, currency, ownerSurpriseView, raised, sharesOpen }: Props) {
   const [localClaimed, setLocalClaimed] = useState<Set<string>>(() => new Set(claimedIds))
   // Items this browser claimed → undo token (null when the claim can't be undone).
   const [mine,         setMine]         = useState<Record<string, string | null>>({})
@@ -41,20 +43,27 @@ export default function GifterItems({ items, claimedIds, currency, ownerSurprise
     setLocalClaimed(new Set(claimedIds))
   }, [claimedIds])
 
+  // Tokens for whole claims and for pledges, which don't mark the item as claimed.
   useEffect(() => {
     const found: Record<string, string> = {}
-    for (const id of claimedIds) {
+    for (const { id } of items) {
       const token = readToken(id)
       if (token) found[id] = token
     }
     if (Object.keys(found).length) setMine(prev => ({ ...found, ...prev }))
-  }, [claimedIds])
+  }, [items])
 
   const handleClaimed = useCallback((itemId: string, releaseToken: string | null) => {
     writeToken(itemId, releaseToken)
     setLocalClaimed(prev => new Set([...prev, itemId]))
     setMine(prev => ({ ...prev, [itemId]: releaseToken }))
     setJustClaimed(prev => new Set([...prev, itemId]))
+  }, [])
+
+  // A pledge keeps the item open for others: only the undo token is kept, not a claimed state.
+  const handlePledged = useCallback((itemId: string, releaseToken: string | null) => {
+    if (releaseToken) writeToken(itemId, releaseToken)
+    setMine(prev => ({ ...prev, [itemId]: releaseToken }))
   }, [])
 
   const handleUndo = (itemId: string) => {
@@ -102,8 +111,8 @@ export default function GifterItems({ items, claimedIds, currency, ownerSurprise
       {items.map((item) => {
         const claimed = claimedSet.has(item.id)
         const isMine  = item.id in mine
-        const raised    = colecta?.raised[item.id] ?? 0
-        const remaining = item.price ? Math.ceil(item.price - raised) : 0
+        const raisedSoFar = raised[item.id] ?? 0
+        const remaining   = item.price ? Math.ceil(item.price - raisedSoFar) : 0
 
         return (
           <article key={item.id} aria-label={`${item.title}${claimed ? ', reclamado' : ', disponible'}`} style={{
@@ -202,12 +211,35 @@ export default function GifterItems({ items, claimedIds, currency, ownerSurprise
                       )}
                       {!ownerSurpriseView && <ClaimButton itemId={item.id} onClaimed={handleClaimed} />}
                     </div>
-                    {colecta && !ownerSurpriseView && item.price && remaining > 0 && (
+                    {sharesOpen && !ownerSurpriseView && item.price && remaining > 0 && (
                       <div style={{ marginTop: 10, paddingTop: 10, borderTop: '2px dashed var(--ink)' }}>
                         <p className="rg-mono" style={{ fontSize: 9, margin: '0 0 6px' }}>
-                          COLECTA · {formatPrice(raised, currency)} DE {formatPrice(item.price, currency)}
+                          REGALO COMPARTIDO · {formatPrice(raisedSoFar, currency)} DE {formatPrice(item.price, currency)}
                         </p>
-                        <ColectaButton itemId={item.id} returnPath={colecta.returnPath} remaining={remaining} />
+                        <PledgeButton
+                          itemId={item.id}
+                          remaining={remaining}
+                          currency={currency}
+                          onPledged={handlePledged}
+                        />
+                        {mine[item.id] && (
+                          <button
+                            type="button"
+                            onClick={() => handleUndo(item.id)}
+                            disabled={undoPending}
+                            className="rg-mono"
+                            style={{
+                              background: 'none', border: 'none', cursor: undoPending ? 'default' : 'pointer',
+                              fontSize: 10, color: 'var(--ink)', marginTop: 8,
+                              padding: '6px 0', textDecoration: 'underline', minHeight: 32, display: 'block',
+                            }}
+                          >
+                            {undoPending ? '...' : '¿TE EQUIVOCASTE CON TU APORTE? DESHACER'}
+                          </button>
+                        )}
+                        {undoError?.id === item.id && (
+                          <p style={{ fontSize: 11, color: 'var(--red)', fontWeight: 700, margin: '4px 0 0' }}>{undoError.message}</p>
+                        )}
                       </div>
                     )}
                   </div>

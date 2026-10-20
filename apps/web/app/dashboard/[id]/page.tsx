@@ -41,11 +41,12 @@ export default async function ListDetailPage({ params, searchParams }: Props) {
   // Surprise mode: don't even fetch claims, so no names or claimed state reach the owner's browser.
   const itemIds = (items ?? []).map((i: Item) => i.id)
   const { data: claims } = list.is_surprise || itemIds.length === 0
-    ? { data: [] as { item_id: string; claimer_name: string }[] }
-    : await supabase.from('claims').select('item_id, claimer_name').eq('is_group_gift', false).in('item_id', itemIds)
+    ? { data: [] as { item_id: string; claimer_name: string; is_group_gift: boolean | null }[] }
+    : await supabase.from('claims').select('item_id, claimer_name, is_group_gift').in('item_id', itemIds)
 
+  // Shared-gift pledges don't mark an item as claimed.
   const claimMap = new Map(
-    (claims ?? []).map(c => [c.item_id, c.claimer_name])
+    (claims ?? []).filter(c => !c.is_group_gift).map(c => [c.item_id, c.claimer_name])
   )
 
   const emoji = occasionEmoji(list.occasion as OccasionId)

@@ -8,7 +8,6 @@ import ClaimsRealtime from './claims-realtime'
 import Logomark from '@/components/Logomark'
 import { decodeParam } from '@/lib/params'
 import { trackEvent } from '@/lib/analytics'
-import { mercadoPagoEnabled } from '@/lib/mercadopago'
 import TrackedLink from '@/components/TrackedLink'
 
 export const revalidate = 0
@@ -40,14 +39,14 @@ const getListData = cache(async (username: string, slug: string) => {
     ? await supabase.from('claims').select('item_id, is_group_gift, contribution_amount').in('item_id', itemIds)
     : { data: [] }
 
-  // Colecta shares are not a claim: only a whole-item claim marks the gift as taken.
+  // Shared-gift pledges are not a claim: only a whole-item claim marks the gift as taken.
   const claimedIds = (claims ?? [])
     .filter((c: Pick<Claim, 'item_id' | 'is_group_gift'>) => !c.is_group_gift)
     .map((c: Pick<Claim, 'item_id'>) => c.item_id)
   const claimedSet = new Set(claimedIds)
   const available = itemList.filter((i: Item) => !claimedSet.has(i.id)).length
 
-  // Money raised per item. Surprise lists never show it.
+  // Amount pledged per item toward a shared gift. Surprise lists never show it.
   const raised: Record<string, number> = {}
   if (!list.is_surprise) {
     for (const c of (claims ?? []) as Pick<Claim, 'item_id' | 'is_group_gift' | 'contribution_amount'>[]) {
@@ -104,8 +103,6 @@ export default async function GifterPage({ params }: Props) {
 
   const emoji = occasionEmoji(list.occasion as OccasionId)
   const currency: string = list.currency ?? 'ARS'
-  // Colectas are only offered in ARS (Mercado Pago checkout) on lists that aren't surprises.
-  const colectaEnabled = mercadoPagoEnabled() && !list.is_surprise && currency === 'ARS'
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--ink)' }}>
@@ -168,7 +165,8 @@ export default async function GifterPage({ params }: Props) {
           claimedIds={isOwnerSurpriseView ? [] : claimedIds}
           currency={currency}
           ownerSurpriseView={isOwnerSurpriseView}
-          colecta={colectaEnabled ? { returnPath: `/${rawUsername}/${slug}`, raised } : undefined}
+          raised={raised}
+          sharesOpen={!list.is_surprise}
         />
 
         {/* Viral footer */}

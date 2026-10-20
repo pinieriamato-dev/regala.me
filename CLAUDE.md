@@ -130,8 +130,7 @@ ML_CLIENT_SECRET=<optional — see above>
 HCAPTCHA_SITE_KEY=<optional — gates signup/signin/reset forms; captcha is skipped entirely if unset>
 POSTHOG_KEY=<optional — server-side product analytics (lib/analytics.ts); events are skipped if unset>
 POSTHOG_HOST=<optional — defaults to https://us.i.posthog.com; use the EU host for an EU project>
-MP_ACCESS_TOKEN=<optional — Mercado Pago token for colectas (group gifts); colectas stay off if unset. Webhook: /api/mercadopago/webhook>
-SUPABASE_SERVICE_ROLE_KEY=<optional — server-only; the colecta webhook and owner email on claim need it>
+SUPABASE_SERVICE_ROLE_KEY=<optional — server-only; owner email on claim needs it>
 ```
 
 ### Mobile — `apps/mobile/.env`

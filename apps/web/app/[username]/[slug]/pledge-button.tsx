@@ -1,28 +1,31 @@
 'use client'
 
 import { useState, useActionState, useEffect } from 'react'
-import { startColecta } from './actions'
+import { pledgeToGift } from './actions'
 
 interface Props {
   itemId: string
-  returnPath: string
   remaining: number
+  currency: string
+  onPledged?: (itemId: string, releaseToken: string | null) => void
 }
 
-// Opens a Mercado Pago checkout for one share of a group gift. The claim is recorded by the webhook, not here.
-export default function ColectaButton({ itemId, returnPath, remaining }: Props) {
+// One gifter's share of a gift that several people are chipping in for. Payment happens outside the app.
+export default function PledgeButton({ itemId, remaining, currency, onPledged }: Props) {
   const [open, setOpen] = useState(false)
-  const [state, action, pending] = useActionState(startColecta, null)
+  const [state, action, pending] = useActionState(pledgeToGift, null)
 
   useEffect(() => {
-    if (state?.redirectTo) window.location.assign(state.redirectTo)
-  }, [state])
+    if (state?.success) onPledged?.(itemId, state.releaseToken ?? null)
+  }, [state, itemId, onPledged])
+
+  // The parent re-renders this item with the pledge total right after.
+  if (state?.success) return null
 
   if (open) {
     return (
       <form aria-live="polite" aria-atomic="true" action={action} style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%', marginTop: 8 }}>
         <input type="hidden" name="item_id" value={itemId} />
-        <input type="hidden" name="return_path" value={returnPath} />
         <input
           className="rg-input"
           name="name"
@@ -37,7 +40,7 @@ export default function ColectaButton({ itemId, returnPath, remaining }: Props) 
         <input
           className="rg-input"
           name="amount"
-          placeholder={`Tu aporte en $ (máx. ${remaining.toLocaleString('es-AR')})`}
+          placeholder={`Tu parte en ${currency} (máx. ${remaining.toLocaleString('es-AR')})`}
           required
           inputMode="numeric"
           style={{ fontSize: 13, padding: '10px 12px' }}
@@ -48,12 +51,12 @@ export default function ColectaButton({ itemId, returnPath, remaining }: Props) 
         <div style={{ display: 'flex', gap: 8 }}>
           <button
             type="submit"
-            aria-label="Aportar a la colecta"
+            aria-label="Sumar mi aporte"
             disabled={pending}
             className="rg-btn rg-btn-primary"
             style={{ flex: 1, padding: '12px 16px', fontSize: 12, minHeight: 44, opacity: pending ? 0.6 : 1 }}
           >
-            {pending ? '...' : 'APORTAR CON MERCADO PAGO →'}
+            {pending ? '...' : 'SUMO MI APORTE →'}
           </button>
           <button
             type="button"
@@ -68,7 +71,7 @@ export default function ColectaButton({ itemId, returnPath, remaining }: Props) 
           </button>
         </div>
         <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'rgba(15,15,15,0.45)', textAlign: 'center', margin: 0 }}>
-          COLECTA · NO HACE FALTA CREAR CUENTA
+          REGALO COMPARTIDO · EL PAGO SE COORDINA ENTRE VOS Y LOS DEMÁS
         </p>
       </form>
     )
@@ -81,7 +84,7 @@ export default function ColectaButton({ itemId, returnPath, remaining }: Props) 
       className="rg-btn rg-btn-ghost"
       style={{ padding: '7px 12px', fontSize: 11, minHeight: 36 }}
     >
-      APORTAR →
+      SUMO MI APORTE →
     </button>
   )
 }
