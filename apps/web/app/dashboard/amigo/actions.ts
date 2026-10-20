@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { createSlug } from 'shared'
 import { z } from 'zod'
+import { AMIGO_LIST_TITLE_PREFIX } from '@/lib/amigo'
 
 const groupNameSchema = z.string().trim().min(1, 'Ponele un nombre al grupo.').max(80, 'El nombre es muy largo.')
 const displayNameSchema = z.string().trim().min(2, 'Escribí tu nombre.').max(60, 'El nombre es muy largo.')
@@ -45,7 +46,7 @@ export async function joinAmigoGroup(_prevState: AmigoResult, formData: FormData
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Nombre inválido.' }
 
   // The participant's own list: named after the group so it is easy to tell apart from their other lists.
-  const title = `Amigo invisible · ${parsed.data}`
+  const title = `${AMIGO_LIST_TITLE_PREFIX}${parsed.data}`
   const { data: groupId, error } = await supabase.rpc('sa_join_group', {
     p_invite_code: code,
     p_display_name: parsed.data,
