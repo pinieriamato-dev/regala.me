@@ -163,19 +163,19 @@ export async function updateProfile(_prevState: ProfileState, formData: FormData
   if (phoneError) return { error: 'No se pudo guardar el teléfono.' }
 
   // Supabase Auth sends a confirmation link to the new address; the old one stays active until it is clicked.
-  let notice: string | undefined
+  let notice = 'Perfil guardado.'
   if (emailChanged) {
     const { error: emailError } = await supabase.auth.updateUser({ email: email.value })
     if (emailError) {
       return { error: 'El perfil se guardó, pero no se pudo cambiar el mail. Revisá que no esté en uso por otra cuenta.' }
     }
-    notice = 'Te mandamos un mail a la dirección nueva. Confirmala para que el cambio quede activo.'
+    notice += ' Te mandamos un mail a la dirección nueva. Confirmala para que el cambio quede activo.'
   }
 
   revalidatePath('/dashboard')
   revalidatePath('/dashboard/profile')
   if (username) revalidatePath(`/${username}`)
-  return notice ? { notice } : null
+  return { notice }
 }
 
 export async function updateSurprise(listId: string, isSurprise: boolean) {
