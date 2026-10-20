@@ -240,8 +240,13 @@ export async function mergeWishlists(sourceId: string, targetId: string): Promis
 
   // Verify the user owns both lists
   const { data: owned } = await supabase
-    .from('wishlists').select('id').eq('owner_id', user.id).in('id', [sourceId, targetId])
+    .from('wishlists').select('id, is_default').eq('owner_id', user.id).in('id', [sourceId, targetId])
   if (!owned || owned.length !== 2) return failed
+
+  // The source is deleted at the end, and the default list must always exist. It can still be the target.
+  if (owned.some(l => l.id === sourceId && l.is_default)) {
+    return { error: 'Tu lista principal no se puede combinar con otra. Combiná la otra lista dentro de ella.' }
+  }
 
   const { data: topItem } = await supabase
     .from('items').select('sort_order').eq('wishlist_id', targetId)
@@ -280,7 +285,8 @@ export async function deleteWishlist(id: string) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth')
 
-  await supabase.from('wishlists').delete().eq('id', id).eq('owner_id', user.id)
+  // The default list can't be deleted, only emptied. The UI hides the button, this is the real check.
+  await supabase.from('wishlists').delete().eq('id', id).eq('owner_id', user.id).eq('is_default', false)
 
   revalidatePath('/dashboard')
   redirect('/dashboard')

@@ -12,8 +12,9 @@ export default async function DashboardPage() {
   const [{ data: lists }, { data: profile }] = await Promise.all([
     supabase
       .from('wishlists')
-      .select('id, title, slug, occasion, occasion_date, is_surprise, currency, privacy_level, items(id)')
+      .select('id, title, slug, occasion, occasion_date, is_surprise, currency, privacy_level, is_default, items(id)')
       .eq('owner_id', user.id)
+      .order('is_default', { ascending: false })
       .order('created_at', { ascending: false }),
     supabase
       .from('profiles').select('username').eq('id', user.id).single(),
@@ -49,7 +50,7 @@ export default async function DashboardPage() {
             AMIGO INVISIBLE
           </Link>
           <Link href="/dashboard/new" className="rg-btn rg-btn-primary">
-            + NUEVA LISTA
+            + NUEVO EVENTO
           </Link>
         </div>
       </div>
@@ -141,6 +142,9 @@ export default async function DashboardPage() {
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
+                    {list.is_default && (
+                      <span className="rg-sticker" style={{ fontSize: 8 }}>PRINCIPAL</span>
+                    )}
                     {list.is_surprise && (
                       <span className="rg-sticker rg-sticker-ink" style={{ fontSize: 8 }}>SORPRESA</span>
                     )}

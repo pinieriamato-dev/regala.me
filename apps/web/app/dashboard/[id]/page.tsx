@@ -26,7 +26,7 @@ export default async function ListDetailPage({ params, searchParams }: Props) {
 
   const { data: list } = await supabase
     .from('wishlists')
-    .select('id, title, slug, occasion, occasion_date, is_surprise, currency, privacy_level, is_premium, cover_url, profiles!inner(username)')
+    .select('id, title, slug, occasion, occasion_date, is_surprise, currency, privacy_level, is_premium, is_default, cover_url, profiles!inner(username)')
     .eq('id', id)
     .eq('owner_id', user.id)
     .single()
@@ -89,7 +89,7 @@ export default async function ListDetailPage({ params, searchParams }: Props) {
             )}
           </div>
         </div>
-        <DeleteWishlistButton action={deleteWithId} />
+        {!list.is_default && <DeleteWishlistButton action={deleteWithId} />}
       </div>
 
       {/* Share card */}
