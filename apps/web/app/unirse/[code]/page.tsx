@@ -30,14 +30,15 @@ export default async function JoinAmigoPage({ params }: Props) {
   )
 
   if (!user) {
+    const nextPath = `/unirse/${encodeURIComponent(code)}`
     return shell(
       <>
         <h1 className="rg-display" style={{ fontSize: 'clamp(2.5rem, 8vw, 4rem)', marginBottom: 20 }}>
           TE INVITARON <span className="rg-em">AL SORTEO.</span>
         </h1>
         <div className="rg-card" style={{ padding: 24 }}>
-          <p style={{ fontSize: 14, marginTop: 0 }}>Para entrar necesitás una cuenta en regala.me. Creala o iniciá sesión y volvé a abrir este link.</p>
-          <Link href="/auth" className="rg-btn rg-btn-primary" style={{ width: '100%', padding: '14px', fontSize: 13, justifyContent: 'center' }}>
+          <p style={{ fontSize: 14, marginTop: 0 }}>Entrá o creá tu cuenta y te traemos de vuelta al sorteo.</p>
+          <Link href={`/auth?mode=signup&next=${encodeURIComponent(nextPath)}`} className="rg-btn rg-btn-primary" style={{ width: '100%', padding: '14px', fontSize: 13, justifyContent: 'center' }}>
             ENTRAR O CREAR CUENTA →
           </Link>
         </div>

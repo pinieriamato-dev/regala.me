@@ -34,7 +34,8 @@ export default function AuthForm({ siteKey }: AuthFormProps) {
 
   const handleGoogleAuth = () => {
     setGooglePending(true)
-    window.location.href = '/auth/google'
+    const next = params.get('next')
+    window.location.href = next ? `/auth/google?next=${encodeURIComponent(next)}` : '/auth/google'
   }
 
   useEffect(() => {
@@ -160,6 +161,7 @@ export default function AuthForm({ siteKey }: AuthFormProps) {
               <div className="rg-card" style={{ padding: 24 }}>
                 <form action={authAction} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                   <input type="hidden" name="mode" value={mode} />
+                  <input type="hidden" name="next" value={params.get('next') ?? ''} />
                   <input type="hidden" name="captchaToken" value={authCaptchaToken} />
                   {mode === 'signup' && (
                     <Field label="Tu nombre">
