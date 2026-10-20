@@ -3,6 +3,7 @@
 import { useActionState, useRef, useState } from 'react'
 import { updateProfile } from '@/app/dashboard/actions'
 import { Field } from '@/components/Field'
+import { Toast } from '@/components/Toast'
 
 type Profile = {
   username: string | null
@@ -219,17 +220,13 @@ export default function ProfileForm({ profile, email }: { profile: Profile | nul
         />
       </Field>
 
-      {/* Save result, right above the submit button so it shows without scrolling. */}
+      {/* Errors stay inline above the button; the success confirmation is a toast. */}
       {state?.error && (
         <p role="alert" style={{ fontSize: 12, color: 'var(--paper)', background: 'var(--red-ink)', border: '2px solid var(--ink)', boxShadow: 'var(--shadow-sm)', padding: '12px 14px', fontWeight: 700, margin: 0 }}>
           ! {state.error}
         </p>
       )}
-      {state?.notice && (
-        <p role="status" style={{ fontSize: 12, color: 'var(--ink)', background: 'var(--green)', border: '2px solid var(--ink)', boxShadow: 'var(--shadow-sm)', padding: '12px 14px', fontWeight: 700, margin: 0 }}>
-          ✓ {state.notice}
-        </p>
-      )}
+      <Toast message={state?.notice} token={state} />
 
       <button
         type="submit"
