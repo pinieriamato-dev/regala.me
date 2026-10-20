@@ -106,7 +106,7 @@ export default async function ListDetailPage({ params, searchParams }: Props) {
         ) : (
           <>
             <div className="rg-mono" style={{ fontSize: 9, color: 'rgba(251,248,238,0.5)', marginBottom: 6 }}>
-              {list.privacy_level === 'link_only' ? '🔗 LINK PRIVADO — SOLO QUIEN TENGA EL LINK PUEDE VERLA' : 'LINK PÚBLICO DE TU LISTA'}
+              {list.privacy_level === 'link_only' ? '🔗 LINK PRIVADO — SOLO QUIEN TENGA EL LINK PUEDE VERLA' : list.privacy_level === 'friends' ? '👥 SOLO AMIGOS — LA VEN TUS AMIGOS EN LA APP' : 'LINK PÚBLICO DE TU LISTA'}
             </div>
             <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, wordBreak: 'break-all', marginBottom: 16, opacity: 0.8 }}>{shareUrl}</p>
             <div style={{ display: 'flex', gap: 10 }}>
@@ -148,7 +148,7 @@ export default async function ListDetailPage({ params, searchParams }: Props) {
             </div>
           </>
         )}
-        <PrivacyEditor listId={id} current={(list.privacy_level ?? 'public') as 'public' | 'link_only' | 'private'} />
+        <PrivacyEditor listId={id} current={(list.privacy_level ?? 'public') as 'public' | 'link_only' | 'private' | 'friends'} />
         <SurpriseToggle listId={id} current={list.is_surprise ?? false} />
       </div>
 
@@ -158,7 +158,7 @@ export default async function ListDetailPage({ params, searchParams }: Props) {
         isPremium={list.is_premium ?? false}
         coverUrl={list.cover_url ?? null}
         slug={list.slug}
-        privacyLevel={(list.privacy_level ?? 'public') as 'public' | 'link_only' | 'private'}
+        privacyLevel={(list.privacy_level ?? 'public') as 'public' | 'link_only' | 'private' | 'friends'}
       />
 
       {/* Items */}

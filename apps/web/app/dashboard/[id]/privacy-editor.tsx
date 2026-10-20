@@ -3,10 +3,11 @@
 import { useState, useTransition } from 'react'
 import { updatePrivacy } from '@/app/dashboard/actions'
 
-type Privacy = 'public' | 'link_only' | 'private'
+type Privacy = 'public' | 'link_only' | 'private' | 'friends'
 
 const OPTIONS: { value: Privacy; emoji: string; label: string }[] = [
   { value: 'public',    emoji: '🌍', label: 'PÚBLICA' },
+  { value: 'friends',   emoji: '👥', label: 'SOLO AMIGOS' },
   { value: 'link_only', emoji: '🔗', label: 'SOLO LINK' },
   { value: 'private',   emoji: '🔒', label: 'PRIVADA' },
 ]

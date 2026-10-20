@@ -67,7 +67,7 @@ export default async function AmigosPage({ searchParams }: { searchParams: Promi
         .from('wishlists')
         .select('id, title, slug, occasion, owner_id, owner:profiles!owner_id(username, display_name)')
         .in('owner_id', friendIds)
-        .eq('privacy_level', 'public')
+        .in('privacy_level', ['public', 'friends'])
         .order('created_at', { ascending: false })
         .limit(50)
     : { data: [] }

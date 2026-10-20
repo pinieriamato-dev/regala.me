@@ -10,10 +10,11 @@ import Link from 'next/link'
 
 const PERSONAL = { id: 'personal' as const, label: 'Lista personal', emoji: '✨' }
 
-type Privacy = 'public' | 'link_only' | 'private'
+type Privacy = 'public' | 'link_only' | 'private' | 'friends'
 
 const PRIVACY_OPTIONS: { value: Privacy; emoji: string; label: string; note?: string }[] = [
   { value: 'public',    emoji: '🌍', label: 'PÚBLICA' },
+  { value: 'friends',   emoji: '👥', label: 'SOLO AMIGOS', note: 'Lo ven tus amigos desde la app.' },
   { value: 'link_only', emoji: '🔗', label: 'SOLO CON LINK' },
   { value: 'private',   emoji: '🔒', label: 'PRIVADA', note: 'Solo vos podés verla.' },
 ]

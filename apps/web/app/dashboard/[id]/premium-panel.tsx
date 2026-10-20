@@ -9,7 +9,7 @@ type Props = {
   isPremium: boolean
   coverUrl: string | null
   slug: string
-  privacyLevel: 'public' | 'link_only' | 'private'
+  privacyLevel: 'public' | 'link_only' | 'private' | 'friends'
 }
 
 export default function PremiumPanel({ listId, username, isPremium, coverUrl, slug, privacyLevel }: Props) {

@@ -30,7 +30,7 @@ export interface Wishlist {
   recipient_name: string | null
   is_surprise: boolean
   currency: Currency
-  privacy_level: 'public' | 'link_only' | 'private'
+  privacy_level: 'public' | 'link_only' | 'private' | 'friends'
   is_premium: boolean
   cover_url: string | null
   is_default: boolean

@@ -22,7 +22,7 @@ const getListData = cache(async (username: string, slug: string) => {
     .select('*, profiles!inner(username, display_name)')
     .eq('slug', slug)
     .eq('profiles.username', username)
-    .in('privacy_level', ['public', 'link_only'])
+    .in('privacy_level', ['public', 'link_only', 'friends'])
     .single()
 
   if (!list) return null
@@ -73,7 +73,7 @@ export async function generateMetadata({ params }: Props) {
     title: `${list.title} — regala.me`,
     description,
     // link_only lists are reachable by URL but must not show up in search engines.
-    robots: list.privacy_level === 'link_only' ? { index: false, follow: false } : undefined,
+    robots: list.privacy_level === 'link_only' || list.privacy_level === 'friends' ? { index: false, follow: false } : undefined,
     openGraph: {
       title: `${list.title} — regala.me`,
       description,
@@ -116,7 +116,7 @@ export default async function GifterPage({ params }: Props) {
       }}>
         <Logomark />
         <span className="rg-mono" style={{ fontSize: 10, color: 'rgba(15,15,15,0.45)' }}>
-          {isOwnerSurpriseView ? 'MODO SORPRESA' : list.privacy_level === 'link_only' ? 'LINK PRIVADO' : 'LISTA PÚBLICA'}
+          {isOwnerSurpriseView ? 'MODO SORPRESA' : list.privacy_level === 'link_only' ? 'LINK PRIVADO' : list.privacy_level === 'friends' ? 'SOLO AMIGOS' : 'LISTA PÚBLICA'}
         </span>
       </div>
 
