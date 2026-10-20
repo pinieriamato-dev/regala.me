@@ -209,7 +209,7 @@ export async function pledgeToGift(_prevState: ShareState, formData: FormData): 
   }
 
   if (error) {
-    // Until docs/sql/2026-10-20-group-gift.sql runs, the item-level unique index still blocks a second row.
+    // Until supabase/migrations/20261020182000_group_gift.sql runs, the item-level unique index still blocks a second row.
     if (error.code === '23505') return { error: 'No se pudo aportar. Puede que el regalo ya esté reclamado.' }
     return { error: 'No se pudo aportar. Intentá de nuevo.' }
   }
