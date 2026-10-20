@@ -378,6 +378,8 @@ body {
   gap: 16px;
   padding: 48px 16px;
   text-align: center;
+}
+
 /* ── Gifter claim celebration ───────────────────────── */
 .rg-sticker.is-stamped {
   animation: rg-stamp 260ms var(--ease-stamp, cubic-bezier(0.2, 1.4, 0.4, 1)) both;
