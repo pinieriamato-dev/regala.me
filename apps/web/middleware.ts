@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import type { CookieOptions } from '@supabase/ssr'
+import { safeNext } from '@/lib/safe-next'
 
 type CookieToSet = { name: string; value: string; options: CookieOptions }
 
@@ -28,11 +29,13 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user && request.nextUrl.pathname.startsWith('/dashboard')) {
-    return NextResponse.redirect(new URL('/auth', request.url))
+    const url = new URL('/auth', request.url)
+    url.searchParams.set('next', request.nextUrl.pathname + request.nextUrl.search)
+    return NextResponse.redirect(url)
   }
 
   if (user && request.nextUrl.pathname === '/auth') {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
+    return NextResponse.redirect(new URL(safeNext(request.nextUrl.searchParams.get('next')), request.url))
   }
 
   return supabaseResponse

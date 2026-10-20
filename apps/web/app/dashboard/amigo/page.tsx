@@ -27,7 +27,7 @@ export default async function AmigoListPage() {
       </div>
 
       {error && (
-        <p style={{ color: 'var(--red)', fontWeight: 700, fontSize: 13, marginBottom: 16 }}>
+        <p style={{ color: 'var(--red-ink)', fontWeight: 700, fontSize: 13, marginBottom: 16 }}>
           No pudimos cargar los grupos. Intentá de nuevo en un rato.
         </p>
       )}
@@ -47,7 +47,7 @@ export default async function AmigoListPage() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>
           {groups.map(group => (
             <Link key={group.id} href={`/dashboard/amigo/${group.id}`} className="rg-card" style={{ padding: 20, textDecoration: 'none', color: 'inherit' }}>
-              <div className="rg-mono" style={{ fontSize: 9, marginBottom: 8, color: 'rgba(15,15,15,0.5)' }}>
+              <div className="rg-mono" style={{ fontSize: 9, marginBottom: 8, color: 'var(--ink-muted)' }}>
                 {group.is_owner ? 'ORGANIZÁS' : 'PARTICIPÁS'} · {group.drawn ? 'SORTEADO' : 'SIN SORTEAR'}
               </div>
               <div style={{ fontWeight: 800, fontSize: 16, lineHeight: 1.2 }}>{group.name}</div>
