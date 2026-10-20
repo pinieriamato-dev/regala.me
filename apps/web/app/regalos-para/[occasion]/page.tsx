@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import Logomark from '@/components/Logomark'
+import TopBar from '@/components/TopBar'
 import { OCCASION_PAGES, type OccasionPageId } from '@/lib/occasion-pages'
 
 type Props = { params: Promise<{ occasion: string }> }
@@ -34,13 +34,9 @@ export default async function OccasionPage({ params }: Props) {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--ink)' }}>
-      <header style={{ background: 'var(--paper)', borderBottom: '2px solid var(--ink)' }}>
-        <div style={{ maxWidth: 720, margin: '0 auto', padding: '14px 16px' }}>
-          <Logomark size={20} />
-        </div>
-      </header>
+      <TopBar band maxWidth={720} />
 
-      <main style={{ maxWidth: 720, margin: '0 auto', padding: '40px 16px 60px' }}>
+      <main id="main" style={{ maxWidth: 720, margin: '0 auto', padding: '40px 16px 60px' }}>
         <h1 className="rg-display" style={{ fontSize: 'clamp(40px, 9vw, 64px)', lineHeight: 0.88, marginBottom: 20 }}>
           {page.title.toUpperCase()}
         </h1>
@@ -49,7 +45,7 @@ export default async function OccasionPage({ params }: Props) {
         <ol style={{ listStyle: 'none', padding: 0, margin: '0 0 40px', display: 'grid', gap: 14 }}>
           {page.tips.map((tip, i) => (
             <li key={tip} className="rg-card" style={{ padding: '16px 18px', display: 'flex', gap: 14, alignItems: 'flex-start' }}>
-              <span className="rg-mono" style={{ fontSize: 12, color: 'var(--red)' }}>0{i + 1}</span>
+              <span className="rg-mono" style={{ fontSize: 12, color: 'var(--red-ink)' }}>0{i + 1}</span>
               <span style={{ fontSize: 16, lineHeight: 1.45 }}>{tip}</span>
             </li>
           ))}

@@ -5,7 +5,7 @@ import { occasionEmoji } from 'shared'
 import type { Item, Claim, OccasionId } from 'shared'
 import GifterItems from './gifter-items'
 import ClaimsRealtime from './claims-realtime'
-import Logomark from '@/components/Logomark'
+import TopBar from '@/components/TopBar'
 import { decodeParam } from '@/lib/params'
 import { trackEvent } from '@/lib/analytics'
 import TrackedLink from '@/components/TrackedLink'
@@ -106,21 +106,13 @@ export default async function GifterPage({ params }: Props) {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--ink)' }}>
-      {/* Top border */}
-      <div style={{ height: 4, background: 'var(--ink)' }} />
-
-      {/* Nav */}
-      <div style={{
-        padding: '14px 20px', borderBottom: '2px solid var(--ink)',
-        background: 'var(--paper)', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      }}>
-        <Logomark />
-        <span className="rg-mono" style={{ fontSize: 10, color: 'rgba(15,15,15,0.45)' }}>
+      <TopBar band logoSize={18}>
+        <span className="rg-mono" style={{ fontSize: 10, color: 'var(--ink-muted)' }}>
           {isOwnerSurpriseView ? 'MODO SORPRESA' : list.privacy_level === 'link_only' ? 'LINK PRIVADO' : list.privacy_level === 'friends' ? 'SOLO AMIGOS' : 'LISTA PÚBLICA'}
         </span>
-      </div>
+      </TopBar>
 
-      <div style={{ maxWidth: 600, margin: '0 auto', padding: '28px 20px' }}>
+      <main id="main" style={{ maxWidth: 600, margin: '0 auto', padding: '28px 20px' }}>
         {/* Header */}
         <div style={{ marginBottom: 28 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 10 }}>
@@ -130,7 +122,7 @@ export default async function GifterPage({ params }: Props) {
                 {list.title}
               </h1>
               {list.occasion_date && (
-                <div className="rg-mono" style={{ marginTop: 4, fontSize: 10, color: 'rgba(15,15,15,0.5)' }}>
+                <div className="rg-mono" style={{ marginTop: 4, fontSize: 10, color: 'var(--ink-muted)' }}>
                   {new Date(list.occasion_date).toLocaleDateString('es-AR',
                     list.occasion === 'birthday'
                       ? { day: 'numeric', month: 'long' }
@@ -180,16 +172,16 @@ export default async function GifterPage({ params }: Props) {
             <span style={{ color: 'var(--yellow)' }}>TU PROPIA LISTA?</span>
           </div>
           <TrackedLink
-            href="/"
+            href="/auth?mode=signup"
             listId={data.list.id}
             event="signup_from_gifter_footer"
             className="rg-btn rg-btn-yellow"
             style={{ padding: '12px 22px', fontSize: 13 }}
           >
-            CREAR LISTA GRATIS →
+            ARMÁ LA TUYA →
           </TrackedLink>
         </div>
-      </div>
+      </main>
     </div>
   )
 }
