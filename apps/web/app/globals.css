@@ -21,9 +21,19 @@
   --shadow: 5px 5px 0 0 #0F0F0F;
   --shadow-sm: 3px 3px 0 0 #0F0F0F;
   --radius: 4px;
+
+  /* Motion tokens: short, physical, transform/opacity only (no blur) */
+  --dur-instant: 80ms;
+  --dur-fast: 140ms;
+  --dur-base: 220ms;
+  --dur-slow: 360ms;
+  --dur-celebrate: 900ms;
+  --ease-out: cubic-bezier(.2, .8, .2, 1);
+  --ease-in: cubic-bezier(.4, 0, 1, 1);
+  --ease-stamp: cubic-bezier(.3, 1.5, .5, 1);
 }
 
-html { background: var(--bg); scroll-behavior: smooth; }
+html { background: var(--bg); }
 
 body {
   background: var(--bg);
@@ -31,6 +41,16 @@ body {
   font-family: var(--font-body);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Keyboard focus: one visible ring for every interactive element. Inputs keep their own ring in .rg-input. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 2px;
+}
+.rg-card-ink :focus-visible,
+.bg-ink :focus-visible {
+  outline-color: var(--yellow);
 }
 
 /* ── Display / headline ─────────────────────────────── */
@@ -98,7 +118,6 @@ body {
   text-transform: uppercase;
   cursor: pointer;
   border-radius: var(--radius);
-  transition: transform 0.08s ease, box-shadow 0.08s ease;
   text-decoration: none;
 }
 .rg-btn-primary {
@@ -131,9 +150,33 @@ body {
   transform: translate(-1px, -1px);
   box-shadow: var(--shadow);
 }
-.rg-btn:focus-visible {
-  outline: 3px solid var(--ink);
-  outline-offset: 2px;
+/* Press and disabled states for every button. Placed after the variants so it wins at equal specificity. */
+.rg-btn, .rg-nav, .rg-chip, .rg-icon-btn {
+  transition: transform var(--dur-fast) var(--ease-out),
+              box-shadow var(--dur-fast) var(--ease-out),
+              background-color var(--dur-fast) var(--ease-out);
+}
+.rg-btn:active:not(:disabled) {
+  transform: translate(3px, 3px);
+  box-shadow: 0 0 0 0 var(--ink);
+  transition-duration: var(--dur-instant);
+}
+.rg-btn:disabled,
+.rg-btn[aria-disabled="true"] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+.rg-btn:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+@media (hover: none) {
+  .rg-btn:hover {
+    transform: none;
+    box-shadow: var(--shadow-sm);
+  }
 }
 
 /* Header nav buttons: small bordered chips that lift on hover and press in on click */
@@ -150,7 +193,6 @@ body {
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
   cursor: pointer;
-  transition: transform 0.08s ease, box-shadow 0.08s ease, background-color 0.08s ease;
 }
 .rg-nav:hover {
   background: var(--yellow);
@@ -160,13 +202,6 @@ body {
 .rg-nav:active {
   transform: translate(2px, 2px);
   box-shadow: none;
-}
-.rg-nav:focus-visible {
-  outline: 3px solid var(--ink);
-  outline-offset: 2px;
-}
-@media (prefers-reduced-motion: reduce) {
-  .rg-nav { transition: none; }
 }
 
 /* ── Inputs ──────────────────────────────────────────── */
@@ -273,6 +308,61 @@ body {
 .rg-marquee-track::-webkit-scrollbar,
 .rg-hscroll::-webkit-scrollbar {
   display: none;
+}
+
+/* ── Keyframes ───────────────────────────────────────── */
+@keyframes rg-stamp {            /* sticker / seal lands on the paper */
+  0%   { transform: scale(1.8) rotate(-14deg); opacity: 0; }
+  60%  { transform: scale(.94) rotate(-2deg);  opacity: 1; }
+  100% { transform: scale(1)   rotate(-3deg); }
+}
+@keyframes rg-rise {             /* card entrance, shadow lands last */
+  from { transform: translateY(10px); box-shadow: 0 0 0 0 var(--ink); }
+  to   { transform: none;             box-shadow: var(--shadow-sm); }
+}
+@keyframes rg-drop {             /* inline confirm panel */
+  from { transform: translateY(-6px) rotate(-.6deg); opacity: 0; }
+  to   { transform: none; opacity: 1; }
+}
+@keyframes rg-wobble {           /* .rg-em / stickers, once */
+  0%, 100% { transform: rotate(-1.2deg); }
+  30% { transform: rotate(-4deg); }
+  60% { transform: rotate(1.5deg); }
+}
+@keyframes rg-confetti {         /* square paper bits, no blur */
+  0%   { transform: rotate(var(--a)) translateY(0) scale(.4); opacity: 1; }
+  70%  { opacity: 1; }
+  100% { transform: rotate(var(--a)) translateY(calc(var(--d) * -1)) rotate(200deg) scale(1); opacity: 0; }
+}
+@keyframes rg-strike { to { background-size: 100% 2px; } }
+@keyframes rg-flash  { from { background-color: var(--yellow); } to { background-color: var(--paper); } }
+@keyframes rg-stripes { to { background-position: 22.6px 0; } }
+@keyframes rg-shake  {
+  0%, 100% { transform: none; } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); }
+}
+
+/* ── Utility classes ─────────────────────────────────── */
+/* backwards, not both: a forwards fill would pin box-shadow and override inline "none" on claimed gifter cards */
+.rg-rise    { animation: rg-rise var(--dur-base) var(--ease-out) backwards; animation-delay: calc(var(--i, 0) * 40ms); }
+.rg-stamped { animation: rg-stamp 260ms var(--ease-stamp) both; }
+.rg-em.is-wobble:hover, .rg-em.is-wobble:focus-visible { animation: rg-wobble 600ms var(--ease-out); }
+.rg-shake   { animation: rg-shake 200ms var(--ease-out); }
+.marquee-track:hover, .marquee-track:focus-within { animation-play-state: paused; }
+
+/* ── Reduced motion: keep state changes, drop travel ── */
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+  .marquee-track { animation: none !important; transform: none !important; }
+  .rg-confetti { display: none; }
+  .rg-btn:hover, .rg-nav:hover, .rg-chip:hover { transform: none; }
+  .rg-stamped { transform: rotate(-3deg); opacity: 1; }
 }
 
 /* ── Homepage hero — responsive ─────────────────────── */

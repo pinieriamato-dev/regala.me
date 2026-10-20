@@ -104,12 +104,12 @@ export default async function UserProfilePage({ params }: Props) {
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {(lists ?? []).map((list) => (
+            {(lists ?? []).map((list, index) => (
               <Link
                 key={list.id}
                 href={`/${username}/${list.slug}`}
-                className="rg-card"
-                style={{ padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 16, textDecoration: 'none', color: 'var(--ink)' }}
+                className="rg-card rg-rise"
+                style={{ padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 16, textDecoration: 'none', color: 'var(--ink)', '--i': Math.min(index, 8) } as React.CSSProperties}
               >
                 <span style={{ fontSize: 32 }}>{occasionEmoji(list.occasion as OccasionId)}</span>
                 <div>
