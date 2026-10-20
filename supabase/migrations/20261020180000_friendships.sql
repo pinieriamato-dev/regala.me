@@ -1,6 +1,6 @@
 -- Friends: mutual connections between two regala.me accounts, so people can see each other's
 -- public lists inside the app without someone sending them a link.
--- Applied by the Supabase GitHub integration from supabase/migrations/ on deploy.
+-- Applied to production by .github/workflows/migrate.yml when this file lands on main.
 -- The app reads this table, so it must be applied before the code that uses it.
 
 create table if not exists public.friendships (

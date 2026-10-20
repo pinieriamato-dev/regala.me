@@ -1,0 +1,3 @@
+# Supabase CLI project config. Only used by .github/workflows/migrate.yml (supabase db push).
+# Project: regala.me (GPI_FUN org, sa-east-1).
+project_id = "esyybmnwalscpnzfeowh"
