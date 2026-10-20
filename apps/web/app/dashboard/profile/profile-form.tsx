@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useRef, useState } from 'react'
+import { useActionState, useEffect, useRef, useState } from 'react'
 import { updateProfile } from '@/app/dashboard/actions'
 import { Field } from '@/components/Field'
 
@@ -19,6 +19,15 @@ export default function ProfileForm({ profile, email }: { profile: Profile | nul
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url ?? '')
   const [uploading, setUploading] = useState(false)
   const [uploadErr, setUploadErr] = useState('')
+  const [noticeVisible, setNoticeVisible] = useState(false)
+
+  // The save confirmation is a toast: it shows for a few seconds after each save, then goes away.
+  useEffect(() => {
+    if (!state?.notice) return
+    setNoticeVisible(true)
+    const timer = setTimeout(() => setNoticeVisible(false), 4000)
+    return () => clearTimeout(timer)
+  }, [state])
   const fileRef = useRef<HTMLInputElement>(null)
 
   const initials = (profile?.display_name ?? profile?.username ?? '?').slice(0, 2).toUpperCase()
@@ -225,11 +234,9 @@ export default function ProfileForm({ profile, email }: { profile: Profile | nul
           ! {state.error}
         </p>
       )}
-      {state?.notice && (
-        <p role="status" style={{ fontSize: 12, color: 'var(--ink)', background: 'var(--green)', border: '2px solid var(--ink)', boxShadow: 'var(--shadow-sm)', padding: '12px 14px', fontWeight: 700, margin: 0 }}>
-          ✓ {state.notice}
-        </p>
-      )}
+      <div role="status" aria-live="polite">
+        {noticeVisible && state?.notice && <p className="rg-toast">✓ {state.notice}</p>}
+      </div>
 
       <button
         type="submit"
