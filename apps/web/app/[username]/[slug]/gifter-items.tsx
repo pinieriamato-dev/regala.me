@@ -108,20 +108,21 @@ export default function GifterItems({ items, claimedIds, currency, ownerSurprise
       )}
 
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-      {items.map((item) => {
+      {items.map((item, index) => {
         const claimed = claimedSet.has(item.id)
         const isMine  = item.id in mine
         const raisedSoFar = raised[item.id] ?? 0
         const remaining   = item.price ? Math.ceil(item.price - raisedSoFar) : 0
 
         return (
-          <article key={item.id} aria-label={`${item.title}${claimed ? ', reclamado' : ', disponible'}`} style={{
+          <article key={item.id} className="rg-rise" aria-label={`${item.title}${claimed ? ', reclamado' : ', disponible'}`} style={{
             padding: 16,
             background: claimed ? 'rgba(15,15,15,0.04)' : 'var(--paper)',
             border: `2px solid ${claimed ? 'rgba(15,15,15,0.25)' : 'var(--ink)'}`,
             boxShadow: claimed ? 'none' : 'var(--shadow-sm)',
             position: 'relative',
-          }}>
+            '--i': Math.min(index, 8),
+          } as React.CSSProperties}>
             {claimed ? (
               <div>
                 <span className="rg-sticker rg-sticker-green" style={{ fontSize: 9, marginBottom: 6, display: 'inline-block' }}>

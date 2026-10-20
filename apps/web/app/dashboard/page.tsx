@@ -120,7 +120,7 @@ export default async function DashboardPage() {
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>
-          {(lists ?? []).map((list) => {
+          {(lists ?? []).map((list, index) => {
             const listItems = (list.items ?? []) as { id: string }[]
             const claimed   = listItems.filter(i => claimedSet.has(i.id)).length
             const total     = listItems.length
@@ -131,7 +131,7 @@ export default async function DashboardPage() {
               : null
 
             return (
-              <div key={list.id} className="rg-card" style={{ padding: 20 }}>
+              <div key={list.id} className="rg-card rg-rise" style={{ padding: 20, '--i': Math.min(index, 8) } as React.CSSProperties}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                     <span style={{ fontFamily: 'var(--font-display)', fontSize: 32 }}>{emoji}</span>
