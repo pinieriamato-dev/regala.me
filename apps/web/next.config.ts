@@ -2,9 +2,9 @@ import type { NextConfig } from 'next'
 
 const config: NextConfig = {
   transpilePackages: ['shared'],
-  // Experimental View Transitions between list cards and list headers. Off by default.
+  // View Transitions between list cards and list headers. Browsers without the API just skip the animation.
   experimental: {
-    viewTransition: process.env.NEXT_PUBLIC_VIEW_TRANSITIONS === '1',
+    viewTransition: true,
   },
 }
 
