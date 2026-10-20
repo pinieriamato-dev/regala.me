@@ -99,9 +99,11 @@ A DB trigger creates `profiles` on signup. It derives `username` (e.g. `luislarr
 and `display_name` from the **email local part**, ignoring the name typed at signup
 (`user_metadata.display_name`). Usernames can contain `+` (email aliases) — see "Route params" in §7.
 
-### No migration files in repo
-Schema was applied via Supabase MCP during initial setup. SQL that a session couldn't apply itself lives in
-`docs/sql/` (run by hand in the Supabase SQL editor). Any future schema changes should be applied via the Supabase MCP `apply_migration` tool and documented here.
+### Migrations
+New schema changes go in `supabase/migrations/<timestamp>_<name>.sql`. The Supabase GitHub integration (dashboard: Project Settings → Integrations → GitHub)
+applies that folder to production when a change lands on `main`, so nobody applies them by hand. `supabase/config.toml` is what the integration reads.
+Migrations must be safe to re-run (`if not exists`, `drop ... if exists`). Don't enable the integration and a GitHub Action that both push migrations.
+Older scripts in `docs/sql/` were applied by hand before this and are not replayed.
 As of Oct 2026 the Supabase MCP connector in Claude sessions is denied SQL/advisor access — ask the user to grant it, or hand them the SQL to run.
 
 ### Auth settings (Supabase dashboard)
