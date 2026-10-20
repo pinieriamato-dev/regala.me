@@ -1,6 +1,7 @@
 'use server'
 
 import { createServerSupabase } from '@/lib/supabase/server'
+import { safeNext } from '@/lib/safe-next'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
 
@@ -48,6 +49,7 @@ export async function handleAuth(_prevState: AuthState, formData: FormData): Pro
   const siteKey = process.env.HCAPTCHA_SITE_KEY
   if (siteKey && !captchaToken) return { error: 'Completá el captcha antes de continuar.' }
   const supabase = await createServerSupabase()
+  const next = safeNext(formData.get('next'))
 
   if (mode === 'signup') {
     const parsed = signupSchema.safeParse({
@@ -58,12 +60,15 @@ export async function handleAuth(_prevState: AuthState, formData: FormData): Pro
     if (!parsed.success) return { error: parsed.error.issues[0].message }
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3001'
+    const callbackUrl = next === '/dashboard'
+      ? `${siteUrl}/auth/callback`
+      : `${siteUrl}/auth/callback?next=${encodeURIComponent(next)}`
     const { error } = await supabase.auth.signUp({
       email: parsed.data.email,
       password: parsed.data.password,
       options: {
         data: { display_name: parsed.data.name },
-        emailRedirectTo: `${siteUrl}/auth/callback`,
+        emailRedirectTo: callbackUrl,
         captchaToken,
       },
     })
@@ -87,7 +92,7 @@ export async function handleAuth(_prevState: AuthState, formData: FormData): Pro
     await supabase.auth.signOut()
     return { error: 'Necesitás confirmar tu email antes de ingresar. Revisá tu bandeja de entrada.' }
   }
-  redirect('/dashboard')
+  redirect(next)
 }
 
 export async function requestPasswordReset(_prevState: AuthState, formData: FormData): Promise<AuthState> {

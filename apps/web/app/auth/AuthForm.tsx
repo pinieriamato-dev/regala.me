@@ -172,6 +172,7 @@ export default function AuthForm({ siteKey }: AuthFormProps) {
               <div className="rg-card" style={{ padding: 24 }}>
                 <form action={authAction} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                   <input type="hidden" name="mode" value={mode} />
+                  <input type="hidden" name="next" value={params.get('next') ?? ''} />
                   <input type="hidden" name="captchaToken" value={authCaptchaToken} />
                   {mode === 'signup' && (
                     <div>
