@@ -112,7 +112,7 @@ export default function AuthForm({ siteKey }: AuthFormProps) {
                 <p style={{ fontSize: 14, lineHeight: 1.6, margin: 0 }}>{forgotState.success}</p>
               </div>
               <div style={{ marginTop: 16, textAlign: 'center', fontSize: 13, color: 'rgba(15,15,15,0.65)' }}>
-                <button onClick={() => switchMode('signin')} style={linkStyle}>← Volver al login</button>
+                <button onClick={() => switchMode('signin')} style={linkStyle}>← Volver a ingresar</button>
               </div>
             </>
 
@@ -152,7 +152,7 @@ export default function AuthForm({ siteKey }: AuthFormProps) {
                 </form>
               </div>
               <div style={{ marginTop: 16, textAlign: 'center', fontSize: 13, color: 'rgba(15,15,15,0.65)' }}>
-                <button onClick={() => switchMode('signin')} style={linkStyle}>← Volver al login</button>
+                <button onClick={() => switchMode('signin')} style={linkStyle}>← Volver a ingresar</button>
               </div>
             </>
 

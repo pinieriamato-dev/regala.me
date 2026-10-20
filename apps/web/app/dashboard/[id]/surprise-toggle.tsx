@@ -38,7 +38,7 @@ export default function SurpriseToggle({ listId, current }: { listId: string; cu
       </div>
       {value && (
         <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--paper-muted)', margin: '8px 0 0' }}>
-          Los regalados no verán quién ya reclamó cada ítem.
+          Vos no vas a ver qué te reclamaron. Tus amigos sí ven qué está tomado, así nadie repite.
         </p>
       )}
     </div>

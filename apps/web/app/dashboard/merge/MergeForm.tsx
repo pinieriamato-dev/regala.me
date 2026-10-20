@@ -38,7 +38,7 @@ export default function MergeForm({ lists }: { lists: ListSummary[] }) {
       {/* Info banner */}
       <div className="rg-card-yellow" style={{ padding: '14px 18px' }}>
         <p className="rg-mono" style={{ fontSize: 10, margin: 0 }}>
-          TODOS LOS ÍTEMS DE LA LISTA A SE MUEVEN A LA LISTA B. LA LISTA A DESAPARECE. ESTA ACCIÓN NO SE PUEDE DESHACER.
+          TODOS LOS REGALOS DE LA LISTA A SE MUEVEN A LA LISTA B. LA LISTA A DESAPARECE. ESTA ACCIÓN NO SE PUEDE DESHACER.
         </p>
       </div>
 
@@ -72,7 +72,7 @@ export default function MergeForm({ lists }: { lists: ListSummary[] }) {
                     {occasionEmoji(list.occasion as OccasionId)} {list.title}
                   </div>
                   <div className="rg-mono" style={{ fontSize: 9, marginTop: 4, opacity: 0.6 }}>
-                    {list.items.length} ÍTEM{list.items.length !== 1 ? 'S' : ''}
+                    {list.items.length} REGALO{list.items.length !== 1 ? 'S' : ''}
                   </div>
                 </button>
               )
@@ -115,7 +115,7 @@ export default function MergeForm({ lists }: { lists: ListSummary[] }) {
                     {occasionEmoji(list.occasion as OccasionId)} {list.title}
                   </div>
                   <div className="rg-mono" style={{ fontSize: 9, marginTop: 4, opacity: 0.6 }}>
-                    {list.items.length} ÍTEM{list.items.length !== 1 ? 'S' : ''}
+                    {list.items.length} REGALO{list.items.length !== 1 ? 'S' : ''}
                   </div>
                 </button>
               )
@@ -132,7 +132,7 @@ export default function MergeForm({ lists }: { lists: ListSummary[] }) {
             {occasionEmoji(target.occasion as OccasionId)} {target.title}
           </div>
           <div className="rg-mono" style={{ fontSize: 10, color: 'var(--paper-muted)', marginTop: 4 }}>
-            {source.items.length + target.items.length} ÍTEMS EN TOTAL — {source.title.toUpperCase()} DESAPARECE
+            {source.items.length + target.items.length} REGALOS EN TOTAL — {source.title.toUpperCase()} DESAPARECE
           </div>
         </div>
       )}

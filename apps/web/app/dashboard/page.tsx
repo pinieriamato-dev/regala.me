@@ -114,7 +114,7 @@ export default async function DashboardPage() {
             TU PRIMERA <span className="rg-em">LISTA.</span>
           </h2>
           <p style={{ fontSize: 14, color: 'rgba(15,15,15,0.65)', marginBottom: 24, maxWidth: 320, margin: '0 auto 24px' }}>
-            Agrega los regalos que querés y compartí el link con quien quieras.
+            Agregá los regalos que querés y compartí el link con quien quieras.
           </p>
           <Link href="/dashboard/new" className="rg-btn rg-btn-primary">CREAR LISTA →</Link>
         </div>
@@ -162,14 +162,14 @@ export default async function DashboardPage() {
 
                 {total > 0 && list.is_surprise && (
                   <div className="rg-mono" style={{ fontSize: 9, marginBottom: 14, color: 'var(--ink-muted)' }}>
-                    {total} ÍTEMS · LO RECLAMADO ES SORPRESA
+                    {total} REGALOS · LO RECLAMADO ES SORPRESA
                   </div>
                 )}
 
                 {total > 0 && !list.is_surprise && (
                   <div style={{ marginBottom: 14 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'var(--font-mono)', fontSize: 9, marginBottom: 5, color: 'var(--ink-muted)' }}>
-                      <span>{claimed} RECLAMADOS</span><span>{total} ÍTEMS</span>
+                      <span>{claimed} RECLAMADOS</span><span>{total} REGALOS</span>
                     </div>
                     <div style={{ height: 6, background: 'rgba(15,15,15,0.12)', border: '1px solid var(--ink)', borderRadius: 2 }}>
                       <div style={{ height: '100%', background: 'var(--green)', width: `${progress}%`, transition: 'width 0.3s' }} />

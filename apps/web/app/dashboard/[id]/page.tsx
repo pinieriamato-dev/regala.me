@@ -68,7 +68,7 @@ export default async function ListDetailPage({ params, searchParams }: Props) {
 
       {merged === '1' && (
         <div className="rg-card-yellow" role="status" style={{ padding: '12px 16px', marginBottom: 20 }}>
-          <span className="rg-mono" style={{ fontSize: 10 }}>✓ LISTAS COMBINADAS — LOS ÍTEMS YA ESTÁN ACÁ</span>
+          <span className="rg-mono" style={{ fontSize: 10 }}>✓ LISTAS COMBINADAS — LOS REGALOS YA ESTÁN ACÁ</span>
         </div>
       )}
 
@@ -143,7 +143,7 @@ export default async function ListDetailPage({ params, searchParams }: Props) {
       {/* Items */}
       <div style={{ marginBottom: 16 }}>
         <div className="rg-mono" style={{ fontSize: 10, marginBottom: 14 }}>
-          ÍTEMS ({(items ?? []).length})
+          REGALOS ({(items ?? []).length})
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {(items ?? []).map((item: Item, index: number) => (

@@ -133,7 +133,7 @@ export default async function UserProfilePage({ params }: Props) {
           <div className="rg-display" style={{ fontSize: 24, marginBottom: 10 }}>
             ¿QUERÉS TU PROPIA LISTA?
           </div>
-          <Link href="/" className="rg-btn rg-btn-yellow" style={{ padding: '12px 22px', fontSize: 13 }}>
+          <Link href="/auth?mode=signup" className="rg-btn rg-btn-yellow" style={{ padding: '12px 22px', fontSize: 13 }}>
             CREAR LISTA →
           </Link>
         </div>

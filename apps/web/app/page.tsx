@@ -40,9 +40,9 @@ const USE_CASES = [
 const FAQS = [
   { q: '¿Tengo que pagar algo?', a: 'Hoy, no. La versión para coordinar tus listas es gratis.' },
   { q: '¿Mis amigos tienen que crear cuenta?', a: 'No. Abren el link, eligen un regalo, ponen su nombre, listo. Nada de instalar apps. Nada de signups.' },
-  { q: '¿Puedo poner cosas sin link de tienda?', a: 'Sí. Podés poner "una torta de chocolate", "una planta linda", "que vengan a tomar mate". El item no necesita URL ni foto ni precio.' },
-  { q: '¿Funciona en Argentina y otros países?', a: 'Sí. Empezamos en Argentina pero funciona en cualquier país de LATAM y España. Multi-moneda (ARS, BRL, MXN, CLP, COP, EUR, USD).' },
-  { q: '¿Puedo hacer una lista privada?', a: 'Sí. Tres niveles: pública (en tu perfil), solo con link (no aparece pero quien tenga el link la ve), o privada (solo vos).' },
+  { q: '¿Puedo poner cosas sin link de tienda?', a: 'Sí. Podés poner "una torta de chocolate", "una planta linda", "que vengan a tomar mate". El regalo no necesita URL ni foto ni precio.' },
+  { q: '¿Funciona en Argentina y otros países?', a: 'Sí. Empezamos en Argentina y funciona en toda LATAM. Monedas: ARS, BRL, MXN, CLP, COP, UYU, PEN y USD.' },
+  { q: '¿Puedo hacer una lista privada?', a: 'Sí. Cuatro niveles: pública, solo amigos, solo con link o privada.' },
   { q: '¿Y si no quiero saber qué me van a regalar?', a: 'Modo sorpresa total. La lista funciona normal para tus amigos, pero vos no ves nada hasta el evento.' },
 ]
 
@@ -246,20 +246,19 @@ export default async function HomePage({ searchParams }: HomeProps) {
         <h2 className="rg-display mb-7" style={{ fontSize: 'clamp(2.5rem, 5vw, 5rem)' }}>
           LAS DUDAS <span className="rg-em">DE SIEMPRE.</span>
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {FAQS.map((f, i) => (
-            <div key={i} className={`p-4 bg-paper border-2 border-ink shadow-hard-sm${i >= 3 ? ' hidden md:block' : ''}`}>
-              <div className="mb-1.5" style={{ fontFamily: 'var(--font-display)', fontSize: 13, letterSpacing: 0.3 }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-start">
+          {FAQS.map((f) => (
+            <details key={f.q} className="p-4 bg-paper border-2 border-ink shadow-hard-sm">
+              <summary
+                className="flex items-center justify-between gap-3 min-h-[44px] cursor-pointer list-none [&::-webkit-details-marker]:hidden"
+                style={{ fontFamily: 'var(--font-display)', fontSize: 13, letterSpacing: 0.3 }}
+              >
                 {f.q.toUpperCase()}
-              </div>
-              <div className="text-sm leading-relaxed" style={{ color: 'rgba(15,15,15,0.82)' }}>{f.a}</div>
-            </div>
+                <span aria-hidden="true" className="text-lg leading-none">+</span>
+              </summary>
+              <p className="mt-1.5 text-sm leading-relaxed" style={{ color: 'rgba(15,15,15,0.82)' }}>{f.a}</p>
+            </details>
           ))}
-        </div>
-        <div className="mt-4 md:hidden">
-          <a href="#" className="rg-btn rg-btn-ghost block text-center" style={{ padding: '12px 20px' }}>
-            VER TODAS LAS PREGUNTAS →
-          </a>
         </div>
       </section>
 
