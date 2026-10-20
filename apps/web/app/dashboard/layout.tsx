@@ -26,6 +26,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <Link href="/dashboard/new" className="rg-mono hidden sm:inline" style={{ fontSize: 10, color: 'rgba(15,15,15,0.55)', textDecoration: 'none' }}>
               + NUEVA
             </Link>
+            <Link href="/dashboard/amigos" className="rg-mono" style={{ fontSize: 10, color: 'rgba(15,15,15,0.55)', textDecoration: 'none' }}>
+              AMIGOS
+            </Link>
             <Link href="/dashboard/profile" className="rg-mono" style={{ fontSize: 10, color: 'rgba(15,15,15,0.55)', textDecoration: 'none' }}>
               MI PERFIL
             </Link>
