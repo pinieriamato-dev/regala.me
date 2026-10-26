@@ -35,8 +35,10 @@ const getListData = cache(async (username: string, slug: string) => {
   const itemList = items ?? []
   const itemIds = itemList.map((i: Item) => i.id)
 
+  // Through an RPC, not a direct select: anonymous viewers can't read claims rows under RLS,
+  // so the claimed state would never reach the page. The RPC returns no claimer names.
   const { data: claims } = itemIds.length
-    ? await supabase.from('claims').select('item_id, is_group_gift, contribution_amount').in('item_id', itemIds)
+    ? await supabase.rpc('gifter_claimed_items', { p_item_ids: itemIds })
     : { data: [] }
 
   // Shared-gift pledges are not a claim: only a whole-item claim marks the gift as taken.
