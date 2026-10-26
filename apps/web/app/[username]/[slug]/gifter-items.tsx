@@ -259,7 +259,7 @@ export default function GifterItems({ items, claimedIds, currency, ownerSurprise
                         ~{currency} {formatPrice(item.price, currency)}
                       </div>
                     ) : <div />}
-                    <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                    <div style={{ display: 'flex', flex: '1 1 100%', flexWrap: 'wrap', justifyContent: 'flex-end', gap: 8, alignItems: 'flex-start', minWidth: 0 }}>
                       {/^https?:\/\//i.test(item.url ?? '') && (
                         <a href={item.url!} target="_blank" rel="noopener noreferrer"
                           className="rg-btn rg-btn-ghost"
